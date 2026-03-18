@@ -25,7 +25,7 @@ function doPost(e) {
 
 function _route(body) {
   const action = body.action;
-  const PUBLIC = ['login'];
+  const PUBLIC = ['login', 'getSettings', 'verifyResetIdentity', 'resetPasswordById'];
     let user = null;
     if (!PUBLIC.includes(action)) {
       user = Auth.verify(body.token);
@@ -54,6 +54,7 @@ function _route(body) {
       'rejectChangeReq':       () => ChangeReq.reject(body, user),
       /* FEES */
       'getFees':               () => Fees.getAll(body, user),
+      'updateFee':             () => Fees.update(body, user),
       'getFeesByHouse':        () => Fees.getByHouse(body, user),
       'generateFees':          () => Fees.generate(body, user),
       'submitSlip':            () => Fees.submitSlip(body, user),

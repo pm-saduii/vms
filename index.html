@@ -1003,6 +1003,11 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <button class="btn btn-p btn-full" onclick="doLogin()" style="margin-top:4px">
         🔑 เข้าสู่ระบบ
       </button>
+      <div style="text-align:center;margin-top:12px">
+        <button onclick="openForgotModal()" style="background:none;border:none;color:var(--pr);font-size:13px;cursor:pointer;text-decoration:underline;font-family:var(--font)">
+          ลืมรหัสผ่าน?
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1477,10 +1482,9 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <div class="sl" style="margin-top:16px">📅 กำหนดการชำระ</div>
               <div class="fr2">
                 <div class="fg"><label class="fl">รูปแบบงวด</label>
-                  <select class="fs" id="cfg-inp-fee_period_label">
+                  <select class="fs" id="cfg-inp-fee_period_label" onchange="updatePeriodPreview()">
+                    <option value="Y">เต็มปี — 1 งวด/ปี (Y)</option>
                     <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
-                    <option value="Q">รายไตรมาส — 4 งวด/ปี (Q1-Q4)</option>
-                    <option value="M">รายเดือน — 12 งวด/ปี (M1-M12)</option>
                   </select>
                 </div>
                 <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
@@ -1887,13 +1891,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 ═══════════════════════════════════════════════ -->
 
 <!-- MODAL: แก้ไขบ้าน (resident) -->
-<div class="mo" id="m-edithouse" onclick="omOut(event,'m-edithouse')">
+<div class="mo" id="m-edithouse">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🏠</div>
     <div><div class="md-title">ขอแก้ไขข้อมูลบ้าน</div><div class="md-sub">บ้าน 10/1 · ส่งคำขอเพื่อรออนุมัติจากนิติ</div></div>
-    <button class="md-x" onclick="closeM('m-edithouse')">✕</button>
   </div>
   <div class="md-bd">
     <div class="al al-i">ℹ️ ข้อมูลที่ระบุเป็นสีเทาแก้ไขไม่ได้ ส่วนที่เปิดให้แก้ไขจะถูกส่งเป็นคำขอเพื่อรออนุมัติ</div>
@@ -1925,13 +1928,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: เพิ่มรถ -->
-<div class="mo" id="m-addcar" onclick="omOut(event,'m-addcar')">
+<div class="mo" id="m-addcar">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🚗</div>
     <div><div class="md-title">ขอเพิ่มรถใหม่</div><div class="md-sub">ส่งคำขอเพื่อรออนุมัติ</div></div>
-    <button class="md-x" onclick="closeM('m-addcar')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fr2">
@@ -1962,13 +1964,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แก้ไขรถ -->
-<div class="mo" id="m-editcar" onclick="omOut(event,'m-editcar')">
+<div class="mo" id="m-editcar">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🚗</div>
     <div><div class="md-title">ขอแก้ไขข้อมูลรถ</div><div class="md-sub">กข-1234 · Toyota Camry</div></div>
-    <button class="md-x" onclick="closeM('m-editcar')">✕</button>
   </div>
   <div class="md-bd">
     <div class="al al-i">ℹ️ การแก้ไขทะเบียนรถต้องรออนุมัติจากนิติ</div>
@@ -1992,13 +1993,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แจ้งชำระ -->
-<div class="mo" id="m-pay" onclick="omOut(event,'m-pay')">
+<div class="mo" id="m-pay">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">💳</div>
     <div><div class="md-title">แจ้งชำระค่าส่วนกลาง</div><div class="md-sub" id="pay-modal-sub">—</div></div>
-    <button class="md-x" onclick="closeM('m-pay')">✕</button>
   </div>
   <div class="md-bd">
     <!-- Bank info (dynamic from settings) -->
@@ -2032,13 +2032,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แจ้งปัญหาใหม่ -->
-<div class="mo" id="m-newissue" onclick="omOut(event,'m-newissue')">
+<div class="mo" id="m-newissue">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🔧</div>
     <div><div class="md-title">แจ้งปัญหาใหม่</div><div class="md-sub">บ้าน 10/1</div></div>
-    <button class="md-x" onclick="closeM('m-newissue')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">หัวข้อปัญหา</label><input class="fi" id="new-issue-title" placeholder="เช่น ไฟถนนดับ ท่อน้ำรั่ว..."></div>
@@ -2057,13 +2056,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แจ้งกระทำผิดใหม่ (Admin) -->
-<div class="mo" id="m-newvio" onclick="omOut(event,'m-newvio')">
+<div class="mo" id="m-newvio">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">⚠️</div>
     <div><div class="md-title">แจ้งกระทำผิดกฎหมู่บ้าน</div><div class="md-sub">ส่งการแจ้งเตือนไปยังลูกบ้าน</div></div>
-    <button class="md-x" onclick="closeM('m-newvio')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">บ้านที่กระทำผิด</label>
@@ -2087,7 +2085,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: Fee Detail -->
-<div class="mo" id="m-fee-detail" onclick="omOut(event,'m-fee-detail')">
+<div class="mo" id="m-fee-detail">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
@@ -2114,13 +2112,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แก้ไขบ้าน (Admin) -->
-<div class="mo" id="m-admin-edithouse" onclick="omOut(event,'m-admin-edithouse')">
+<div class="mo" id="m-admin-edithouse">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">✏️</div>
     <div><div class="md-title">แก้ไขข้อมูลบ้าน</div><div class="md-sub" id="edithouse-sub">Admin Mode</div></div>
-    <button class="md-x" onclick="closeM('m-admin-edithouse')">✕</button>
   </div>
   <input type="hidden" id="edithouse-id">
   <div class="md-bd">
@@ -2171,13 +2168,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: เพิ่มช่าง -->
-<div class="mo" id="m-newcon" onclick="omOut(event,'m-newcon')">
+<div class="mo" id="m-newcon">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🔨</div>
     <div><div class="md-title">เพิ่มข้อมูลช่าง</div><div class="md-sub">เพิ่มช่างเข้าทะเบียนโดยนิติ</div></div>
-    <button class="md-x" onclick="closeM('m-newcon')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fr2">
@@ -2212,13 +2208,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แนะนำช่าง (Resident) -->
-<div class="mo" id="m-suggestcon" onclick="omOut(event,'m-suggestcon')">
+<div class="mo" id="m-suggestcon">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🔨</div>
     <div><div class="md-title">แนะนำช่าง</div><div class="md-sub">ส่งข้อมูลเพื่อรออนุมัติจากนิติ</div></div>
-    <button class="md-x" onclick="closeM('m-suggestcon')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fr2">
@@ -2245,7 +2240,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: Contractor Detail -->
-<div class="mo" id="m-condetail" onclick="omOut(event,'m-condetail')">
+<div class="mo" id="m-condetail">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">🔧</div><div><div class="md-title" id="cd-name">รายละเอียดช่าง</div><div class="md-sub" id="cd-rating">—</div></div><button class="md-x" onclick="closeM('m-condetail')">✕</button></div>
@@ -2263,7 +2258,6 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   </div>
   <div class="md-ft"><button class="btn btn-g btn-sm" onclick="closeM('m-condetail')">ปิด</button><a id="cd-tel-link" href="#" class="btn btn-p btn-sm">📞 โทรหาช่าง</a></div>
 </div></div>
-    <button class="md-x" onclick="closeM('m-condetail')">✕</button>
   </div>
   <div class="md-bd">
     <div class="ig" style="margin-bottom:14px">
@@ -2287,13 +2281,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: ลงประกาศขาย -->
-<div class="mo" id="m-newmarket" onclick="omOut(event,'m-newmarket')">
+<div class="mo" id="m-newmarket">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🛒</div>
     <div><div class="md-title">ลงประกาศ</div><div class="md-sub">ขาย / ให้ฟรี / ให้เช่า · รออนุมัติจากนิติ</div></div>
-    <button class="md-x" onclick="closeM('m-newmarket')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">ประเภทประกาศ</label>
@@ -2317,13 +2310,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: ออกประกาศใหม่ (Admin) -->
-<div class="mo" id="m-newann" onclick="omOut(event,'m-newann')">
+<div class="mo" id="m-newann">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">📢</div>
     <div><div class="md-title">ออกประกาศใหม่</div><div class="md-sub">เผยแพร่ถึงลูกบ้านทุกคน</div></div>
-    <button class="md-x" onclick="closeM('m-newann')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">หมวดหมู่</label>
@@ -2340,11 +2332,11 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 
 <!-- MODAL: Update Issue Status (Admin) -->
-<div class="mo" id="m-update-issue" onclick="omOut(event,'m-update-issue')">
+<div class="mo" id="m-update-issue">
 <div class="md"><div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">🔧</div>
     <div><div class="md-title">อัปเดตสถานะปัญหา</div></div>
-    <button class="md-x" onclick="closeM('m-update-issue')">✕</button></div>
+</div>
   <div class="md-bd">
     <div class="fg"><label class="fl">สถานะใหม่</label>
       <select class="fs" id="iss-status">
@@ -2363,11 +2355,11 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: Rate Issue (Resident) -->
-<div class="mo" id="m-rate-issue" onclick="omOut(event,'m-rate-issue')">
+<div class="mo" id="m-rate-issue">
 <div class="md"><div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">⭐</div>
     <div><div class="md-title">ให้คะแนนการแก้ไข</div></div>
-    <button class="md-x" onclick="closeM('m-rate-issue')">✕</button></div>
+</div>
   <div class="md-bd">
     <div style="text-align:center;margin-bottom:16px">
       <div class="sr" id="rate-stars" style="justify-content:center">
@@ -3878,6 +3870,20 @@ function sw(t) {
 // STARTUP
 // ============================================================
 (function() {
+  // Load settings before login so login screen shows correct branding
+  (async function() {
+    try {
+      // Public call — no token needed (we make getSettings public in Code.gs)
+      var params = new URLSearchParams({ payload: JSON.stringify({ action: 'getSettings' }) });
+      var res = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
+      var json = await res.json();
+      if (json.code === 200) {
+        APP.settings = json.data || {};
+        applySettings();
+      }
+    } catch(e) { /* silently fail — use defaults */ }
+  })();
+
   // Check for saved session
   var savedToken = sessionStorage.getItem('vms_token');
   var savedUser  = sessionStorage.getItem('vms_user');
@@ -4462,12 +4468,183 @@ document.addEventListener('input', function(e) {
     updatePeriodPreview();
   }
 });
+
+// ============================================================
+// FORGOT PASSWORD
+// ============================================================
+var _forgotUserId = null;
+
+function openForgotModal() {
+  _forgotUserId = null;
+  ['forgot-house-no','forgot-phone','forgot-email','forgot-newpw','forgot-confirmpw'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  var s1=document.getElementById('forgot-step1'), s2=document.getElementById('forgot-step2');
+  var bv=document.getElementById('forgot-btn-verify'), bs=document.getElementById('forgot-btn-save');
+  if(s1) s1.style.display='block'; if(s2) s2.style.display='none';
+  if(bv){ bv.style.display='inline-flex'; bv.disabled=false; bv.textContent='\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e15\u0e31\u0e27\u0e15\u0e19'; }
+  if(bs) bs.style.display='none';
+  var e1=document.getElementById('forgot-err'); if(e1) e1.style.display='none';
+  var e2=document.getElementById('forgot-pw-err'); if(e2) e2.style.display='none';
+  openM('m-forgot');
+}
+
+function closeForgotModal() { closeM('m-forgot'); }
+
+async function doForgotVerify() {
+  var houseNo=(document.getElementById('forgot-house-no')||{}).value||'';
+  var phone=(document.getElementById('forgot-phone')||{}).value||'';
+  var email=(document.getElementById('forgot-email')||{}).value||'';
+  var errEl=document.getElementById('forgot-err');
+  houseNo=houseNo.trim(); phone=phone.trim(); email=email.trim();
+  if(!houseNo||!phone||!email){
+    if(errEl){errEl.textContent='\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e43\u0e2b\u0e49\u0e04\u0e23\u0e1a';errEl.style.display='block';}
+    return;
+  }
+  var btn=document.getElementById('forgot-btn-verify');
+  if(btn){btn.textContent='\u0e01\u0e33\u0e25\u0e31\u0e07\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a...';btn.disabled=true;}
+  try {
+    var result=await api('verifyResetIdentity',{house_no:houseNo,phone:phone,email:email});
+    _forgotUserId=result.user_id;
+    document.getElementById('forgot-step1').style.display='none';
+    document.getElementById('forgot-step2').style.display='block';
+    if(btn) btn.style.display='none';
+    document.getElementById('forgot-btn-save').style.display='inline-flex';
+    if(errEl) errEl.style.display='none';
+  } catch(err) {
+    if(errEl){errEl.textContent=err.message||'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25 \u0e01\u0e23\u0e38\u0e13\u0e32\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e2d\u0e35\u0e01\u0e04\u0e23\u0e31\u0e49\u0e07';errEl.style.display='block';}
+    if(btn){btn.textContent='\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e15\u0e31\u0e27\u0e15\u0e19';btn.disabled=false;}
+  }
+}
+
+async function doForgotSave() {
+  var newpw=(document.getElementById('forgot-newpw')||{}).value||'';
+  var confpw=(document.getElementById('forgot-confirmpw')||{}).value||'';
+  var errEl=document.getElementById('forgot-pw-err');
+  if(newpw.length<5){
+    if(errEl){errEl.textContent='\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e19\u0e49\u0e2d\u0e22 5 \u0e15\u0e31\u0e27';errEl.style.display='block';}
+    return;
+  }
+  if(newpw!==confpw){
+    if(errEl){errEl.textContent='\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07\u0e01\u0e31\u0e19';errEl.style.display='block';}
+    return;
+  }
+  if(!_forgotUserId){closeForgotModal();return;}
+  var btn=document.getElementById('forgot-btn-save');
+  if(btn){btn.textContent='\u0e01\u0e33\u0e25\u0e31\u0e07\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...';btn.disabled=true;}
+  try {
+    await api('resetPasswordById',{user_id:_forgotUserId,new_password:newpw});
+    closeForgotModal();
+    Swal.fire({icon:'success',title:'\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',
+      text:'\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e40\u0e02\u0e49\u0e32\u0e2a\u0e39\u0e48\u0e23\u0e30\u0e1a\u0e1a\u0e14\u0e49\u0e27\u0e22\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48\u0e44\u0e14\u0e49\u0e40\u0e25\u0e22',timer:2500,showConfirmButton:false});
+  } catch(err) {
+    if(errEl){errEl.textContent=err.message||'Error';errEl.style.display='block';}
+    if(btn){btn.textContent='\u{1F4BE} \u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48';btn.disabled=false;}
+  }
+}
+
+
+// ============================================================
+// EDIT FEE
+// ============================================================
+function _calcFeeTotal(feeAmt, parking, trash, other, penalty, discount) {
+  return Math.max(0, Number(feeAmt||0) + Number(parking||0) + Number(trash||0) +
+    Number(other||0) + Number(penalty||0) - Number(discount||0));
+}
+
+function _updateFeePreview() {
+  var t = _calcFeeTotal(
+    (document.getElementById('ef-fee-amount')||{}).value,
+    (document.getElementById('ef-parking-fee')||{}).value,
+    (document.getElementById('ef-trash-fee')||{}).value,
+    (document.getElementById('ef-other-fee')||{}).value,
+    (document.getElementById('ef-penalty-fee')||{}).value,
+    (document.getElementById('ef-discount')||{}).value
+  );
+  var el = document.getElementById('ef-total-preview');
+  if (el) el.textContent = '\u0e3f' + t.toLocaleString();
+}
+
+// Wire live preview
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id && e.target.id.startsWith('ef-') && e.target.id !== 'ef-sub') {
+    _updateFeePreview();
+  }
+});
+
+async function openEditFeeModal(feeId) {
+  var f = (window._feesAll||[]).find(function(x){ return x.fee_id === feeId; });
+  if (!f) {
+    showLoader('\u0e42\u0e2b\u0e25\u0e14...');
+    try { var fees = await api('getFees'); window._feesAll = fees; f = fees.find(function(x){ return x.fee_id === feeId; }); }
+    catch(e) {}
+    finally { hideLoader(); }
+  }
+  if (!f) { Swal.fire({ icon:'error', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25' }); return; }
+
+  document.getElementById('ef-fee-id').value     = f.fee_id;
+  _setEl('ef-sub', '\u0e1a\u0e49\u0e32\u0e19 ' + (f.house_id||'') + ' \u00b7 \u0e07\u0e27\u0e14 ' + f.period + '/' + f.year);
+  document.getElementById('ef-fee-amount').value  = f.fee_amount   || 0;
+  document.getElementById('ef-parking-fee').value = f.parking_fee  || 0;
+  document.getElementById('ef-trash-fee').value   = f.trash_fee    || 0;
+  document.getElementById('ef-other-fee').value   = f.other_fee    || 0;
+  document.getElementById('ef-other-fee-note').value = f.other_fee_note || '';
+  document.getElementById('ef-penalty-fee').value = f.penalty_fee  || 0;
+  document.getElementById('ef-penalty-note').value = f.penalty_fee_note || '';
+  document.getElementById('ef-discount').value    = f.discount     || 0;
+  var st = document.getElementById('ef-status');
+  if (st) st.value = f.status || 'pending';
+  _updateFeePreview();
+  openM('m-edit-fee');
+}
+
+async function doSaveFee() {
+  var feeId = (document.getElementById('ef-fee-id')||{}).value;
+  if (!feeId) return;
+  var feeAmt   = Number((document.getElementById('ef-fee-amount')||{}).value)  || 0;
+  var parking  = Number((document.getElementById('ef-parking-fee')||{}).value) || 0;
+  var trash    = Number((document.getElementById('ef-trash-fee')||{}).value)   || 0;
+  var other    = Number((document.getElementById('ef-other-fee')||{}).value)   || 0;
+  var otherNote = (document.getElementById('ef-other-fee-note')||{}).value || '';
+  var penalty  = Number((document.getElementById('ef-penalty-fee')||{}).value) || 0;
+  var penNote  = (document.getElementById('ef-penalty-note')||{}).value || '';
+  var discount = Number((document.getElementById('ef-discount')||{}).value)    || 0;
+  var status   = (document.getElementById('ef-status')||{}).value || 'pending';
+  var total    = _calcFeeTotal(feeAmt, parking, trash, other, penalty, discount);
+
+  showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
+  try {
+    await api('updateFee', {
+      fee_id:          feeId,
+      fee_amount:      feeAmt,
+      parking_fee:     parking,
+      trash_fee:       trash,
+      other_fee:       other,
+      other_fee_note:  otherNote,
+      penalty_fee:     penalty,
+      penalty_fee_note: penNote,
+      discount:        discount,
+      total:           total,
+      status:          status,
+    });
+    closeM('m-edit-fee');
+    // Invalidate cache and reload
+    invalidatePageCache('admin-fees');
+    window._feesAll = null;
+    await loadFeesPage();
+    Swal.fire({ icon:'success', title:'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
+  } catch(err) {
+    Swal.fire({ icon:'error', title:'\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14', text: err.message });
+  } finally { hideLoader(); }
+}
+
 </script>
 
 <!-- MODAL: เพิ่มสมาชิก -->
-<div class="mo" id="m-adduser" onclick="omOut(event,'m-adduser')">
+<div class="mo" id="m-adduser">
 <div class="md"><div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">👤</div><div><div class="md-title">เพิ่มสมาชิกใหม่</div><div class="md-sub">สร้างบัญชีผู้ใช้งาน</div></div><button class="md-x" onclick="closeM('m-adduser')">✕</button></div>
+  <div class="md-hd"><div class="md-hd-ico">👤</div><div><div class="md-title">เพิ่มสมาชิกใหม่</div><div class="md-sub">สร้างบัญชีผู้ใช้งาน</div></div>
+</div>
   <div class="md-bd">
     <div class="fr2"><div class="fg"><label class="fl">Username</label><input class="fi" id="adduser-username" placeholder="ชื่อผู้ใช้"></div><div class="fg"><label class="fl">รหัสผ่าน</label><input class="fi" id="adduser-password" type="password" placeholder="อย่างน้อย 6 ตัว"></div></div>
     <div class="fr2"><div class="fg"><label class="fl">ชื่อที่แสดง</label><input class="fi" id="adduser-display" placeholder="ชื่อ-นามสกุล"></div><div class="fg"><label class="fl">house_id</label><input class="fi" id="adduser-houseid" placeholder="HSE-xxxxx"></div></div>
@@ -4482,7 +4659,7 @@ var _housesCache=[];
 async function loadHousesPage(){showLoader('\u0e42\u0e2b\u0e25\u0e14...');try{const h=await api('getHouses');_housesCache=h;const tb=document.getElementById('tbl-houses');if(!tb)return;tb.innerHTML=h.map(function(x){var b={normal:'<span class="bd b-ok">\u25cf \u0e1b\u0e01\u0e15\u0e34</span>',overdue:'<span class="bd b-wn">\u25cf \u0e04\u0e49\u0e32\u0e07</span>',suspended:'<span class="bd b-dg">\u25cf \u0e23\u0e30\u0e07\u0e31\u0e1a</span>',legal:'<span class="bd b-pur">\u2696 \u0e1f\u0e49\u0e2d\u0e07</span>'}[x.status]||'<span class="bd b-mu">'+x.status+'</span>';var dn=_safeHouseNo(x.house_no);return'<tr><td><strong>'+dn+'</strong> <span class="tag">'+(x.soi||'')+'</span></td><td>'+(x.owner_name||'')+'</td><td>'+(x.phone||'')+'</td><td class="text-pr fw-7">\u0e3f'+Number(x.fee_per_year||0).toLocaleString()+'</td><td>'+b+'</td><td><button class="btn btn-xs btn-o" onclick="openEditHouseModal(\''+x.house_id+'\')">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button></td></tr>';}).join('');}finally{hideLoader();}}
 async function openEditHouseModal(id){var h=_housesCache.find(function(x){return x.house_id===id;});if(!h){try{h=await api('getHouseById',{house_id:id});}catch(e){}}if(!h){Swal.fire({icon:'error',title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a'});return;}document.getElementById('edithouse-id').value=h.house_id;document.getElementById('edithouse-no').value=_safeHouseNo(h.house_no);document.getElementById('edithouse-soi').value=h.soi||'';document.getElementById('edithouse-area').value=h.area_sqm||'';document.getElementById('edithouse-owner').value=h.owner_name||'';document.getElementById('edithouse-renter').value=h.renter_name||'';document.getElementById('edithouse-phone').value=h.phone||'';document.getElementById('edithouse-email').value=h.email||'';document.getElementById('edithouse-fee').value=h.fee_per_year||'';document.getElementById('edithouse-parking').value=h.parking_fee_year||'';document.getElementById('edithouse-trash').value=h.trash_fee_period||'';document.getElementById('edithouse-statusnote').value=h.status_note||'';var u=document.getElementById('edithouse-usage');if(u)u.value=h.usage_type||'owner';var s=document.getElementById('edithouse-status');if(s)s.value=h.status||'normal';_setEl('edithouse-sub','\u0e1a\u0e49\u0e32\u0e19 '+_safeHouseNo(h.house_no)+' \u00b7 Admin Mode');openM('m-admin-edithouse');}
 async function doSaveEditHouse(){var id=document.getElementById('edithouse-id').value;if(!id)return;var hn=document.getElementById('edithouse-no').value.trim(),own=document.getElementById('edithouse-owner').value.trim();if(!hn||!own){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25'});return;}showLoader('...');try{await api('updateHouse',{house_id:id,house_no:hn,soi:document.getElementById('edithouse-soi').value.trim(),area_sqm:Number(document.getElementById('edithouse-area').value)||0,owner_name:own,renter_name:document.getElementById('edithouse-renter').value.trim(),phone:document.getElementById('edithouse-phone').value.trim(),email:document.getElementById('edithouse-email').value.trim(),fee_per_year:Number(document.getElementById('edithouse-fee').value)||0,parking_fee_year:Number(document.getElementById('edithouse-parking').value)||0,trash_fee_period:Number(document.getElementById('edithouse-trash').value)||0,usage_type:document.getElementById('edithouse-usage').value,status:document.getElementById('edithouse-status').value,status_note:(document.getElementById('edithouse-statusnote')||{}).value||''});closeM('m-admin-edithouse');await loadHousesPage();Swal.fire({icon:'success',title:'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-function filterFeesTable(){var v=(document.getElementById('fee-filter-status')||{}).value||'';var fees=(window._feesAll||[]).filter(function(f){return!v||f.status===v;});var tb=document.getElementById('tbl-fees');if(!tb)return;if(!fees.length){tb.innerHTML='<tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</td></tr>';return;}tb.innerHTML=fees.map(function(f){var b={pending:'<span class="bd b-wn">\u0e23\u0e2d</span>',slip_submitted:'<span class="bd b-pr">\u0e2a\u0e25\u0e34\u0e1b</span>',paid:'<span class="bd b-ok">\u0e0a\u0e33\u0e23\u0e30</span>',overdue:'<span class="bd b-dg">\u0e04\u0e49\u0e32\u0e07</span>'}[f.status]||'<span class="bd b-mu">'+f.status+'</span>';var ab=f.status==='slip_submitted'?'<button class="btn btn-xs btn-a" onclick="doApproveSlip(\''+f.fee_id+'\')">\u2713 Approve</button>':'';return'<tr><td><strong>'+(f.house_id||'')+'</strong></td><td>'+f.period+'/'+f.year+'</td><td>\u0e3f'+Number(f.fee_amount||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.parking_fee||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.trash_fee||0).toLocaleString()+'</td><td class="text-dg">'+(Number(f.penalty_fee||0)>0?'\u0e3f'+Number(f.penalty_fee).toLocaleString():'\u2014')+'</td><td class="fw-7">\u0e3f'+Number(f.total||0).toLocaleString()+'</td><td>'+b+'</td><td style="display:flex;gap:5px">'+ab+'<button class="btn btn-xs btn-o" onclick="openFeeDetail(\''+f.fee_id+'\')">\u0e23\u0e32\u0e22\u0e25\u0e30\u0e40\u0e2d\u0e35\u0e22\u0e14</button></td></tr>';}).join('');}
+function filterFeesTable(){var v=(document.getElementById('fee-filter-status')||{}).value||'';var fees=(window._feesAll||[]).filter(function(f){return!v||f.status===v;});var tb=document.getElementById('tbl-fees');if(!tb)return;if(!fees.length){tb.innerHTML='<tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</td></tr>';return;}tb.innerHTML=fees.map(function(f){var b={pending:'<span class="bd b-wn">\u0e23\u0e2d</span>',slip_submitted:'<span class="bd b-pr">\u0e2a\u0e25\u0e34\u0e1b</span>',paid:'<span class="bd b-ok">\u0e0a\u0e33\u0e23\u0e30</span>',overdue:'<span class="bd b-dg">\u0e04\u0e49\u0e32\u0e07</span>'}[f.status]||'<span class="bd b-mu">'+f.status+'</span>';var ab=f.status==='slip_submitted'?'<button class="btn btn-xs btn-a" data-fid="'+f.fee_id+'" onclick="doApproveSlip(this.dataset.fid)">\u2713 Approve</button>':'';return'<tr><td><strong>'+(f.house_id||'')+'</strong></td><td>'+f.period+'/'+f.year+'</td><td>\u0e3f'+Number(f.fee_amount||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.parking_fee||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.trash_fee||0).toLocaleString()+'</td><td class="text-dg">'+(Number(f.penalty_fee||0)>0?'\u0e3f'+Number(f.penalty_fee).toLocaleString():'\u2014')+'</td><td class="fw-7">\u0e3f'+Number(f.total||0).toLocaleString()+'</td><td>'+b+'</td><td style="display:flex;gap:5px">'+ab+'<button class="btn btn-xs btn-o" data-fid="'+f.fee_id+'" onclick="openEditFeeModal(this.dataset.fid)">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button>'+'<button class="btn btn-xs btn-g" data-fid="'+f.fee_id+'" onclick="openFeeDetail(this.dataset.fid)">\u0e14\u0e39</button></td></tr>';}).join('');}
 var _curFee=null;
 async function openFeeDetail(id){_curFee=id;var f=(window._feesAll||[]).find(function(x){return x.fee_id===id;});if(!f){try{var fs=await api('getFees');window._feesAll=fs;f=fs.find(function(x){return x.fee_id===id;});}catch(e){}}if(!f){Swal.fire({icon:'error',title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a'});return;}_setEl('fd-sub','\u0e1a\u0e49\u0e32\u0e19 '+(f.house_id||'')+' \u00b7 '+(f.period||'')+'/'+(f.year||''));_setEl('fd-fee-amount','\u0e3f'+Number(f.fee_amount||0).toLocaleString());_setEl('fd-parking','\u0e3f'+Number(f.parking_fee||0).toLocaleString());_setEl('fd-trash','\u0e3f'+Number(f.trash_fee||0).toLocaleString());_setEl('fd-carry','\u0e3f'+Number(f.overdue_carry||0).toLocaleString());_setEl('fd-penalty10','\u0e3f'+Number(f.penalty_10pct||0).toLocaleString());_setEl('fd-collection','\u0e3f'+Number(f.collection_fee||0).toLocaleString());_setEl('fd-penalty','\u0e3f'+Number(f.penalty_fee||0).toLocaleString());_setEl('fd-discount','-\u0e3f'+Number(f.discount||0).toLocaleString());_setEl('fd-total','\u0e3f'+Number(f.total||0).toLocaleString());var ss=document.getElementById('fd-slip-section');if(ss)ss.style.display=f.slip_url?'block':'none';var sl=document.getElementById('fd-slip-link');if(sl&&f.slip_url)sl.href=f.slip_url;var ab=document.getElementById('btn-fee-approve');if(ab)ab.style.display=f.status==='slip_submitted'?'inline-flex':'none';openM('m-fee-detail');}
 async function doApproveSlipFromModal(){if(!_curFee)return;showLoader('...');try{await api('approveSlip',{fee_id:_curFee});closeM('m-fee-detail');await loadFeesPage();loadAdminDashboard();Swal.fire({icon:'success',title:'Approve \u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1200,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
@@ -4578,5 +4755,112 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
 </div>
 <!-- Notif backdrop -->
 <div id="notif-backdrop" onclick="toggleNotifPanel()" style="position:fixed;inset:0;z-index:998;display:none;background:transparent"></div>
+
+<!-- MODAL: ลืมรหัสผ่าน / Reset Password -->
+<div class="mo" id="m-forgot">
+<div class="md">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">🔐</div>
+    <div>
+      <div class="md-title">ตั้งรหัสผ่านใหม่</div>
+      <div class="md-sub">ยืนยันตัวตนด้วยข้อมูลบ้าน</div>
+    </div>
+  </div>
+  <div class="md-bd" id="forgot-step1">
+    <div style="font-size:13px;color:var(--mu);margin-bottom:14px;line-height:1.6">
+      กรุณากรอกข้อมูลที่ลงทะเบียนไว้ในระบบ เพื่อยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน
+    </div>
+    <div class="fg">
+      <label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-house-no" placeholder="เช่น 10/1">
+    </div>
+    <div class="fg">
+      <label class="fl">เบอร์โทรติดต่อ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-phone" placeholder="0xx-xxx-xxxx" type="tel">
+    </div>
+    <div class="fg">
+      <label class="fl">อีเมล <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-email" placeholder="email@example.com" type="email">
+    </div>
+    <div id="forgot-err" style="display:none;background:var(--dgl);color:var(--dg);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px"></div>
+  </div>
+  <div class="md-bd" id="forgot-step2" style="display:none">
+    <div style="font-size:13px;color:var(--ac);margin-bottom:14px;background:var(--acl);padding:10px 14px;border-radius:8px">
+      ✅ ยืนยันตัวตนสำเร็จ — กรุณาตั้งรหัสผ่านใหม่
+    </div>
+    <div class="fg">
+      <label class="fl">รหัสผ่านใหม่ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-newpw" type="password" placeholder="อย่างน้อย 5 ตัวอักษร">
+    </div>
+    <div class="fg">
+      <label class="fl">ยืนยันรหัสผ่านใหม่ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-confirmpw" type="password" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
+    </div>
+    <div id="forgot-pw-err" style="display:none;background:var(--dgl);color:var(--dg);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px"></div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeForgotModal()">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" id="forgot-btn-verify" onclick="doForgotVerify()">ยืนยันตัวตน</button>
+    <button class="btn btn-p btn-sm" id="forgot-btn-save" style="display:none" onclick="doForgotSave()">💾 บันทึกรหัสผ่านใหม่</button>
+  </div>
+</div></div>
+
+<!-- MODAL: แก้ไขค่าส่วนกลาง -->
+<div class="mo" id="m-edit-fee">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">💰</div>
+    <div><div class="md-title">แก้ไขค่าส่วนกลาง</div><div class="md-sub" id="ef-sub">—</div></div>
+  </div>
+  <input type="hidden" id="ef-fee-id">
+  <div class="md-bd">
+    <div class="sl">💰 ค่าธรรมเนียมหลัก</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ค่าส่วนกลาง (฿)</label>
+        <input class="fi" id="ef-fee-amount" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ (฿)</label>
+        <input class="fi" id="ef-parking-fee" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">ค่าขยะ (฿)</label>
+        <input class="fi" id="ef-trash-fee" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="sl">📎 ค่าอื่นๆ</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">ค่าอื่นๆ (฿)</label>
+        <input class="fi" id="ef-other-fee" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">รายละเอียดค่าอื่นๆ</label>
+        <input class="fi" id="ef-other-fee-note" placeholder="เช่น ค่าดูแลสระว่ายน้ำ"></div>
+    </div>
+    <div class="sl">⚠️ ค่าปรับ / ส่วนลด</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ค่าปรับ (฿)</label>
+        <input class="fi" id="ef-penalty-fee" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">หมายเหตุค่าปรับ</label>
+        <input class="fi" id="ef-penalty-note" placeholder="เหตุผลค่าปรับ"></div>
+      <div class="fg"><label class="fl">ส่วนลด (฿)</label>
+        <input class="fi" id="ef-discount" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="sl">📋 สถานะ</div>
+    <div class="fg">
+      <label class="fl">สถานะการชำระ</label>
+      <select class="fs" id="ef-status">
+        <option value="pending">รอชำระ</option>
+        <option value="overdue">ค้างชำระ</option>
+        <option value="paid">ชำระแล้ว</option>
+        <option value="slip_submitted">ส่งสลิปแล้ว</option>
+      </select>
+    </div>
+    <!-- Live total preview -->
+    <div style="margin-top:14px;padding:12px 16px;background:var(--prl);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--tx2);font-weight:600">ยอดรวมโดยประมาณ</span>
+      <span style="font-size:18px;font-weight:800;color:var(--pr)" id="ef-total-preview">฿0</span>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-edit-fee')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doSaveFee()">💾 บันทึก</button>
+  </div>
+</div></div>
 </body>
 </html>
