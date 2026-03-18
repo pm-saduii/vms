@@ -986,8 +986,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 <!-- Login Screen -->
 <div id="login-screen">
-  <div id="login-loading" style="color:var(--mu);font-size:13px;margin-bottom:16px;text-align:center;transition:opacity .3s">กำลังโหลด...</div>
-  <div class="login-box" id="login-box" style="opacity:0">
+  <div class="login-box" id="login-box">
     <div class="login-header">
       <div class="login-logo" id="login-logo">🏘️</div>
       <div class="login-title" id="login-title">The Greenfield</div>
@@ -3748,7 +3747,31 @@ function sw(t) {
 // STARTUP
 // ============================================================
 (function() {
-  // Check for saved session
+
+  // Step 1: Apply cached settings immediately (instant branding)
+  try {
+    var cached = localStorage.getItem('vms5-settings');
+    if (cached) {
+      APP.settings = JSON.parse(cached);
+      applySettings();
+    }
+  } catch(e) {}
+
+  // Step 2: Fetch fresh settings from GAS (public, no token needed)
+  (async function() {
+    try {
+      var params = new URLSearchParams({ payload: JSON.stringify({ action: 'getSettings' }) });
+      var res  = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
+      var json = await res.json();
+      if (json.code === 200 && json.data && Object.keys(json.data).length > 0) {
+        APP.settings = json.data;
+        localStorage.setItem('vms5-settings', JSON.stringify(json.data));
+        applySettings();
+      }
+    } catch(e) { /* network error — use cache or defaults */ }
+  })();
+
+  // Step 3: Check for saved session
   var savedToken = sessionStorage.getItem('vms_token');
   var savedUser  = sessionStorage.getItem('vms_user');
   if (savedToken && savedUser) {
@@ -3756,7 +3779,8 @@ function sw(t) {
     APP.user  = JSON.parse(savedUser);
     initApp();
   }
-  // Enter on login
+
+  // Step 4: Enter key on login
   document.getElementById('inp-password') &&
     document.getElementById('inp-password').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') doLogin();
