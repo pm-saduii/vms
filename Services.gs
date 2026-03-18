@@ -418,9 +418,8 @@ var Dashboard = (function() {
 var Settings = (function() {
 
   function getAll(body, user) {
-    requireAdmin(user);
+    // No requireAdmin — settings are readable by all (including public pre-login)
     const rows = sheetToObjects('SETTINGS');
-    // Return as object keyed by 'key' for easy frontend use
     const obj = {};
     rows.forEach(r => { obj[r.key] = r; });
     return obj;

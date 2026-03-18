@@ -585,7 +585,7 @@ a{color:var(--pr);text-decoration:none}
 .mo{
   position:fixed;inset:0;
   background:rgba(10,20,30,.4);
-  z-index:600;
+  z-index:9000;
   display:flex;align-items:flex-end;justify-content:center;
   opacity:0;pointer-events:none;
   transition:opacity .22s;
@@ -2533,6 +2533,12 @@ function doLogout() {
 async function initApp() {
   showLoader('\u0e40\u0e23\u0e35\u0e22\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25...');
   try {
+    // Guard: APP.user must exist
+    if (!APP.user) {
+      hideLoader();
+      document.getElementById('login-screen').style.display = 'flex';
+      return;
+    }
     document.getElementById('login-screen').style.display = 'none';
     const user = APP.user;
     document.querySelectorAll('.sb-uname').forEach(function(el){ el.textContent = user.display_name || user.username; });
@@ -4235,15 +4241,22 @@ function updateBellBadge() {
 
 // Helper: get a setting value with fallback
 function _cfg(key, fallback) {
+  if (!APP.settings) return fallback || '';
   var s = APP.settings[key];
-  return (s && s.value !== undefined && s.value !== '') ? s.value : (fallback || '');
+  if (!s) return fallback || '';
+  // Handle both {value: 'x'} format and plain string format
+  var v = (typeof s === 'object' && s !== null) ? s.value : s;
+  return (v !== undefined && v !== null && String(v) !== '') ? String(v) : (fallback || '');
 }
 
 // Apply all settings to the DOM after load
 function applySettings() {
-  var vName    = _cfg('village_name',     'The Greenfield');
-  var vSub     = _cfg('village_subtitle', 'Village Management System');
-  var vLogo    = _cfg('village_logo',     '🏘️');
+  var vName = _cfg('village_name',     'The Greenfield');
+  var vSub  = _cfg('village_subtitle', 'Village Management System v5.0');
+  var vLogo = _cfg('village_logo',     '🏘️');
+  if (!vName) vName = 'The Greenfield';
+  if (!vSub)  vSub  = 'Village Management System v5.0';
+  if (!vLogo) vLogo = '🏘️';
 
   // Page title
   document.title = vName + ' — Village Management';
@@ -4256,8 +4269,11 @@ function applySettings() {
       el.innerHTML = '<img src="' + vLogo + '" style="width:56px;height:56px;object-fit:contain;border-radius:12px">';
     } else { el.textContent = vLogo; }
   }
-  _setEl('login-title', vName);
-  _setEl('login-sub',   vSub + ' v5.0');
+  // Use textContent for login elements (avoid XSS + no '—' fallback)
+  var ltEl = document.getElementById('login-title');
+  if (ltEl) ltEl.textContent = vName;
+  var lsEl = document.getElementById('login-sub');
+  if (lsEl) lsEl.textContent = vSub;
 
   // Sidebar
   var logoIco = document.getElementById('sb-logo-ico');
@@ -4266,8 +4282,10 @@ function applySettings() {
       logoIco.innerHTML = '<img src="' + vLogo + '" style="width:32px;height:32px;object-fit:contain;border-radius:8px">';
     } else { logoIco.textContent = vLogo; }
   }
-  _setEl('sb-logo-name', vName);
-  _setEl('sb-logo-ver',  vSub);
+  var snEl = document.getElementById('sb-logo-name');
+  if (snEl) snEl.textContent = vName;
+  var svEl = document.getElementById('sb-logo-ver');
+  if (svEl) svEl.textContent = vSub;
 
   // Dashboard sub
   document.querySelectorAll('[id^="cfg-village-name"]').forEach(function(el) {
@@ -4305,8 +4323,11 @@ function _setElIfExists(id, val) {
 
 // Load settings from API
 async function loadSettingsPage() {
+  showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e01\u0e32\u0e23\u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32...');
   try {
+    // Always fetch fresh from sheet to get latest values
     var data = await api('getSettings');
+    if (!data || typeof data !== 'object') throw new Error('\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e44\u0e14\u0e49');
     APP.settings = data;
     // Populate form fields
     Object.keys(data).forEach(function(key) {
@@ -4329,8 +4350,10 @@ async function loadSettingsPage() {
     updatePeriodPreview();
     // Apply to UI
     applySettings();
+    hideLoader();
   } catch(err) {
-    Swal.fire({ icon:'error', title:'โหลด Settings ไม่สำเร็จ', text: err.message });
+    hideLoader();
+    Swal.fire({ icon:'error', title:'\u0e42\u0e2b\u0e25\u0e14 Settings \u0e44\u0e21\u0e48\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', text: err.message });
   }
 }
 
