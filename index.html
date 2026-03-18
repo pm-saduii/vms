@@ -1047,9 +1047,9 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="sb-item" onclick="go('admin','contractor',this)"><span class="sb-ico">🔨</span>ทะเบียนช่าง</div>
       <div class="sb-item" onclick="go('admin','market',this)"><span class="sb-ico">🛒</span>ประกาศขาย<span class="sb-badge">3</span></div>
       <div class="sb-sec">ระบบ</div>
+      <div class="sb-item" onclick="go('admin','settings',this)"><span class="sb-ico">⚙️</span>ตั้งค่าระบบ</div>
       <div class="sb-item" onclick="go('admin','usr',this)"><span class="sb-ico">👥</span>สมาชิก</div>
       <div class="sb-item" onclick="go('admin','log',this)"><span class="sb-ico">📋</span>Login Logs</div>
-      <div class="sb-item" onclick="go('admin','settings',this)"><span class="sb-ico">⚙️</span>ตั้งค่าระบบ</div>
     </nav>
     <div class="sb-themes" style="display:none">
       <div class="sb-themes-lbl" style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--sbm);text-transform:uppercase;padding:0 0 6px">ธีมสี</div>
@@ -1474,16 +1474,42 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <div id="cfg-qr-preview-wrap" style="display:none;margin-top:8px">
                 <img id="cfg-qr-preview" src="" style="width:120px;height:120px;object-fit:contain;border:1px solid var(--bo);border-radius:8px">
               </div>
+              <div class="sl" style="margin-top:16px">📅 กำหนดการชำระ</div>
               <div class="fr2">
-                <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่ 1-31)</label>
-                  <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="15"></div>
-                <div class="fg"><label class="fl">ตัวย่องวด</label>
+                <div class="fg"><label class="fl">รูปแบบงวด</label>
                   <select class="fs" id="cfg-inp-fee_period_label">
-                    <option value="H">H — ครึ่งปี (2 งวด/ปี)</option>
-                    <option value="Q">Q — รายไตรมาส (4 งวด/ปี)</option>
-                    <option value="M">M — รายเดือน (12 งวด/ปี)</option>
+                    <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
+                    <option value="Q">รายไตรมาส — 4 งวด/ปี (Q1-Q4)</option>
+                    <option value="M">รายเดือน — 12 งวด/ปี (M1-M12)</option>
                   </select>
                 </div>
+                <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
+                  <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="31"></div>
+              </div>
+              <!-- Period schedule display (auto-generated based on selection) -->
+              <div id="cfg-period-preview" style="margin-top:10px;padding:12px;background:var(--bg2);border-radius:10px;font-size:12.5px">
+                <div style="font-weight:700;margin-bottom:8px;color:var(--tx2)">📋 ตารางงวดการชำระ (อ้างอิง)</div>
+                <div id="cfg-period-table"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+              <div class="fr3" style="margin-top:10px">
+                <div class="fg"><label class="fl">งวด 1: ช่วงเวลา</label>
+                  <input class="fi" id="cfg-inp-fee_p1_range" placeholder="เช่น 1/1 - 30/6"></div>
+                <div class="fg"><label class="fl">งวด 1: ชำระไม่เกิน</label>
+                  <input class="fi" id="cfg-inp-fee_p1_due" placeholder="เช่น 31/1"></div>
+                <div class="fg"><label class="fl">งวด 1: ตัวย่อ</label>
+                  <input class="fi" id="cfg-inp-fee_p1_label" placeholder="เช่น H1"></div>
+              </div>
+              <div class="fr3">
+                <div class="fg"><label class="fl">งวด 2: ช่วงเวลา</label>
+                  <input class="fi" id="cfg-inp-fee_p2_range" placeholder="เช่น 1/7 - 31/12"></div>
+                <div class="fg"><label class="fl">งวด 2: ชำระไม่เกิน</label>
+                  <input class="fi" id="cfg-inp-fee_p2_due" placeholder="เช่น 31/7"></div>
+                <div class="fg"><label class="fl">งวด 2: ตัวย่อ</label>
+                  <input class="fi" id="cfg-inp-fee_p2_label" placeholder="เช่น H2"></div>
               </div>
             </div>
           </div>
@@ -2515,72 +2541,143 @@ function doLogout() {
 async function initApp() {
   showLoader('\u0e40\u0e23\u0e35\u0e22\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25...');
   try {
-    // Hide login screen
     document.getElementById('login-screen').style.display = 'none';
-
     const user = APP.user;
-    // Set user name in sidebar
-    // Fill sidebar + profile
-    document.querySelectorAll('.sb-uname').forEach(function(el) {
-      el.textContent = user.display_name || user.username;
+    document.querySelectorAll('.sb-uname').forEach(function(el){ el.textContent = user.display_name || user.username; });
+    document.querySelectorAll('.sb-urole').forEach(function(el){
+      el.textContent = user.role === 'admin' ? '\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e19\u0e34\u0e15\u0e34' : '\u0e1a\u0e49\u0e32\u0e19 ' + (user.house_id || '');
     });
-    // Profile page fields
-    var profName = document.getElementById('prof-name');
-    var profUser = document.getElementById('prof-username');
-    var profHouse = document.getElementById('prof-houseid');
-    var profPhone = document.getElementById('edit-phone');
-    var profEmail = document.getElementById('edit-email');
-    if (profName)  profName.value  = user.display_name || '';
-    if (profUser)  profUser.value  = user.username || '';
-    if (profHouse) profHouse.value = user.house_id  || '';
-    if (profPhone) profPhone.value = user.phone     || '';
-    if (profEmail) profEmail.value = user.email     || '';
-    document.querySelectorAll('.sb-urole').forEach(function(el) {
-      el.textContent = user.role === 'admin'
-        ? '\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e19\u0e34\u0e15\u0e34'
-        : '\u0e1a\u0e49\u0e32\u0e19 ' + (user.house_id || '');
-    });
-    document.querySelectorAll('.sb-av').forEach(function(el) {
+    document.querySelectorAll('.sb-av').forEach(function(el){
       el.textContent = (user.display_name || user.username).charAt(0).toUpperCase();
     });
-
-    // Load settings first (applies to whole UI)
-    try {
-      var settingsData = await api('getSettings');
-      APP.settings = settingsData;
-      applySettings();
-    } catch(e) { console.warn('Settings load failed:', e.message); }
-
+    // ONE request replaces 7+ separate calls (saves 12-18s)
+    const boot = await api('getBoot');
+    APP.settings = boot.settings || {};
+    applySettings();
     if (user.role === 'admin') {
-      // Show admin view
       document.getElementById('anav').style.display = 'flex';
       document.getElementById('rnav').style.display = 'none';
       document.getElementById('v-admin').classList.add('on');
       document.getElementById('v-res').classList.remove('on');
-      document.querySelectorAll('.vt').forEach(function(b) { b.classList.remove('on'); });
-      document.querySelector('.vt[data-view="admin"]') &&
-        document.querySelector('.vt[data-view="admin"]').classList.add('on');
-      // Load dashboard
-      await loadAdminDashboard();
+      var vta = document.querySelector('.vt[data-view="admin"]');
+      if (vta) { document.querySelectorAll('.vt').forEach(function(b){ b.classList.remove('on'); }); vta.classList.add('on'); }
+      renderAdminDashboardFromBoot(boot);
     } else {
-      // Show resident view
       document.getElementById('anav').style.display = 'none';
       document.getElementById('rnav').style.display = 'flex';
       document.getElementById('v-res').classList.add('on');
       document.getElementById('v-admin').classList.remove('on');
-      document.querySelectorAll('.vt').forEach(function(b) { b.classList.remove('on'); });
-      document.querySelector('.vt[data-view="res"]') &&
-        document.querySelector('.vt[data-view="res"]').classList.add('on');
-      // Load resident house
-      await loadResidentHome();
+      var vtr = document.querySelector('.vt[data-view="res"]');
+      if (vtr) { document.querySelectorAll('.vt').forEach(function(b){ b.classList.remove('on'); }); vtr.classList.add('on'); }
+      renderResidentHomeFromBoot(boot);
     }
     hideLoader();
+    if (user.role === 'admin') _notifDataFromBoot(boot);
   } catch (err) {
     hideLoader();
-    Swal.fire({ icon: 'error', title: '\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e34\u0e14\u0e1e\u0e25\u0e32\u0e14', text: err.message });
+    Swal.fire({ icon: 'error', title: '\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14', text: err.message });
   }
 }
 
+function renderAdminDashboardFromBoot(boot) {
+  var dash = boot.dashboard || {};
+  APP.dashboard = dash;
+  var now = new Date();
+  var thM = ['\u0e21\u0e01\u0e23\u0e32\u0e04\u0e21','\u0e01\u0e38\u0e21\u0e20\u0e32\u0e1e\u0e31\u0e19\u0e18\u0e4c','\u0e21\u0e35\u0e19\u0e32\u0e04\u0e21','\u0e40\u0e21\u0e29\u0e32\u0e22\u0e19','\u0e1e\u0e24\u0e29\u0e20\u0e32\u0e04\u0e21','\u0e21\u0e34\u0e16\u0e38\u0e19\u0e32\u0e22\u0e19','\u0e01\u0e23\u0e01\u0e0e\u0e32\u0e04\u0e21','\u0e2a\u0e34\u0e07\u0e2b\u0e32\u0e04\u0e21','\u0e01\u0e31\u0e19\u0e22\u0e32\u0e22\u0e19','\u0e15\u0e38\u0e25\u0e32\u0e04\u0e21','\u0e1e\u0e24\u0e28\u0e08\u0e34\u0e01\u0e32\u0e22\u0e19','\u0e18\u0e31\u0e19\u0e27\u0e32\u0e04\u0e21'];
+  _setEl('dash-date-sub', now.getDate()+' '+thM[now.getMonth()]+' '+(now.getFullYear()+543));
+  _setEl('dash-hdr-houses', dash.houses_total || '\u2014');
+  var amt = Number(dash.fees_overdue_amount||0);
+  _setEl('dash-hdr-collect', amt > 0 ? '\u0e3f'+amt.toLocaleString() : '\u0e3f0');
+  _setEl('stat-houses', dash.houses_total || '\u2014');
+  var susp=Number(dash.houses_suspended||0), leg=Number(dash.houses_legal||0);
+  _setEl('stat-houses-sub', [susp>0?susp+' \u0e23\u0e30\u0e07\u0e31\u0e1a':'',leg>0?leg+' \u0e1f\u0e49\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e07':''].filter(Boolean).join(' \u00b7 ') || '\u0e17\u0e38\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e1b\u0e01\u0e15\u0e34');
+  _setEl('stat-overdue', dash.fees_pending_count || 0);
+  _setEl('stat-overdue-amt', amt>0?'\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21 \u0e3f'+amt.toLocaleString():'\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e2d\u0e14\u0e04\u0e49\u0e32\u0e07');
+  _setEl('stat-slip',   dash.slips_pending || 0);
+  _setEl('stat-fees-pending', Number(dash.fees_pending_count||0)>0 ? Number(dash.fees_pending_count)+'\u0e43\u0e1a\u0e23\u0e2d' : '\u0e17\u0e38\u0e01\u0e43\u0e1a\u0e0a\u0e33\u0e23\u0e30\u0e41\u0e25\u0e49\u0e27');
+  _setEl('stat-issues', dash.issues_pending || 0);
+  _setEl('stat-issues-sub', Number(dash.issues_inprogress||0)>0 ? Number(dash.issues_inprogress)+'\u0e01\u0e33\u0e25\u0e31\u0e07\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19' : '');
+  _setEl('stat-vio',        dash.violations_pending  || 0);
+  _setEl('stat-req',        dash.change_req_pending  || 0);
+  _setEl('stat-market',     dash.market_pending      || 0);
+  _setEl('stat-contractor', dash.contractor_pending  || 0);
+  _setEl('badge-fees',    dash.slips_pending      > 0 ? dash.slips_pending      : '');
+  _setEl('badge-issues',  dash.issues_pending     > 0 ? dash.issues_pending     : '');
+  _setEl('badge-vio',     dash.violations_pending > 0 ? dash.violations_pending : '');
+  _setEl('badge-req',     dash.change_req_pending > 0 ? dash.change_req_pending : '');
+  _setEl('badge-market',  dash.market_pending     > 0 ? dash.market_pending     : '');
+  _renderDashSlips(boot.slips || []);
+  _renderDashReqs(boot.reqs || []);
+  _renderDashIssues(boot.issues || []);
+  _renderDashViolations(boot.violations || []);
+  _renderDashAnn(boot.anns || []);
+  _pageCache['admin-dash'] = { ts: Date.now() };
+}
+
+function _notifDataFromBoot(boot) {
+  _notifData = [];
+  (boot.slips||[]).forEach(function(f){
+    _notifData.push({id:'slip-'+f.fee_id,type:'slip',icon:'\ud83e\uddfe',color:'var(--prl)',
+      title:'\u0e2a\u0e25\u0e34\u0e1b\u0e23\u0e2d Approve \u2014 \u0e1a\u0e49\u0e32\u0e19 '+f.house_id,
+      desc:'\u0e3f'+Number(f.total||0).toLocaleString()+' \u00b7 \u0e07\u0e27\u0e14 '+f.period+'/'+f.year,
+      ts:f.slip_submitted_at||f.issued_at,
+      action:function(){closeM_notif();go('admin','fees',null);}});
+  });
+  (boot.reqs||[]).forEach(function(r){
+    var t={house:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',vehicle:'\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30',user:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1c\u0e39\u0e49\u0e43\u0e0a\u0e49'}[r.target_type]||r.target_type;
+    _notifData.push({id:'req-'+r.req_id,type:'req',icon:'\ud83d\udcdd',color:'var(--acl)',
+      title:'\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02 \u2014 \u0e1a\u0e49\u0e32\u0e19 '+r.house_id,desc:t,ts:r.created_at,
+      action:function(){closeM_notif();go('admin','req',null);}});
+  });
+  (boot.issues||[]).forEach(function(i){
+    _notifData.push({id:'iss-'+i.issue_id,type:'issue',icon:'\ud83d\udd27',color:'#fff3e0',
+      title:'\u0e1b\u0e31\u0e0d\u0e2b\u0e32 \u2014 '+i.title,
+      desc:'\u0e1a\u0e49\u0e32\u0e19 '+(i.house_id||'')+' \u00b7 '+(i.category||''),ts:i.created_at,
+      action:function(){closeM_notif();go('admin','issues',null);}});
+  });
+  (boot.violations||[]).forEach(function(v){
+    _notifData.push({id:'vio-'+v.vio_id,type:'vio',icon:'\u26a0',color:'var(--wnl)',
+      title:'\u0e01\u0e23\u0e30\u0e17\u0e33\u0e1c\u0e34\u0e14 \u2014 '+v.title,
+      desc:'\u0e1a\u0e49\u0e32\u0e19 '+(v.house_id||'')+(Number(v.penalty_amount)>0?' \u00b7 \u0e3f'+Number(v.penalty_amount).toLocaleString():''),
+      ts:v.created_at,action:function(){closeM_notif();go('admin','vio',null);}});
+  });
+  (boot.market_pending||[]).forEach(function(m){
+    _notifData.push({id:'mkt-'+m.item_id,type:'market',icon:'\ud83d\uded2',color:'#e8f5e9',
+      title:'\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e23\u0e2d Approve \u2014 '+m.title,
+      desc:'\u0e1a\u0e49\u0e32\u0e19 '+(m.house_id||''),ts:m.created_at,
+      action:function(){closeM_notif();go('admin','market',null);}});
+  });
+  (boot.anns||[]).slice(0,3).forEach(function(a){
+    _notifData.push({id:'ann-'+a.ann_id,type:'ann',icon:'\ud83d\udce2',color:'var(--bg2)',
+      title:a.title,desc:(a.content||'').substring(0,60),ts:a.created_at,
+      action:function(){closeM_notif();go('admin','ann',null);}});
+  });
+  _notifData.sort(function(a,b){return new Date(b.ts||0)-new Date(a.ts||0);});
+  updateBellBadge();
+}
+
+function renderResidentHomeFromBoot(boot) {
+  APP.house = boot.house;
+  var h = boot.house;
+  if (h) {
+    var hno = _safeHouseNo(h.house_no);
+    var sbItems = document.querySelectorAll('.sb-urole');
+    sbItems.forEach(function(el){ if(el.textContent.indexOf('\u0e1a\u0e49\u0e32\u0e19')===0) el.textContent = '\u0e1a\u0e49\u0e32\u0e19 '+hno; });
+    _setEl('res-h-houseno', hno);
+    var rhsub = document.getElementById('res-house-sub');
+    if (rhsub) rhsub.textContent = _cfg('village_name','The Greenfield');
+  }
+  var unpaid = (boot.fees||[]).filter(function(f){ return f.status==='pending'||f.status==='overdue'; });
+  var top = unpaid[0];
+  _setEl('res-fee-amount', top ? '\u0e3f'+Number(top.total||0).toLocaleString() : '\u0e3f0');
+  _setEl('res-fee-period',  top ? top.period+'/'+top.year : '\u0e0a\u0e33\u0e23\u0e30\u0e04\u0e23\u0e1a\u0e41\u0e25\u0e49\u0e27');
+  _setEl('res-stat-issues', (boot.issues||[]).filter(function(i){return i.status==='pending'||i.status==='in_progress';}).length || 0);
+  _setEl('res-stat-notif',  (boot.violations||[]).filter(function(v){return v.status==='pending';}).length || 0);
+  window._bootFees   = boot.fees   || [];
+  window._bootIssues = boot.issues || [];
+  window._bootAnns   = boot.anns   || [];
+  _pageCache['res-dash'] = { ts: Date.now() };
+}
 // ============================================================
 // ADMIN — DASHBOARD
 // ============================================================
@@ -3972,120 +4069,57 @@ function toggleNotifPanel() {
 async function loadNotifPanel() {
   var listEl = document.getElementById('notif-panel-list');
   if (!listEl) return;
+
+  // If boot already pre-warmed notif data, render immediately (no API call)
+  if (_notifData && _notifData.length > 0) {
+    renderNotifPanel();
+    return;
+  }
+
+  // Fallback: fetch if bell opened before boot data is ready
   try {
-    // Fetch all notification sources in parallel
+    listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">\u0e01\u0e33\u0e25\u0e31\u0e07\u0e42\u0e2b\u0e25\u0e14...</p>';
     var [slips, reqs, issues, viols, anns, market] = await Promise.all([
-      api('getFees'),
-      api('getChangeRequests'),
-      api('getIssues'),
-      api('getViolations'),
-      api('getAnnouncements'),
-      api('getMarketplace'),
+      api('getFees'), api('getChangeRequests'), api('getIssues'),
+      api('getViolations'), api('getAnnouncements'), api('getMarketplace'),
     ]);
-
     _notifData = [];
-
-    // Slips waiting approval
-    slips.filter(function(f){ return f.status === 'slip_submitted'; })
-      .forEach(function(f) {
-        _notifData.push({
-          id:    'slip-' + f.fee_id,
-          type:  'slip',
-          icon:  '🧾',
-          color: 'var(--prl)',
-          title: 'สลิปรอ Approve — บ้าน ' + f.house_id,
-          desc:  '฿' + Number(f.total||0).toLocaleString() + ' · งวด ' + f.period + '/' + f.year,
-          ts:    f.slip_submitted_at || f.issued_at,
-          action: function(){ closeM_notif(); go('admin','fees',null); },
-        });
-      });
-
-    // Pending change requests
-    reqs.filter(function(r){ return r.status === 'pending'; })
-      .forEach(function(r) {
-        _notifData.push({
-          id:    'req-' + r.req_id,
-          type:  'req',
-          icon:  '📝',
-          color: 'var(--acl)',
-          title: 'คำขอแก้ไข — บ้าน ' + r.house_id,
-          desc:  ({house:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',vehicle:'\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30',user:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1c\u0e39\u0e49\u0e43\u0e0a\u0e49'}[r.target_type] || r.target_type),
-          ts:    r.created_at,
-          action: function(){ closeM_notif(); go('admin','req',null); },
-        });
-      });
-
-    // Pending issues
-    issues.filter(function(i){ return i.status === 'pending'; })
-      .forEach(function(i) {
-        _notifData.push({
-          id:    'iss-' + i.issue_id,
-          type:  'issue',
-          icon:  '\ud83d\udd27',
-          color: '#fff3e0',
-          title: '\u0e1b\u0e31\u0e0d\u0e2b\u0e32\u0e43\u0e2b\u0e21\u0e48 — ' + i.title,
-          desc:  '\u0e1a\u0e49\u0e32\u0e19 ' + (i.house_id||'') + ' · ' + (i.category||''),
-          ts:    i.created_at,
-          action: function(){ closeM_notif(); go('admin','issues',null); },
-        });
-      });
-
-    // Pending violations
-    viols.filter(function(v){ return v.status === 'pending'; })
-      .forEach(function(v) {
-        _notifData.push({
-          id:    'vio-' + v.vio_id,
-          type:  'vio',
-          icon:  '⚠️',
-          color: 'var(--wnl)',
-          title: '\u0e01\u0e23\u0e30\u0e17\u0e33\u0e1c\u0e34\u0e14 — ' + v.title,
-          desc:  '\u0e1a\u0e49\u0e32\u0e19 ' + (v.house_id||'') + (Number(v.penalty_amount)>0 ? ' · \u0e04\u0e48\u0e32\u0e1b\u0e23\u0e31\u0e1a \u0e3f' + Number(v.penalty_amount).toLocaleString() : ''),
-          ts:    v.created_at,
-          action: function(){ closeM_notif(); go('admin','vio',null); },
-        });
-      });
-
-    // Pending marketplace listings
-    market.filter(function(m){ return m.status === 'pending'; })
-      .forEach(function(m) {
-        _notifData.push({
-          id:    'mkt-' + m.item_id,
-          type:  'market',
-          icon:  '🛒',
-          color: '#e8f5e9',
-          title: '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e23\u0e2d Approve — ' + m.title,
-          desc:  '\u0e1a\u0e49\u0e32\u0e19 ' + (m.house_id||'') + (m.price ? ' · \u0e3f' + Number(m.price).toLocaleString() : ' · \u0e43\u0e2b\u0e49\u0e1f\u0e23\u0e35'),
-          ts:    m.created_at,
-          action: function(){ closeM_notif(); go('admin','market',null); },
-        });
-      });
-
-    // Recent active announcements (for info, not actionable)
-    anns.filter(function(a){ return a.is_active===true||a.is_active==='TRUE'; })
-      .slice(0, 3)
-      .forEach(function(a) {
-        _notifData.push({
-          id:    'ann-' + a.ann_id,
-          type:  'ann',
-          icon:  '📢',
-          color: 'var(--bg2)',
-          title: a.title,
-          desc:  (a.content||'').substring(0, 60),
-          ts:    a.created_at,
-          action: function(){ closeM_notif(); go('admin','ann',null); },
-        });
-      });
-
-    // Sort by time (newest first)
-    _notifData.sort(function(a,b){
-      return new Date(b.ts||0) - new Date(a.ts||0);
+    slips.filter(function(f){ return f.status === 'slip_submitted'; }).forEach(function(f) {
+      _notifData.push({id:'slip-'+f.fee_id,type:'slip',icon:'\ud83e\uddfe',color:'var(--prl)',
+        title:'\u0e2a\u0e25\u0e34\u0e1b\u0e23\u0e2d Approve \u2014 \u0e1a\u0e49\u0e32\u0e19 '+f.house_id,
+        desc:'\u0e3f'+Number(f.total||0).toLocaleString(),ts:f.slip_submitted_at,
+        action:function(){closeM_notif();go('admin','fees',null);}});
     });
-
+    reqs.filter(function(r){ return r.status==='pending'; }).forEach(function(r) {
+      _notifData.push({id:'req-'+r.req_id,type:'req',icon:'\ud83d\udcdd',color:'var(--acl)',
+        title:'\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02 \u2014 \u0e1a\u0e49\u0e32\u0e19 '+r.house_id,
+        desc:r.target_type,ts:r.created_at,action:function(){closeM_notif();go('admin','req',null);}});
+    });
+    issues.filter(function(i){ return i.status==='pending'; }).forEach(function(i) {
+      _notifData.push({id:'iss-'+i.issue_id,type:'issue',icon:'\ud83d\udd27',color:'#fff3e0',
+        title:'\u0e1b\u0e31\u0e0d\u0e2b\u0e32 \u2014 '+i.title,desc:i.category||'',ts:i.created_at,
+        action:function(){closeM_notif();go('admin','issues',null);}});
+    });
+    viols.filter(function(v){ return v.status==='pending'; }).forEach(function(v) {
+      _notifData.push({id:'vio-'+v.vio_id,type:'vio',icon:'\u26a0',color:'var(--wnl)',
+        title:'\u0e01\u0e23\u0e30\u0e17\u0e33\u0e1c\u0e34\u0e14 \u2014 '+v.title,desc:v.house_id,ts:v.created_at,
+        action:function(){closeM_notif();go('admin','vio',null);}});
+    });
+    market.filter(function(m){ return m.status==='pending'; }).forEach(function(m) {
+      _notifData.push({id:'mkt-'+m.item_id,type:'market',icon:'\ud83d\uded2',color:'#e8f5e9',
+        title:'\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e23\u0e2d Approve \u2014 '+m.title,desc:m.house_id,ts:m.created_at,
+        action:function(){closeM_notif();go('admin','market',null);}});
+    });
+    anns.filter(function(a){ return a.is_active===true||a.is_active==='TRUE'; }).slice(0,3).forEach(function(a) {
+      _notifData.push({id:'ann-'+a.ann_id,type:'ann',icon:'\ud83d\udce2',color:'var(--bg2)',
+        title:a.title,desc:(a.content||'').substring(0,60),ts:a.created_at,
+        action:function(){closeM_notif();go('admin','ann',null);}});
+    });
+    _notifData.sort(function(a,b){ return new Date(b.ts||0)-new Date(a.ts||0); });
     renderNotifPanel();
     updateBellBadge();
-
   } catch(err) {
-    if (listEl) listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e42\u0e2b\u0e25\u0e14: ' + err.message + '</p>';
+    if (listEl) listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14: ' + err.message + '</p>';
   }
 }
 
@@ -4285,6 +4319,8 @@ async function loadSettingsPage() {
     // QR preview
     var qrInp = document.getElementById('cfg-inp-payment_qr_url');
     if (qrInp) updateQrPreview(qrInp.value);
+    // Period preview
+    updatePeriodPreview();
     // Apply to UI
     applySettings();
   } catch(err) {
@@ -4376,6 +4412,56 @@ function setTheme(t) {
   });
   localStorage.setItem('vms5-t', t);
 }
+
+// ============================================================
+// FEE PERIOD SETTINGS HELPER
+// ============================================================
+function updatePeriodPreview() {
+  var label = (document.getElementById('cfg-inp-fee_period_label')||{}).value || 'H';
+  var due   = (document.getElementById('cfg-inp-fee_due_day')||{}).value || '31';
+  var p1r   = (document.getElementById('cfg-inp-fee_p1_range')||{}).value || '';
+  var p1d   = (document.getElementById('cfg-inp-fee_p1_due')||{}).value || '';
+  var p1l   = (document.getElementById('cfg-inp-fee_p1_label')||{}).value || '';
+  var p2r   = (document.getElementById('cfg-inp-fee_p2_range')||{}).value || '';
+  var p2d   = (document.getElementById('cfg-inp-fee_p2_due')||{}).value || '';
+  var p2l   = (document.getElementById('cfg-inp-fee_p2_label')||{}).value || '';
+  var el    = document.getElementById('cfg-period-table');
+  if (!el) return;
+
+  var rows = '';
+  if (label === 'H') {
+    var d1 = p1d || '31/1',  r1 = p1r || '1/1 - 30/6',  l1 = p1l || 'H1';
+    var d2 = p2d || '31/7',  r2 = p2r || '1/7 - 31/12', l2 = p2l || 'H2';
+    rows = '<table style="width:100%;font-size:12px;border-collapse:collapse">' +
+      '<tr style="background:var(--bg3)"><th style="padding:5px 8px;text-align:left">งวด</th><th style="padding:5px 8px;text-align:left">ช่วงเวลา</th><th style="padding:5px 8px;text-align:left">ชำระไม่เกิน</th></tr>' +
+      '<tr><td style="padding:5px 8px"><strong>'+l1+'</strong></td><td style="padding:5px 8px">'+r1+'</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">'+d1+'</td></tr>' +
+      '<tr style="background:var(--bg2)"><td style="padding:5px 8px"><strong>'+l2+'</strong></td><td style="padding:5px 8px">'+r2+'</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">'+d2+'</td></tr>' +
+      '</table>';
+  } else if (label === 'Q') {
+    rows = '<table style="width:100%;font-size:12px;border-collapse:collapse">' +
+      '<tr style="background:var(--bg3)"><th style="padding:5px 8px;text-align:left">งวด</th><th style="padding:5px 8px;text-align:left">ช่วงเวลา</th><th style="padding:5px 8px;text-align:left">ชำระไม่เกิน</th></tr>' +
+      '<tr><td style="padding:5px 8px"><strong>Q1</strong></td><td style="padding:5px 8px">1/1 - 31/3</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">31/1</td></tr>' +
+      '<tr style="background:var(--bg2)"><td style="padding:5px 8px"><strong>Q2</strong></td><td style="padding:5px 8px">1/4 - 30/6</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">30/4</td></tr>' +
+      '<tr><td style="padding:5px 8px"><strong>Q3</strong></td><td style="padding:5px 8px">1/7 - 30/9</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">31/7</td></tr>' +
+      '<tr style="background:var(--bg2)"><td style="padding:5px 8px"><strong>Q4</strong></td><td style="padding:5px 8px">1/10 - 31/12</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">31/10</td></tr>' +
+      '</table>';
+  } else {
+    rows = '<div style="color:var(--mu)">รายเดือน: ชำระไม่เกินวันที่ '+due+' ของทุกเดือน</div>';
+  }
+  el.innerHTML = rows;
+}
+
+// Wire period preview changes
+document.addEventListener('change', function(e) {
+  if (e.target && (e.target.id === 'cfg-inp-fee_period_label' || e.target.id === 'cfg-inp-fee_due_day')) {
+    updatePeriodPreview();
+  }
+});
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id && e.target.id.startsWith('cfg-inp-fee_p')) {
+    updatePeriodPreview();
+  }
+});
 </script>
 
 <!-- MODAL: เพิ่มสมาชิก -->

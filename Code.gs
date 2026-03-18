@@ -103,6 +103,8 @@ function _route(body) {
       'getLoginLogs':          () => LoginLogs.getAll(body, user),
       /* UPLOAD */
       'uploadImage':           () => Upload.base64(body, user),
+      /* BOOT (single-request startup) */
+      'getBoot':               () => Boot.load(body, user),
       /* DASHBOARD */
       'getDashboard':          () => Dashboard.summary(body, user),
       /* SETTINGS */

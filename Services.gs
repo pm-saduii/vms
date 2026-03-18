@@ -454,3 +454,83 @@ var Settings = (function() {
 
   return { getAll, saveAll };
 })();
+
+
+// ============================================================
+// Boot.gs — Single-request startup data
+// ============================================================
+// Returns everything needed for the first screen in ONE call:
+// settings, dashboard stats, and all mini-list data.
+// Frontend calls this once on login instead of 6-8 separate calls.
+
+var Boot = (function() {
+  function load(body, user) {
+    // 1. Settings (public to all roles)
+    var settingsRows = sheetToObjects('SETTINGS');
+    var settings = {};
+    settingsRows.forEach(function(r) { settings[r.key] = r; });
+
+    // Admin gets full dashboard + notification data
+    if (user.role === 'admin') {
+      var houses     = sheetToObjects('HOUSES');
+      var fees       = sheetToObjects('FEES');
+      var issues     = sheetToObjects('ISSUES');
+      var violations = sheetToObjects('VIOLATIONS');
+      var requests   = sheetToObjects('CHANGE_REQUESTS');
+      var anns       = sheetToObjects('ANNOUNCEMENTS');
+      var market     = sheetToObjects('MARKETPLACE');
+      var contractors = sheetToObjects('CONTRACTORS');
+
+      var pendingFees  = fees.filter(f => f.status === 'pending' || f.status === 'overdue');
+      var overdueAmt   = pendingFees.reduce((s,f) => s + (Number(f.total)||0), 0);
+      var slipsPending = fees.filter(f => f.status === 'slip_submitted');
+
+      return {
+        settings,
+        role: 'admin',
+        dashboard: {
+          houses_total:       houses.length,
+          houses_overdue:     houses.filter(h => h.status === 'overdue').length,
+          houses_suspended:   houses.filter(h => h.status === 'suspended').length,
+          houses_legal:       houses.filter(h => h.status === 'legal').length,
+          fees_pending_count: pendingFees.length,
+          fees_overdue_amount: overdueAmt,
+          slips_pending:      slipsPending.length,
+          issues_pending:     issues.filter(i => i.status === 'pending').length,
+          issues_inprogress:  issues.filter(i => i.status === 'in_progress').length,
+          violations_pending: violations.filter(v => v.status === 'pending').length,
+          change_req_pending: requests.filter(r => r.status === 'pending').length,
+          market_pending:     market.filter(m => m.status === 'pending').length,
+          contractor_pending: contractors.filter(c => c.status === 'pending').length,
+        },
+        // Mini-lists for dashboard cards (max 8 each)
+        slips:      slipsPending.slice(0, 8),
+        reqs:       requests.filter(r => r.status === 'pending').slice(0, 8),
+        issues:     issues.filter(i => i.status === 'pending' || i.status === 'in_progress').slice(0, 8),
+        violations: violations.filter(v => v.status === 'pending').slice(0, 8),
+        anns:       anns.filter(a => String(a.is_active) === 'TRUE' || a.is_active === true).slice(0, 8),
+        market_pending: market.filter(m => m.status === 'pending').slice(0, 8),
+      };
+    }
+
+    // Resident gets their own house data + announcements
+    var houseId = user.house_id;
+    var house   = houseId ? (sheetToObjects('HOUSES').find(h => h.house_id === houseId) || null) : null;
+    var fees    = houseId ? sheetToObjects('FEES').filter(f => f.house_id === houseId) : [];
+    var issues  = houseId ? sheetToObjects('ISSUES').filter(i => i.house_id === houseId) : [];
+    var viols   = houseId ? sheetToObjects('VIOLATIONS').filter(v => v.house_id === houseId) : [];
+    var anns    = sheetToObjects('ANNOUNCEMENTS').filter(a => String(a.is_active) === 'TRUE' || a.is_active === true);
+
+    return {
+      settings,
+      role: 'resident',
+      house,
+      fees,
+      issues,
+      violations: viols,
+      anns: anns.slice(0, 20),
+    };
+  }
+
+  return { load };
+})();
