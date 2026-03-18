@@ -2035,66 +2035,117 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 <!-- MODAL: เพิ่มรถ -->
 <div class="mo" id="m-addcar">
-<div class="md">
+<div class="md wide">
   <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">ขอเพิ่มรถใหม่</div><div class="md-sub">ส่งคำขอเพื่อรออนุมัติ</div></div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">เพิ่มยานพาหนะ</div><div class="md-sub">กรอกข้อมูลยานพาหนะ</div></div>
   </div>
   <div class="md-bd">
     <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทรถ</label>
-        <select class="fs"><option>รถเก๋ง</option><option>รถกระบะ</option><option>รถมอเตอร์ไซค์</option><option>รถตู้</option></select>
-      </div>
-      <div class="fg"><label class="fl">ทะเบียนรถ</label><input class="fi" placeholder="กข-1234"></div>
+      <div class="fg"><label class="fl">ประเภทยานพาหนะ *</label>
+        <select class="fs" id="car-type">
+          <option value="">-- เลือกประเภท --</option>
+          <option value="รถยนต์">🚗 รถยนต์</option>
+          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
+          <option value="รถตู้">🚐 รถตู้</option>
+          <option value="รถกระบะ">🛻 รถกระบะ</option>
+          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="car-plate" placeholder="เช่น กข-1234"></div>
     </div>
     <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ</label><input class="fi" placeholder="Toyota"></div>
-      <div class="fg"><label class="fl">รุ่น</label><input class="fi" placeholder="Camry"></div>
-      <div class="fg"><label class="fl">สี</label><input class="fi" placeholder="ขาว"></div>
+      <div class="fg"><label class="fl">ยี่ห้อ *</label>
+        <select class="fs" id="car-brand-sel" onchange="_vdBrandChange('add')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <input class="fi" id="car-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">รุ่น</label>
+        <input class="fi" id="car-model" placeholder="เช่น Camry"></div>
+      <div class="fg"><label class="fl">สี *</label>
+        <select class="fs" id="car-color-sel" onchange="_vdColorChange('add')"><option value="">-- เลือกสี --</option></select>
+        <input class="fi" id="car-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
     </div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">จังหวัด</label><input class="fi" placeholder="กรุงเทพ"></div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">จังหวัด *</label>
+        <select class="fs" id="car-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
       <div class="fg"><label class="fl">ที่จอดรถ</label>
-        <select class="fs"><option>หน้าบ้าน</option><option>ในบ้าน</option><option>ส่วนกลาง</option></select>
-      </div>
+        <select class="fs" id="car-park">
+          <option value="ในบ้าน">ในบ้าน</option>
+          <option value="หน้าบ้าน">หน้าบ้าน</option>
+          <option value="ส่วนกลาง">ส่วนกลาง</option>
+        </select></div>
+      <div class="fg"><label class="fl">สถานะ</label>
+        <select class="fs" id="car-status">
+          <option value="active">ใช้งานปกติ</option>
+          <option value="inactive">ไม่ได้ใช้งาน</option>
+        </select></div>
     </div>
-    <div class="fg"><label class="fl">รูปภาพรถ (ถ่ายเพิ่ม)</label>
-      <div class="upl"><div class="upl-ico">📷</div><div class="upl-txt"><strong>คลิกเพื่ออัปโหลด</strong> หรือลากมาวาง</div></div>
+    <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:4px">
+      <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
+        📷 เลือกรูปภาพ
+        <input type="file" id="car-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'car-')">
+      </label>
+      <span style="font-size:11.5px;color:var(--mu);margin-left:8px">JPG, PNG ไม่เกิน 5 รูป</span>
+      <div id="car-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
     </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-addcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">📤 ส่งคำขอ</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">🚗 บันทึก</button>
   </div>
 </div></div>
 
 <!-- MODAL: แก้ไขรถ -->
 <div class="mo" id="m-editcar">
-<div class="md">
+<div class="md wide">
   <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">ขอแก้ไขข้อมูลรถ</div><div class="md-sub">กข-1234 · Toyota Camry</div></div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">แก้ไขยานพาหนะ</div><div class="md-sub" id="editcar-sub">—</div></div>
   </div>
+  <input type="hidden" id="editcar-id">
   <div class="md-bd">
-    <div class="al al-i">ℹ️ การแก้ไขทะเบียนรถต้องรออนุมัติจากนิติ</div>
+    <div class="al al-i" style="margin-bottom:12px">ℹ️ การแก้ไขต้องรออนุมัติจากนิติ</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">ทะเบียนรถ</label><input class="fi" value="กข-1234"></div>
-      <div class="fg"><label class="fl">จังหวัด</label><input class="fi" value="กรุงเทพ"></div>
+      <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
+        <select class="fs" id="editcar-type">
+          <option value="รถยนต์">🚗 รถยนต์</option>
+          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
+          <option value="รถตู้">🚐 รถตู้</option>
+          <option value="รถกระบะ">🛻 รถกระบะ</option>
+          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="editcar-plate" placeholder="กข-1234"></div>
     </div>
     <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ</label><input class="fi" value="Toyota" disabled></div>
-      <div class="fg"><label class="fl">รุ่น</label><input class="fi" value="Camry" disabled></div>
-      <div class="fg"><label class="fl">สี</label><input class="fi" value="ขาว"></div>
+      <div class="fg"><label class="fl">ยี่ห้อ</label>
+        <select class="fs" id="editcar-brand-sel" onchange="_vdBrandChange('edit')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <input class="fi" id="editcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">รุ่น</label>
+        <input class="fi" id="editcar-model" placeholder="เช่น Camry"></div>
+      <div class="fg"><label class="fl">สี</label>
+        <select class="fs" id="editcar-color-sel" onchange="_vdColorChange('edit')"><option value="">-- เลือกสี --</option></select>
+        <input class="fi" id="editcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
     </div>
-    <div class="fg"><label class="fl">ที่จอดรถ</label>
-      <select class="fs"><option selected>หน้าบ้าน</option><option>ในบ้าน</option><option>ส่วนกลาง</option></select>
+    <div class="fr3">
+      <div class="fg"><label class="fl">จังหวัด</label>
+        <select class="fs" id="editcar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
+      <div class="fg"><label class="fl">ที่จอดรถ</label>
+        <select class="fs" id="editcar-park">
+          <option value="ในบ้าน">ในบ้าน</option>
+          <option value="หน้าบ้าน">หน้าบ้าน</option>
+          <option value="ส่วนกลาง">ส่วนกลาง</option>
+        </select></div>
+      <div class="fg"><label class="fl">สถานะ</label>
+        <select class="fs" id="editcar-status">
+          <option value="active">ใช้งานปกติ</option>
+          <option value="inactive">ไม่ได้ใช้งาน</option>
+        </select></div>
     </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-editcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="sw('submit');closeM('m-editcar')">📤 ส่งคำขอแก้ไข</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitEditCar()">📤 ส่งคำขอแก้ไข</button>
   </div>
 </div></div>
 
@@ -2197,7 +2248,6 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="md-hd">
     <div class="md-hd-ico">💰</div>
     <div><div class="md-title">รายละเอียดใบแจ้งหนี้</div><div class="md-sub" id="fd-sub">—</div></div>
-    <button class="md-x" onclick="closeM('m-fee-detail')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fee-row"><div class="fee-lbl">ค่าส่วนกลาง</div><div class="fee-val" id="fd-fee-amount">—</div></div>
@@ -2349,7 +2399,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 <div class="mo" id="m-condetail">
 <div class="md">
   <div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">🔧</div><div><div class="md-title" id="cd-name">รายละเอียดช่าง</div><div class="md-sub" id="cd-rating">—</div></div><button class="md-x" onclick="closeM('m-condetail')">✕</button></div>
+  <div class="md-hd"><div class="md-hd-ico">🔧</div><div><div class="md-title" id="cd-name">รายละเอียดช่าง</div><div class="md-sub" id="cd-rating">—</div></div></div>
   <div class="md-bd">
     <div class="ig" style="margin-bottom:14px">
       <div class="ii"><div class="ik">เบอร์โทร</div><div class="iv" id="cd-phone">—</div></div>
@@ -2363,27 +2413,6 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     <p id="cd-bio" style="font-size:13px;color:var(--mu);margin-bottom:14px">—</p>
   </div>
   <div class="md-ft"><button class="btn btn-g btn-sm" onclick="closeM('m-condetail')">ปิด</button><a id="cd-tel-link" href="#" class="btn btn-p btn-sm">📞 โทรหาช่าง</a></div>
-</div></div>
-  </div>
-  <div class="md-bd">
-    <div class="ig" style="margin-bottom:14px">
-      <div class="ii"><div class="ik">เบอร์โทร</div><div class="iv">📞 081-111-2222</div></div>
-      <div class="ii"><div class="ik">Line</div><div class="iv">@somsak_elec</div></div>
-      <div class="ii"><div class="ik">พื้นที่</div><div class="iv">📍 กรุงเทพ/นนทบุรี</div></div>
-      <div class="ii"><div class="ik">สถานะ</div><div class="iv"><span class="bd b-ok">✓ นิติรับรอง</span></div></div>
-    </div>
-    <div class="sl">ความสามารถ</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-      <span class="con-tag">⚡ ช่างไฟ</span><span class="con-tag">ไฟฟ้า</span><span class="con-tag">วงจรไฟ</span><span class="con-tag">ระบบไฟ</span>
-    </div>
-    <div class="sl">รีวิวจากลูกบ้าน</div>
-    <div class="card-soft mb-8"><div style="font-size:13px;font-weight:700;margin-bottom:4px">⭐⭐⭐⭐⭐ บ้าน 10/1</div><div style="font-size:12.5px;color:var(--mu)">ช่างทำงานดี ตรงเวลา ราคาสมเหตุสมผล แนะนำเลย</div></div>
-    <div class="card-soft"><div style="font-size:13px;font-weight:700;margin-bottom:4px">⭐⭐⭐⭐ บ้าน 22/5</div><div style="font-size:12.5px;color:var(--mu)">ช่างซ่อมเร็ว แต่มีงานเยอะต้องนัดล่วงหน้า</div></div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeM('m-condetail')">ปิด</button>
-    <a href="tel:081-111-2222" class="btn btn-p btn-sm">📞 โทรเลย</a>
-  </div>
 </div></div>
 
 <!-- MODAL: ลงประกาศขาย -->
@@ -6257,120 +6286,10 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
   </div>
 </div></div>
 <!-- MODAL: เพิ่มรถ -->
-<div class="mo" id="m-addcar">
-<div class="md wide">
-  <div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">เพิ่มยานพาหนะ</div><div class="md-sub">กรอกข้อมูลยานพาหนะ</div></div>
-  </div>
-  <div class="md-bd">
-    <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทยานพาหนะ *</label>
-        <select class="fs" id="car-type">
-          <option value="">-- เลือกประเภท --</option>
-          <option value="รถยนต์">🚗 รถยนต์</option>
-          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
-          <option value="รถตู้">🚐 รถตู้</option>
-          <option value="รถกระบะ">🛻 รถกระบะ</option>
-          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select></div>
-      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
-        <input class="fi" id="car-plate" placeholder="เช่น กข-1234"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ *</label>
-        <select class="fs" id="car-brand-sel" onchange="_vdBrandChange('add')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="car-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
-      <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="car-model" placeholder="เช่น Camry"></div>
-      <div class="fg"><label class="fl">สี *</label>
-        <select class="fs" id="car-color-sel" onchange="_vdColorChange('add')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="car-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">จังหวัด *</label>
-        <select class="fs" id="car-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
-      <div class="fg"><label class="fl">ที่จอดรถ</label>
-        <select class="fs" id="car-park">
-          <option value="ในบ้าน">ในบ้าน</option>
-          <option value="หน้าบ้าน">หน้าบ้าน</option>
-          <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select></div>
-      <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="car-status">
-          <option value="active">ใช้งานปกติ</option>
-          <option value="inactive">ไม่ได้ใช้งาน</option>
-        </select></div>
-    </div>
-    <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:4px">
-      <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
-      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
-        📷 เลือกรูปภาพ
-        <input type="file" id="car-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'car-')">
-      </label>
-      <span style="font-size:11.5px;color:var(--mu);margin-left:8px">JPG, PNG ไม่เกิน 5 รูป</span>
-      <div id="car-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
-    </div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeM('m-addcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">🚗 บันทึก</button>
-  </div>
-</div></div>
+
 
 <!-- MODAL: แก้ไขรถ (ลูกบ้าน) -->
-<div class="mo" id="m-editcar">
-<div class="md wide">
-  <div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">แก้ไขยานพาหนะ</div><div class="md-sub" id="editcar-sub">—</div></div>
-  </div>
-  <input type="hidden" id="editcar-id">
-  <div class="md-bd">
-    <div class="al al-i" style="margin-bottom:12px">ℹ️ การแก้ไขต้องรออนุมัติจากนิติ</div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
-        <select class="fs" id="editcar-type">
-          <option value="รถยนต์">🚗 รถยนต์</option>
-          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
-          <option value="รถตู้">🚐 รถตู้</option>
-          <option value="รถกระบะ">🛻 รถกระบะ</option>
-          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select></div>
-      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
-        <input class="fi" id="editcar-plate" placeholder="กข-1234"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ</label>
-        <select class="fs" id="editcar-brand-sel" onchange="_vdBrandChange('edit')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="editcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
-      <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="editcar-model" placeholder="เช่น Camry"></div>
-      <div class="fg"><label class="fl">สี</label>
-        <select class="fs" id="editcar-color-sel" onchange="_vdColorChange('edit')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="editcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">จังหวัด</label>
-        <select class="fs" id="editcar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
-      <div class="fg"><label class="fl">ที่จอดรถ</label>
-        <select class="fs" id="editcar-park">
-          <option value="ในบ้าน">ในบ้าน</option>
-          <option value="หน้าบ้าน">หน้าบ้าน</option>
-          <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select></div>
-      <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="editcar-status">
-          <option value="active">ใช้งานปกติ</option>
-          <option value="inactive">ไม่ได้ใช้งาน</option>
-        </select></div>
-    </div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeM('m-editcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitEditCar()">📤 ส่งคำขอแก้ไข</button>
-  </div>
-</div></div>
+
 
 <!-- MODAL: Admin เพิ่มรถ -->
 <div class="mo" id="m-admin-addcar">
