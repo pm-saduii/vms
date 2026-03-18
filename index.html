@@ -648,10 +648,11 @@ a{color:var(--pr);text-decoration:none}
 .tw::-webkit-scrollbar{height:4px}
 .tw::-webkit-scrollbar-thumb{background:var(--bo2);border-radius:4px}
 table{width:100%;border-collapse:collapse;min-width:420px;font-size:13px}
-th{font-size:10.5px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;padding:9px 12px;text-align:left;background:var(--card2);border-bottom:1.5px solid var(--bo);white-space:nowrap}
-td{padding:10px 12px;border-bottom:1px solid var(--bo);vertical-align:middle;color:var(--tx)}
+th{font-size:12px;font-weight:800;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;padding:11px 14px;text-align:left;background:var(--bg3);border-bottom:2px solid var(--bo2);white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--bo);vertical-align:middle;color:var(--tx)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--bg)}
+tbody tr:nth-child(even) td{background:rgba(0,0,0,.018)}
+tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 /* ═══════════════════════════════════════════
    FEE HERO
@@ -948,6 +949,20 @@ tr:hover td{background:var(--bg)}
 .req-edit-row{display:flex;gap:8px;align-items:center}
 .req-edit-row .fi{flex:1}
 
+
+/* Notification panel */
+.nb{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--dg);color:#fff;font-size:10px;font-weight:700;margin-left:4px}
+.nb:empty{display:none}
+.notif-tab.on{border-bottom-color:var(--pr)!important;color:var(--pr)!important}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--bo)}
+.notif-item:hover{background:var(--bg)}
+.notif-item.unread{background:var(--prl)}
+.notif-item.unread:hover{background:var(--pr-soft)}
+.notif-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-desc{font-size:11.5px;color:var(--mu);margin-top:2px;line-height:1.4}
+.notif-time{font-size:10.5px;color:var(--mu);margin-top:3px}
 </style>
 </head>
 <body data-theme="normal">
@@ -1099,7 +1114,7 @@ tr:hover td{background:var(--bg)}
         <button class="vt on" onclick="switchView('admin',this)" data-view="admin">👔 Admin</button>
         <button class="vt" onclick="switchView('res',this)" data-view="res">🏡 ลูกบ้าน</button>
       </div>
-      <div class="tb-ico" onclick="sw('notif')">🔔<span class="ndot"></span></div>
+      <div class="tb-ico" id="btn-bell" onclick="toggleNotifPanel()">🔔<span class="ndot" id="bell-dot" style="display:none"></span></div>
     </div>
   </div>
 
@@ -1946,41 +1961,51 @@ tr:hover td{background:var(--bg)}
     <div><div class="md-title">แก้ไขข้อมูลบ้าน</div><div class="md-sub" id="edithouse-sub">Admin Mode</div></div>
     <button class="md-x" onclick="closeM('m-admin-edithouse')">✕</button>
   </div>
+  <input type="hidden" id="edithouse-id">
   <div class="md-bd">
     <div class="sl">📍 ที่อยู่</div>
     <div class="fr3">
-      <input type="hidden" id="edithouse-id">
-      <div class="fg"><label class="fl">บ้านเลขที่</label><input class="fi" id="edithouse-no"></div>
-      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="edithouse-soi"></div>
-      <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="edithouse-area" type="number"></div>
+      <div class="fg"><label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label><input class="fi" id="edithouse-no" placeholder="เช่น 10/1"></div>
+      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="edithouse-soi" placeholder="เช่น ซอย 3"></div>
+      <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="edithouse-area" type="number" placeholder="0"></div>
     </div>
     <div class="sl">👤 เจ้าของ</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์</label><input class="fi" id="edithouse-owner"></div>
+      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์ <span style="color:var(--dg)">*</span></label><input class="fi" id="edithouse-owner"></div>
       <div class="fg"><label class="fl">ผู้เช่า</label><input class="fi" id="edithouse-renter" placeholder="(ไม่มี)"></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="edit-phone" value="081-234-5678"></div>
-      <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="edit-email" value="somchai@email.com"></div>
+      <div class="fg"><label class="fl">เบอร์โทรติดต่อ</label><input class="fi" id="edithouse-phone" type="tel"></div>
+      <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="edithouse-email" type="email"></div>
     </div>
-    <div class="sl">💰 ค่าธรรมเนียม</div>
+    <div class="sl">💰 ค่าธรรมเนียม (บาท)</div>
     <div class="fr3">
-      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="edithouse-fee" type="number"></div>
-      <div class="fg"><label class="fl">ค่าจอดรถ/ปี</label><input class="fi" id="edithouse-parking" type="number"></div>
-      <div class="fg"><label class="fl">ค่าขยะ/งวด</label><input class="fi" id="edithouse-trash" type="number"></div>
+      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="edithouse-fee" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ/ปี</label><input class="fi" id="edithouse-parking" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าขยะ/งวด</label><input class="fi" id="edithouse-trash" type="number" placeholder="0" min="0"></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทบ้าน</label>
-        <select class="fs"><option>อยู่เอง</option><option>ให้เช่า</option><option>ว่าง</option></select>
+      <div class="fg"><label class="fl">ประเภทการใช้</label>
+        <select class="fs" id="edithouse-usage">
+          <option value="owner">อยู่เอง</option>
+          <option value="rent">ให้เช่า</option>
+          <option value="vacant">ว่าง</option>
+        </select>
       </div>
       <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="edithouse-status"><option value="normal">ปกติ</option><option value="overdue">ค้างชำระ</option><option value="suspended">ระงับกรมที่ดิน</option><option value="legal">ฟ้องร้อง</option></select>
+        <select class="fs" id="edithouse-status">
+          <option value="normal">ปกติ</option>
+          <option value="overdue">ค้างชำระ</option>
+          <option value="suspended">ระงับกรมที่ดิน</option>
+          <option value="legal">ฟ้องร้อง</option>
+        </select>
       </div>
     </div>
+    <div class="fg"><label class="fl">หมายเหตุสถานะ</label><input class="fi" id="edithouse-statusnote" placeholder="(ถ้ามี)"></div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-admin-edithouse')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSaveEditHouse()">💾 บันทึก</button>
+    <button class="btn btn-p btn-sm" onclick="doSaveEditHouse()">💾 บันทึกการแก้ไข</button>
   </div>
 </div></div>
 
@@ -3498,20 +3523,37 @@ var PT = {
   'res-profile':       '\u0e42\u0e1b\u0e23\u0e44\u0e1f\u0e25\u0e4c'
 };
 
+// Page data cache: key → {ts, loaded}
+var _pageCache = {};
+var _PAGE_TTL  = 60000; // 60s — force refresh after this
+
 function go(view, page, el) {
   var key = view + '-' + page;
   document.querySelectorAll('#v-' + view + ' .pane').forEach(function(p) { p.classList.remove('on'); });
   var target = document.getElementById('p-' + key);
-  if (target) { target.classList.add('on'); }
+  if (target) target.classList.add('on');
   var navId = view === 'admin' ? 'anav' : 'rnav';
   document.querySelectorAll('#' + navId + ' .sb-item').forEach(function(i) { i.classList.remove('act'); });
-  if (el) { el.classList.add('act'); }
+  if (el) el.classList.add('act');
   var ttEl = document.getElementById('tt');
-  if (ttEl && PT[key]) { ttEl.innerHTML = PT[key]; }
+  if (ttEl && PT[key]) ttEl.innerHTML = PT[key];
   closeSB();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // Load data for this page
+
+  // Skip reload if cached within TTL (except dashboard — always fresh)
+  var now = Date.now();
+  var cached = _pageCache[key];
+  if (key !== 'admin-dash' && key !== 'res-dash' && cached && (now - cached.ts) < _PAGE_TTL) {
+    return; // use cached DOM
+  }
+  _pageCache[key] = { ts: now };
   loadPageData(view, page);
+}
+
+// Call after mutations so next go() reloads fresh
+function invalidatePageCache(key) {
+  if (key) { delete _pageCache[key]; }
+  else { _pageCache = {}; }
 }
 
 function stab(grp, tab, btn) {
@@ -3623,6 +3665,7 @@ async function loadHousesPage() {
     _housesCache = houses;
     _housesAllCache = houses;
     renderHousesTable(houses);
+    _pageCache['admin-houses'] = { ts: Date.now() };
     // Update header count
     _setEl('dash-hdr-houses', houses.length);
     var phSub = document.querySelector('#p-admin-houses .ph-sub');
@@ -3757,6 +3800,249 @@ function viewHouseDetail(houseId) {
     if (r.isConfirmed) openEditHouseModal(houseId);
   });
 }
+
+// ============================================================
+// NOTIFICATION PANEL
+// ============================================================
+var _notifData    = [];
+var _notifRead    = JSON.parse(localStorage.getItem('vms5-read') || '[]');
+var _notifTab     = 'all';
+var _notifOpen    = false;
+
+function toggleNotifPanel() {
+  _notifOpen = !_notifOpen;
+  var panel    = document.getElementById('notif-panel');
+  var backdrop = document.getElementById('notif-backdrop');
+  if (!panel) return;
+  if (_notifOpen) {
+    panel.style.display    = 'flex';
+    backdrop.style.display = 'block';
+    loadNotifPanel();
+  } else {
+    panel.style.display    = 'none';
+    backdrop.style.display = 'none';
+  }
+}
+
+async function loadNotifPanel() {
+  var listEl = document.getElementById('notif-panel-list');
+  if (!listEl) return;
+  try {
+    // Fetch all notification sources in parallel
+    var [slips, reqs, issues, viols, anns, market] = await Promise.all([
+      api('getFees'),
+      api('getChangeRequests'),
+      api('getIssues'),
+      api('getViolations'),
+      api('getAnnouncements'),
+      api('getMarketplace'),
+    ]);
+
+    _notifData = [];
+
+    // Slips waiting approval
+    slips.filter(function(f){ return f.status === 'slip_submitted'; })
+      .forEach(function(f) {
+        _notifData.push({
+          id:    'slip-' + f.fee_id,
+          type:  'slip',
+          icon:  '🧾',
+          color: 'var(--prl)',
+          title: 'สลิปรอ Approve — บ้าน ' + f.house_id,
+          desc:  '฿' + Number(f.total||0).toLocaleString() + ' · งวด ' + f.period + '/' + f.year,
+          ts:    f.slip_submitted_at || f.issued_at,
+          action: function(){ closeM_notif(); go('admin','fees',null); },
+        });
+      });
+
+    // Pending change requests
+    reqs.filter(function(r){ return r.status === 'pending'; })
+      .forEach(function(r) {
+        _notifData.push({
+          id:    'req-' + r.req_id,
+          type:  'req',
+          icon:  '📝',
+          color: 'var(--acl)',
+          title: 'คำขอแก้ไข — บ้าน ' + r.house_id,
+          desc:  ({house:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',vehicle:'\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30',user:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1c\u0e39\u0e49\u0e43\u0e0a\u0e49'}[r.target_type] || r.target_type),
+          ts:    r.created_at,
+          action: function(){ closeM_notif(); go('admin','req',null); },
+        });
+      });
+
+    // Pending issues
+    issues.filter(function(i){ return i.status === 'pending'; })
+      .forEach(function(i) {
+        _notifData.push({
+          id:    'iss-' + i.issue_id,
+          type:  'issue',
+          icon:  '\ud83d\udd27',
+          color: '#fff3e0',
+          title: '\u0e1b\u0e31\u0e0d\u0e2b\u0e32\u0e43\u0e2b\u0e21\u0e48 — ' + i.title,
+          desc:  '\u0e1a\u0e49\u0e32\u0e19 ' + (i.house_id||'') + ' · ' + (i.category||''),
+          ts:    i.created_at,
+          action: function(){ closeM_notif(); go('admin','issues',null); },
+        });
+      });
+
+    // Pending violations
+    viols.filter(function(v){ return v.status === 'pending'; })
+      .forEach(function(v) {
+        _notifData.push({
+          id:    'vio-' + v.vio_id,
+          type:  'vio',
+          icon:  '⚠️',
+          color: 'var(--wnl)',
+          title: '\u0e01\u0e23\u0e30\u0e17\u0e33\u0e1c\u0e34\u0e14 — ' + v.title,
+          desc:  '\u0e1a\u0e49\u0e32\u0e19 ' + (v.house_id||'') + (Number(v.penalty_amount)>0 ? ' · \u0e04\u0e48\u0e32\u0e1b\u0e23\u0e31\u0e1a \u0e3f' + Number(v.penalty_amount).toLocaleString() : ''),
+          ts:    v.created_at,
+          action: function(){ closeM_notif(); go('admin','vio',null); },
+        });
+      });
+
+    // Pending marketplace listings
+    market.filter(function(m){ return m.status === 'pending'; })
+      .forEach(function(m) {
+        _notifData.push({
+          id:    'mkt-' + m.item_id,
+          type:  'market',
+          icon:  '🛒',
+          color: '#e8f5e9',
+          title: '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e23\u0e2d Approve — ' + m.title,
+          desc:  '\u0e1a\u0e49\u0e32\u0e19 ' + (m.house_id||'') + (m.price ? ' · \u0e3f' + Number(m.price).toLocaleString() : ' · \u0e43\u0e2b\u0e49\u0e1f\u0e23\u0e35'),
+          ts:    m.created_at,
+          action: function(){ closeM_notif(); go('admin','market',null); },
+        });
+      });
+
+    // Recent active announcements (for info, not actionable)
+    anns.filter(function(a){ return a.is_active===true||a.is_active==='TRUE'; })
+      .slice(0, 3)
+      .forEach(function(a) {
+        _notifData.push({
+          id:    'ann-' + a.ann_id,
+          type:  'ann',
+          icon:  '📢',
+          color: 'var(--bg2)',
+          title: a.title,
+          desc:  (a.content||'').substring(0, 60),
+          ts:    a.created_at,
+          action: function(){ closeM_notif(); go('admin','ann',null); },
+        });
+      });
+
+    // Sort by time (newest first)
+    _notifData.sort(function(a,b){
+      return new Date(b.ts||0) - new Date(a.ts||0);
+    });
+
+    renderNotifPanel();
+    updateBellBadge();
+
+  } catch(err) {
+    if (listEl) listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e42\u0e2b\u0e25\u0e14: ' + err.message + '</p>';
+  }
+}
+
+function closeM_notif() {
+  _notifOpen = false;
+  var p = document.getElementById('notif-panel'); if(p) p.style.display='none';
+  var b = document.getElementById('notif-backdrop'); if(b) b.style.display='none';
+}
+
+function renderNotifPanel() {
+  var listEl = document.getElementById('notif-panel-list');
+  if (!listEl) return;
+
+  var unread = _notifData.filter(function(n){ return !_notifRead.includes(n.id); });
+  var slips  = _notifData.filter(function(n){ return n.type === 'slip'; });
+
+  // Update tab counts
+  _setEl('nt-cnt-all',    _notifData.length || '');
+  _setEl('nt-cnt-unread', unread.length || '');
+  _setEl('nt-cnt-slip',   slips.length  || '');
+
+  var list = _notifTab === 'unread' ? unread
+           : _notifTab === 'slip'   ? slips
+           : _notifData;
+
+  if (!list.length) {
+    listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">' +
+      (_notifTab === 'unread' ? '\u2705 \u0e2d\u0e48\u0e32\u0e19\u0e04\u0e23\u0e1a\u0e17\u0e38\u0e01\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e41\u0e25\u0e49\u0e27' :
+       _notifTab === 'slip'   ? '\u0e44\u0e21\u0e48\u0e21\u0e35\u0e2a\u0e25\u0e34\u0e1b\u0e23\u0e2d' :
+       '\u0e44\u0e21\u0e48\u0e21\u0e35\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e40\u0e15\u0e37\u0e2d\u0e19') + '</p>';
+    return;
+  }
+
+  listEl.innerHTML = list.map(function(n, idx) {
+    var isUnread = !_notifRead.includes(n.id);
+    return '<div class="notif-item' + (isUnread ? ' unread' : '') + '" data-nidx="' + idx + '" onclick="handleNotifClick(' + idx + ',\'' + _notifTab + '\')">' +
+      '<div class="notif-icon" style="background:' + n.color + '">' + n.icon + '</div>' +
+      '<div class="notif-body">' +
+        '<div class="notif-title">' + n.title + '</div>' +
+        '<div class="notif-desc">' + n.desc + '</div>' +
+        '<div class="notif-time">' + _fmtDate(n.ts, false) + '</div>' +
+      '</div>' +
+      (isUnread ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--pr);flex-shrink:0;margin-top:4px"></div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function handleNotifClick(idx, tab) {
+  var list = tab === 'unread' ? _notifData.filter(function(n){ return !_notifRead.includes(n.id); })
+           : tab === 'slip'   ? _notifData.filter(function(n){ return n.type==='slip'; })
+           : _notifData;
+  var n = list[idx];
+  if (!n) return;
+  // Mark as read
+  if (!_notifRead.includes(n.id)) {
+    _notifRead.push(n.id);
+    localStorage.setItem('vms5-read', JSON.stringify(_notifRead));
+  }
+  updateBellBadge();
+  if (n.action) n.action();
+}
+
+function markAllNotifsRead() {
+  _notifData.forEach(function(n){ if (!_notifRead.includes(n.id)) _notifRead.push(n.id); });
+  localStorage.setItem('vms5-read', JSON.stringify(_notifRead));
+  updateBellBadge();
+  renderNotifPanel();
+}
+
+function switchNotifTab(tab, btn) {
+  _notifTab = tab;
+  document.querySelectorAll('.notif-tab').forEach(function(b) {
+    var isOn = b === btn;
+    b.classList.toggle('on', isOn);
+    b.style.borderBottomColor = isOn ? 'var(--pr)' : 'transparent';
+    b.style.color = isOn ? 'var(--pr)' : 'var(--mu)';
+  });
+  renderNotifPanel();
+}
+
+function updateBellBadge() {
+  var unreadCount = _notifData.filter(function(n){ return !_notifRead.includes(n.id); }).length;
+  var dot = document.getElementById('bell-dot');
+  if (dot) dot.style.display = unreadCount > 0 ? 'block' : 'none';
+  var btn = document.getElementById('btn-bell');
+  if (btn) {
+    var existing = btn.querySelector('.bell-count');
+    if (unreadCount > 0) {
+      if (!existing) {
+        var span = document.createElement('span');
+        span.className = 'bell-count';
+        span.style.cssText = 'position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--dg);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none';
+        btn.style.position = 'relative';
+        btn.appendChild(span);
+        existing = span;
+      }
+      existing.textContent = unreadCount > 99 ? '99+' : unreadCount;
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+}
 </script>
 
 <!-- MODAL: เพิ่มสมาชิก -->
@@ -3790,13 +4076,12 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
 </script>
 
 <!-- MODAL: เพิ่มบ้านใหม่ -->
-<div class="mo" id="m-addhouse" onclick="omOut(event,'m-addhouse')">
+<div class="mo" id="m-addhouse">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🏠</div>
     <div><div class="md-title">เพิ่มบ้านใหม่</div><div class="md-sub">กรอกข้อมูลบ้านและเจ้าของ</div></div>
-    <button class="md-x" onclick="closeM('m-addhouse')">✕</button>
   </div>
   <div class="md-bd">
     <div class="sl">📍 ที่อยู่</div>
@@ -3843,5 +4128,36 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
     <button class="btn btn-p btn-sm" onclick="doCreateHouse()">🏠 บันทึกบ้านใหม่</button>
   </div>
 </div></div>
+
+<!-- Notification Panel (slides in from top-right) -->
+<div id="notif-panel" style="
+  position:fixed;top:58px;right:0;width:340px;max-width:96vw;
+  background:var(--card);border:1.5px solid var(--bo);
+  border-radius:0 0 16px 16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.13);
+  z-index:999;
+  display:none;
+  max-height:calc(100vh - 80px);
+  overflow:hidden;
+  flex-direction:column;
+">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--bo)">
+    <div style="font-weight:800;font-size:14px;color:var(--tx)">🔔 การแจ้งเตือน</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="markAllNotifsRead()" style="font-size:11px;color:var(--pr);background:none;border:none;cursor:pointer;font-weight:600">อ่านทั้งหมด</button>
+      <button onclick="toggleNotifPanel()" style="width:26px;height:26px;border-radius:6px;background:var(--bg2);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+  </div>
+  <div id="notif-panel-tabs" style="display:flex;gap:0;border-bottom:1px solid var(--bo)">
+    <button class="notif-tab on" data-tab="all"    onclick="switchNotifTab('all',this)"    style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid var(--pr);color:var(--pr)">ทั้งหมด <span id="nt-cnt-all"  class="nb"></span></button>
+    <button class="notif-tab"    data-tab="unread" onclick="switchNotifTab('unread',this)" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid transparent;color:var(--mu)">ยังไม่อ่าน <span id="nt-cnt-unread" class="nb"></span></button>
+    <button class="notif-tab"    data-tab="slip"   onclick="switchNotifTab('slip',this)"   style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid transparent;color:var(--mu)">สลิป <span id="nt-cnt-slip" class="nb"></span></button>
+  </div>
+  <div id="notif-panel-list" style="overflow-y:auto;flex:1;padding:8px 0">
+    <p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">กำลังโหลด...</p>
+  </div>
+</div>
+<!-- Notif backdrop -->
+<div id="notif-backdrop" onclick="toggleNotifPanel()" style="position:fixed;inset:0;z-index:998;display:none;background:transparent"></div>
 </body>
 </html>
