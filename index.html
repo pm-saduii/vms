@@ -886,6 +886,23 @@ tr:hover td{background:var(--bg)}
 .th-dot[data-t="sand"]{background:linear-gradient(135deg,#7D5A3C 50%,#D4A853 50%)}
 .th-dot[data-t="violet"]{background:linear-gradient(135deg,#4527A0 50%,#7C4DFF 50%)}
 .th-dot[data-t="dark"]{background:linear-gradient(135deg,#111318 50%,#4F9CF9 50%)}
+/* Simple text theme buttons */
+.th-txt-btn{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);
+  color:var(--sbt);
+  border-radius:4px;
+  padding:3px 8px;
+  font-size:10px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .15s;
+  font-family:var(--font);
+}
+.th-txt-btn:hover{ background:rgba(255,255,255,.2); }
+.th-txt-btn.on{ background:rgba(255,255,255,.9); color:var(--pr); }
+/* Hide floating theme picker */
+.theme-picker{ display:none !important; }
 
 /* Loader overlay */
 .loader-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
@@ -935,28 +952,7 @@ tr:hover td{background:var(--bg)}
 </head>
 <body data-theme="normal">
 
-<!-- Floating Theme Picker -->
-<div class="theme-picker" id="theme-picker">
-  <div class="theme-picker-label">ธีม</div>
-  <div class="th-btn on" data-t="normal" onclick="setTheme('normal')">
-    <span class="th-btn-tip">Navy</span>
-  </div>
-  <div class="th-btn" data-t="sage" onclick="setTheme('sage')">
-    <span class="th-btn-tip">Sage</span>
-  </div>
-  <div class="th-btn" data-t="rose" onclick="setTheme('rose')">
-    <span class="th-btn-tip">Rose</span>
-  </div>
-  <div class="th-btn" data-t="sand" onclick="setTheme('sand')">
-    <span class="th-btn-tip">Sand</span>
-  </div>
-  <div class="th-btn" data-t="violet" onclick="setTheme('violet')">
-    <span class="th-btn-tip">Violet</span>
-  </div>
-  <div class="th-btn" data-t="dark" onclick="setTheme('dark')">
-    <span class="th-btn-tip">Dark</span>
-  </div>
-</div>
+<!-- Floating Theme Picker removed -->
 
 <!-- Loader -->
 <div id="loader" class="loader-overlay" style="display:none">
@@ -1033,14 +1029,14 @@ tr:hover td{background:var(--bg)}
       <div class="sb-item" onclick="go('admin','log',this)"><span class="sb-ico">📋</span>Login Logs</div>
     </nav>
     <div class="sb-themes">
-      <div class="sb-themes-lbl">🎨 ธีมสี</div>
-      <div class="th-dots">
-        <div class="th-dot on" data-t="normal" onclick="setTheme('normal')" title="Navy"></div>
-        <div class="th-dot" data-t="sage" onclick="setTheme('sage')" title="Sage"></div>
-        <div class="th-dot" data-t="rose" onclick="setTheme('rose')" title="Rose"></div>
-        <div class="th-dot" data-t="sand" onclick="setTheme('sand')" title="Sand"></div>
-        <div class="th-dot" data-t="violet" onclick="setTheme('violet')" title="Violet"></div>
-        <div class="th-dot" data-t="dark" onclick="setTheme('dark')" title="Dark"></div>
+      <div class="sb-themes-lbl" style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--sbm);text-transform:uppercase;padding:0 0 6px">ธีมสี</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        <button class="th-txt-btn" data-t="normal"  onclick="setTheme('normal')">Navy</button>
+        <button class="th-txt-btn" data-t="dark"    onclick="setTheme('dark')">Dark</button>
+        <button class="th-txt-btn" data-t="sage"    onclick="setTheme('sage')">Sage</button>
+        <button class="th-txt-btn" data-t="rose"    onclick="setTheme('rose')">Rose</button>
+        <button class="th-txt-btn" data-t="sand"    onclick="setTheme('sand')">Sand</button>
+        <button class="th-txt-btn" data-t="violet"  onclick="setTheme('violet')">Violet</button>
       </div>
     </div>
     <div class="sb-foot">
@@ -1074,14 +1070,14 @@ tr:hover td{background:var(--bg)}
       <div class="sb-item" onclick="go('res','profile',this)"><span class="sb-ico">👤</span>โปรไฟล์</div>
     </nav>
     <div class="sb-themes">
-      <div class="sb-themes-lbl">🎨 ธีมสี</div>
-      <div class="th-dots">
-        <div class="th-dot on" data-t="normal" onclick="setTheme('normal')" title="Navy"></div>
-        <div class="th-dot" data-t="sage" onclick="setTheme('sage')" title="Sage"></div>
-        <div class="th-dot" data-t="rose" onclick="setTheme('rose')" title="Rose"></div>
-        <div class="th-dot" data-t="sand" onclick="setTheme('sand')" title="Sand"></div>
-        <div class="th-dot" data-t="violet" onclick="setTheme('violet')" title="Violet"></div>
-        <div class="th-dot" data-t="dark" onclick="setTheme('dark')" title="Dark"></div>
+      <div class="sb-themes-lbl" style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--sbm);text-transform:uppercase;padding:0 0 6px">ธีมสี</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        <button class="th-txt-btn" data-t="normal"  onclick="setTheme('normal')">Navy</button>
+        <button class="th-txt-btn" data-t="dark"    onclick="setTheme('dark')">Dark</button>
+        <button class="th-txt-btn" data-t="sage"    onclick="setTheme('sage')">Sage</button>
+        <button class="th-txt-btn" data-t="rose"    onclick="setTheme('rose')">Rose</button>
+        <button class="th-txt-btn" data-t="sand"    onclick="setTheme('sand')">Sand</button>
+        <button class="th-txt-btn" data-t="violet"  onclick="setTheme('violet')">Violet</button>
       </div>
     </div>
     <div class="sb-foot">
@@ -1257,14 +1253,18 @@ tr:hover td{background:var(--bg)}
 
       <!-- ADMIN: HOUSES -->
       <div id="p-admin-houses" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · The Greenfield</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="sw('addhouse')">+ เพิ่มบ้าน</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · The Greenfield</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openAddHouseModal()">+ เพิ่มบ้าน</button></div></div></div>
         <div class="card">
           <div class="ch"><div class="ch-ico">🏠</div><div class="ct">รายการบ้านทั้งหมด</div>
-            <select class="fs" style="width:auto;padding:5px 10px;font-size:12px">
-              <option>ทุกสถานะ</option><option>ปกติ</option><option>ค้างชำระ</option><option>ระงับ</option>
+            <select class="fs" id="house-filter-status" style="width:auto;padding:5px 10px;font-size:12px" onchange="filterHousesTable()">
+              <option value="">ทุกสถานะ</option>
+              <option value="normal">ปกติ</option>
+              <option value="overdue">ค้างชำระ</option>
+              <option value="suspended">ระงับกรมที่ดิน</option>
+              <option value="legal">ฟ้องร้อง</option>
             </select>
           </div>
-          <div class="search-bar"><span>🔍</span><input type="text" placeholder="ค้นหาบ้านเลขที่ ชื่อ เบอร์โทร..."></div>
+          <div class="search-bar"><span>🔍</span><input type="text" id="house-search" placeholder="ค้นหาบ้านเลขที่ ชื่อ เบอร์โทร..." oninput="filterHousesTable()"></div>
           <div class="tw"><table><thead><tr><th>บ้านเลขที่</th><th>เจ้าของ</th><th>โทร</th><th>ค่าส่วนกลาง</th><th>สถานะ</th><th></th></tr></thead><tbody id="tbl-houses">
             <tr><td colspan="6" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
           </tbody></table></div>
@@ -2263,6 +2263,9 @@ function hideLoader() {
 // ============================================================
 function setTheme(t) {
   document.body.setAttribute('data-theme', t);
+  document.querySelectorAll('.th-txt-btn').forEach(function(b){
+    b.classList.toggle('on', b.dataset.t === t);
+  });
   document.querySelectorAll('.th-dot').forEach(function(d) {
     d.classList.toggle('on', d.dataset.t === t);
   });
@@ -2446,9 +2449,14 @@ async function loadAdminDashboard() {
        legal     > 0 ? legal     + ' ฟ้องร้อง' : '']
       .filter(Boolean).join(' · ') || 'ทุกบ้านปกติ');
 
-    _setEl('stat-overdue', dash.houses_overdue || 0);
+    var unpaidFees = fees.filter(function(f){ return f.status === 'pending' || f.status === 'overdue'; });
+    var unpaidCount = unpaidFees.length;
+    var unpaidAmt = unpaidFees.reduce(function(s,f){ return s + Number(f.total||0); }, 0);
+    _setEl('stat-overdue', unpaidCount);
     _setEl('stat-overdue-amt',
-      overdueAmt > 0 ? 'ยอดรวม ฿' + overdueAmt.toLocaleString() : 'ไม่มียอดค้าง');
+      unpaidAmt > 0 ? 'ยอดรวม ฿' + unpaidAmt.toLocaleString() : 'ไม่มียอดค้าง');
+    // Also update header collect to show unpaid total
+    _setEl('dash-hdr-collect', unpaidAmt > 0 ? '฿' + unpaidAmt.toLocaleString() : '฿0');
 
     _setEl('stat-slip', dash.slips_pending || 0);
     _setEl('stat-fees-pending',
@@ -3600,6 +3608,155 @@ function sw(t) {
       if (e.key === 'Enter') doLogin();
     });
 })();
+
+
+// ============================================================
+// HOUSES CRUD
+// ============================================================
+
+var _housesAllCache = [];  // full unfiltered list for client-side filter
+
+async function loadHousesPage() {
+  showLoader('โหลดข้อมูลบ้าน...');
+  try {
+    const houses = await api('getHouses');
+    _housesCache = houses;
+    _housesAllCache = houses;
+    renderHousesTable(houses);
+    // Update header count
+    _setEl('dash-hdr-houses', houses.length);
+    var phSub = document.querySelector('#p-admin-houses .ph-sub');
+    if (phSub) phSub.innerHTML = '<span id="dash-hdr-houses">' + houses.length + '</span> หน่วย · The Greenfield';
+  } finally { hideLoader(); }
+}
+
+function renderHousesTable(houses) {
+  var tbody = document.getElementById('tbl-houses');
+  if (!tbody) return;
+  if (!houses.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-mu" style="text-align:center;padding:30px">ไม่พบรายการ</td></tr>';
+    return;
+  }
+  var statusBadge = {
+    normal:    '<span class="bd b-ok">● ปกติ</span>',
+    overdue:   '<span class="bd b-wn">● ค้างชำระ</span>',
+    suspended: '<span class="bd b-dg">● ระงับ</span>',
+    legal:     '<span class="bd b-pur">⚖️ ฟ้องร้อง</span>',
+  };
+  tbody.innerHTML = houses.map(function(h) {
+    var dn = _safeHouseNo(h.house_no);
+    var badge = statusBadge[h.status] || '<span class="bd b-mu">' + h.status + '</span>';
+    return '<tr>' +
+      '<td><strong>' + dn + '</strong>' + (h.soi ? ' <span class="tag">' + h.soi + '</span>' : '') + '</td>' +
+      '<td>' + (h.owner_name||'—') + (h.renter_name ? '<div style="font-size:11px;color:var(--mu)">เช่า: ' + h.renter_name + '</div>' : '') + '</td>' +
+      '<td>' + (h.phone||'—') + '</td>' +
+      '<td class="text-pr fw-7">฿' + Number(h.fee_per_year||0).toLocaleString() + '</td>' +
+      '<td>' + badge + (h.status_note ? '<div style="font-size:10px;color:var(--mu);margin-top:2px">' + h.status_note + '</div>' : '') + '</td>' +
+      '<td style="display:flex;gap:5px">' +
+        '<button class="btn btn-xs btn-o" data-hid="' + h.house_id + '" onclick="openEditHouseModal(this.dataset.hid)">✏️ แก้ไข</button>' +
+        '<button class="btn btn-xs btn-g" data-hid="' + h.house_id + '" onclick="viewHouseDetail(this.dataset.hid)">ดู</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function filterHousesTable() {
+  var status = (document.getElementById('house-filter-status')||{}).value || '';
+  var search = ((document.getElementById('house-search')||{}).value || '').toLowerCase().trim();
+  var houses = _housesAllCache.filter(function(h) {
+    var matchStatus = !status || h.status === status;
+    var dn = _safeHouseNo(h.house_no).toLowerCase();
+    var matchSearch = !search ||
+      dn.includes(search) ||
+      (h.owner_name||'').toLowerCase().includes(search) ||
+      (h.renter_name||'').toLowerCase().includes(search) ||
+      (h.phone||'').toLowerCase().includes(search) ||
+      (h.soi||'').toLowerCase().includes(search);
+    return matchStatus && matchSearch;
+  });
+  renderHousesTable(houses);
+}
+
+function openAddHouseModal() {
+  // Clear all fields
+  ['addhouse-no','addhouse-soi','addhouse-area','addhouse-address',
+   'addhouse-owner','addhouse-renter','addhouse-phone','addhouse-email',
+   'addhouse-fee','addhouse-parking','addhouse-trash'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  var u = document.getElementById('addhouse-usage'); if (u) u.value = 'owner';
+  var t = document.getElementById('addhouse-type');  if (t) t.value = 'single_house';
+  openM('m-addhouse');
+}
+
+async function doCreateHouse() {
+  var house_no   = (document.getElementById('addhouse-no')||{}).value||'';
+  var owner_name = (document.getElementById('addhouse-owner')||{}).value||'';
+  house_no   = house_no.trim();
+  owner_name = owner_name.trim();
+
+  if (!house_no) { Swal.fire({ icon:'warning', title:'กรุณาระบุบ้านเลขที่' }); return; }
+  if (!owner_name) { Swal.fire({ icon:'warning', title:'กรุณาระบุชื่อเจ้าของ' }); return; }
+
+  showLoader('บันทึกข้อมูลบ้าน...');
+  try {
+    await api('createHouse', {
+      house_no:          house_no,
+      soi:               (document.getElementById('addhouse-soi')||{}).value||'',
+      address:           (document.getElementById('addhouse-address')||{}).value||'',
+      area_sqm:          Number((document.getElementById('addhouse-area')||{}).value)||0,
+      owner_name:        owner_name,
+      renter_name:       (document.getElementById('addhouse-renter')||{}).value||'',
+      phone:             (document.getElementById('addhouse-phone')||{}).value||'',
+      email:             (document.getElementById('addhouse-email')||{}).value||'',
+      fee_per_year:      Number((document.getElementById('addhouse-fee')||{}).value)||0,
+      parking_fee_year:  Number((document.getElementById('addhouse-parking')||{}).value)||0,
+      trash_fee_period:  Number((document.getElementById('addhouse-trash')||{}).value)||0,
+      usage_type:        (document.getElementById('addhouse-usage')||{}).value||'owner',
+      house_type:        (document.getElementById('addhouse-type')||{}).value||'single_house',
+    });
+    closeM('m-addhouse');
+    await loadHousesPage();
+    Swal.fire({
+      icon: 'success',
+      title: 'เพิ่มบ้านสำเร็จ',
+      text: 'บ้าน ' + house_no + ' ถูกบันทึกเรียบร้อย',
+      timer: 2000, showConfirmButton: false
+    });
+  } catch(err) {
+    Swal.fire({ icon:'error', title:'เกิดข้อผิดพลาด', text: err.message });
+  } finally { hideLoader(); }
+}
+
+function viewHouseDetail(houseId) {
+  var h = _housesCache.find(function(x){ return x.house_id === houseId; });
+  if (!h) return;
+  var usageLabel = {owner:'อยู่เอง',rent:'ให้เช่า',vacant:'ว่าง'}[h.usage_type]||h.usage_type||'—';
+  Swal.fire({
+    title: 'บ้าน ' + _safeHouseNo(h.house_no) + (h.soi?' '+h.soi:''),
+    html: '<div style="text-align:left;font-size:13px;line-height:1.8">' +
+      '<b>เจ้าของ:</b> ' + (h.owner_name||'—') + '<br>' +
+      (h.renter_name ? '<b>ผู้เช่า:</b> ' + h.renter_name + '<br>' : '') +
+      '<b>เบอร์โทร:</b> ' + (h.phone||'—') + '<br>' +
+      '<b>อีเมล:</b> ' + (h.email||'—') + '<br>' +
+      '<b>พื้นที่:</b> ' + (h.area_sqm||'0') + ' ตร.ว.<br>' +
+      '<b>การใช้:</b> ' + usageLabel + '<br>' +
+      '<hr style="margin:8px 0;border:1px solid var(--bo)">' +
+      '<b>ค่าส่วนกลาง/ปี:</b> ฿' + Number(h.fee_per_year||0).toLocaleString() + '<br>' +
+      '<b>ค่าจอดรถ/ปี:</b> ฿' + Number(h.parking_fee_year||0).toLocaleString() + '<br>' +
+      '<b>ค่าขยะ/งวด:</b> ฿' + Number(h.trash_fee_period||0).toLocaleString() + '<br>' +
+      (h.status_note ? '<b>หมายเหตุ:</b> ' + h.status_note : '') +
+    '</div>',
+    showCancelButton: true,
+    confirmButtonText: '✏️ แก้ไข',
+    cancelButtonText: 'ปิด',
+    customClass: { confirmButton:'btn btn-p', cancelButton:'btn btn-g' },
+    buttonsStyling: false
+  }).then(function(r) {
+    if (r.isConfirmed) openEditHouseModal(houseId);
+  });
+}
 </script>
 
 <!-- MODAL: เพิ่มสมาชิก -->
@@ -3631,5 +3788,60 @@ async function doSaveResProfile(){var ph=(document.getElementById('res-prof-phon
 async function doCreateContractor(){var nm=(document.getElementById('newcon-name')||{}).value||'',ph=(document.getElementById('newcon-phone')||{}).value||'',ar=(document.getElementById('newcon-area')||{}).value||'',bi=(document.getElementById('newcon-bio')||{}).value||'';var sc=document.getElementById('newcon-skills-container');var sk=sc?Array.from(sc.querySelectorAll('input[type=checkbox]:checked')).map(function(x){return x.parentElement.textContent.trim();}).join(', '):'';if(!nm.trim()||!ph.trim()){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e0a\u0e37\u0e48\u0e2d\u0e41\u0e25\u0e30\u0e40\u0e1a\u0e2d\u0e23\u0e4c\u0e42\u0e17\u0e23'});return;}showLoader('...');try{await api('createContractor',{name:nm.trim(),phone:ph.trim(),area:ar,bio:bi,skills:sk,status:'approved'});closeM('m-newcon');await loadContractorsPage();Swal.fire({icon:'success',title:'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
 function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return x.contractor_id===cid;});if(!c)return;var sk=[];try{sk=JSON.parse(c.skills||'[]');}catch(e){sk=c.skills?c.skills.split(','):[];}  _setEl('cd-name',c.name||'\u2014');_setEl('cd-rating',Number(c.rating_avg)>0?'&#11088;'+Number(c.rating_avg).toFixed(1)+' \u00b7 '+(c.rating_count||0)+' \u0e23\u0e35\u0e27\u0e34\u0e27':'\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e35\u0e27\u0e34\u0e27');_setEl('cd-phone','&#128222; '+(c.phone||'\u2014'));_setEl('cd-line',c.line_id||'\u2014');_setEl('cd-area','&#128205; '+(c.area||'\u2014'));_setEl('cd-status',c.status==='approved'?'\u2713 \u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34':'\u23f3 \u0e23\u0e2d');var se=document.getElementById('cd-skills');if(se)se.innerHTML=sk.map(function(s){return'<span class="con-tag">'+s.trim()+'</span>';}).join('')||'\u2014';_setEl('cd-bio',c.bio||'\u2014');var tl=document.getElementById('cd-tel-link');if(tl)tl.href=c.phone?'tel:'+c.phone.replace(/-/g,''):'#';openM('m-condetail');}
 </script>
+
+<!-- MODAL: เพิ่มบ้านใหม่ -->
+<div class="mo" id="m-addhouse" onclick="omOut(event,'m-addhouse')">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">🏠</div>
+    <div><div class="md-title">เพิ่มบ้านใหม่</div><div class="md-sub">กรอกข้อมูลบ้านและเจ้าของ</div></div>
+    <button class="md-x" onclick="closeM('m-addhouse')">✕</button>
+  </div>
+  <div class="md-bd">
+    <div class="sl">📍 ที่อยู่</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label><input class="fi" id="addhouse-no" placeholder="เช่น 10/1"></div>
+      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="addhouse-soi" placeholder="เช่น ซอย 3"></div>
+      <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="addhouse-area" type="number" placeholder="0"></div>
+    </div>
+    <div class="fg"><label class="fl">ที่อยู่เพิ่มเติม</label><input class="fi" id="addhouse-address" placeholder="ที่อยู่เต็ม (ถ้ามี)"></div>
+    <div class="sl">👤 เจ้าของ</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์ <span style="color:var(--dg)">*</span></label><input class="fi" id="addhouse-owner" placeholder="ชื่อ-นามสกุล"></div>
+      <div class="fg"><label class="fl">ผู้เช่า</label><input class="fi" id="addhouse-renter" placeholder="(ถ้ามี)"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">เบอร์โทรติดต่อ</label><input class="fi" id="addhouse-phone" placeholder="0xx-xxx-xxxx" type="tel"></div>
+      <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="addhouse-email" placeholder="email@example.com" type="email"></div>
+    </div>
+    <div class="sl">💰 ค่าธรรมเนียม (บาท/ปี หรือ งวด)</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="addhouse-fee" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ/ปี</label><input class="fi" id="addhouse-parking" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าขยะ/งวด</label><input class="fi" id="addhouse-trash" type="number" placeholder="0" min="0"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">ประเภทการใช้</label>
+        <select class="fs" id="addhouse-usage">
+          <option value="owner">อยู่เอง</option>
+          <option value="rent">ให้เช่า</option>
+          <option value="vacant">ว่าง</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">ประเภทบ้าน</label>
+        <select class="fs" id="addhouse-type">
+          <option value="single_house">บ้านเดี่ยว</option>
+          <option value="townhouse">ทาวน์เฮ้าส์</option>
+          <option value="condo">คอนโด</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-addhouse')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doCreateHouse()">🏠 บันทึกบ้านใหม่</button>
+  </div>
+</div></div>
 </body>
 </html>
