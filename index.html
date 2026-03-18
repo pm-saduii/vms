@@ -1311,7 +1311,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: HOUSES -->
       <div id="p-admin-houses" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · <span id="cfg-village-name2">The Greenfield</span></div></div></div><div class="ph-acts" style="display:flex;gap:8px">
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · <span id="cfg-village-name2">The Greenfield</span></div></div></div><div class="ph-acts" style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="loadHousesPage()" title="รีเฟรช">🔄</button>
               <button class="btn btn-ghost btn-sm" onclick="openBulkFeeModal()">🧮 คำนวณค่าส่วนกลาง</button>
               <button class="btn btn-ghost btn-sm" onclick="openAddHouseModal()">+ เพิ่มบ้าน</button>
             </div></div></div>
@@ -1334,7 +1334,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: FEES -->
       <div id="p-admin-fees" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💰</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">จัดการใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doGenerateFees()">⚡ Generate ใบแจ้งหนี้</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💰</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">จัดการใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadFeesPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="doGenerateFees()">⚡ Generate ใบแจ้งหนี้</button></div></div></div>
         <div class="stats" style="grid-template-columns:repeat(3,1fr)">
           <div class="sc"><div class="sc-ico p">💰</div><div><div class="sc-v" id="stat-fee-total" style="font-size:15px">—</div><div class="sc-l">รวมทั้งหมด</div></div></div>
           <div class="sc"><div class="sc-ico a">✓</div><div><div class="sc-v" id="stat-fee-paid">—</div><div class="sc-l">ชำระแล้ว</div></div></div>
@@ -1352,7 +1352,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: ISSUES -->
       <div id="p-admin-issues" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน</div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadIssuesPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ สร้างปัญหา</button></div></div></div>
         <div class="tabs">
           <button class="tab on" id="tab-iss-open" onclick="stab('ai','open',this)">🔴 รอดำเนินการ</button>
           <button class="tab" id="tab-iss-doing" onclick="stab('ai','doing',this)">🟡 กำลังดำเนิน</button>
@@ -1365,7 +1365,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: VIO      <!-- ADMIN: VIO (แจ้งกระทำผิด) -->
       <div id="p-admin-vio" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ แจ้งใหม่</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadIssuesPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="loadViolationsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ แจ้งใหม่</button></div></div></div>
         <div class="card">
           <div class="ch"><div class="ch-ico">⚠️</div><div class="ct">รายการแจ้งเตือนทั้งหมด</div></div>
           <div class="cb" id="list-violations">
@@ -1376,25 +1376,25 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: REQUEST (คำขอแก้ไข) -->
       <div id="p-admin-req" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📝</div><div><div class="ph-h1">คำขอแก้ไข</div><div class="ph-sub" id="req-sub">รอการอนุมัติ</div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📝</div><div><div class="ph-h1">คำขอแก้ไข</div><div class="ph-sub" id="req-sub">รอการอนุมัติ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadChangeReqPage()" title="รีเฟรช">🔄</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📝</div><div class="ct">คำขอแก้ไขข้อมูลบ้าน</div></div><div class="cb" id="list-change-reqs"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
       <!-- ADMIN: ANNOUNCE      <!-- ADMIN: ANNOUNCE -->
       <div id="p-admin-ann" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📢</div><div><div class="ph-h1">ประกาศ</div><div class="ph-sub">จัดการข่าวสารและประกาศ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newann')">+ ออกประกาศ</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📢</div><div><div class="ph-h1">ประกาศ</div><div class="ph-sub">จัดการข่าวสารและประกาศ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadChangeReqPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="loadAnnouncementsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newann')">+ ออกประกาศ</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📢</div><div class="ct">ประกาศทั้งหมด</div></div><div class="cb" id="list-announcements"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
       <!-- ADMIN: REPORT      <!-- ADMIN: REPORT -->
       <div id="p-admin-rep" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏆</div><div><div class="ph-h1">ผลงานนิติ</div><div class="ph-sub">รายงานประจำเดือน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newrep')">+ เพิ่มรายงาน</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏆</div><div><div class="ph-h1">ผลงานนิติ</div><div class="ph-sub">รายงานประจำเดือน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadReportsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newrep')">+ เพิ่มรายงาน</button></div></div></div>
         <div id="list-reports" class="g2"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">กำลังโหลด...</p></div>
       </div>
 
       <!-- ADMIN: CONTRACTOR      <!-- ADMIN: CONTRACTOR -->
       <div id="p-admin-contractor" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔨</div><div><div class="ph-h1">ทะเบียนช่าง</div><div class="ph-sub">จัดการข้อมูลช่างและผู้รับเหมา</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newcon')">+ เพิ่มช่าง</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔨</div><div><div class="ph-h1">ทะเบียนช่าง</div><div class="ph-sub">จัดการข้อมูลช่างและผู้รับเหมา</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadContractorsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newcon')">+ เพิ่มช่าง</button></div></div></div>
         <div class="tabs"><button class="tab on" onclick="stab('acon','approved',this)">✅ อนุมัติแล้ว</button><button class="tab" id="tab-con-pending" onclick="stab('acon','pending',this)">⏳ รออนุมัติ</button></div>
         <div id="acon-approved" class="pane on"><div class="g2" id="list-contractors-approved"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">กำลังโหลด...</p></div></div>
         <div id="acon-pending" class="pane"><div id="list-contractors-pending"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
@@ -1402,7 +1402,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: MARKET      <!-- ADMIN: MARKET -->
       <div id="p-admin-market" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🛒</div><div><div class="ph-h1">ประกาศขาย-ให้ฟรี</div><div class="ph-sub" id="mkt-sub">จัดการประกาศ</div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🛒</div><div><div class="ph-h1">ประกาศขาย-ให้ฟรี</div><div class="ph-sub" id="mkt-sub">จัดการประกาศ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadMarketPage()" title="รีเฟรช">🔄</button></div></div></div>
         <div class="tabs"><button class="tab on" id="tab-amk-pending" onclick="stab('amk','pending',this)">⏳ รออนุมัติ</button><button class="tab" onclick="stab('amk','active',this)">✅ เปิดประกาศ</button><button class="tab" onclick="stab('amk','closed',this)">🔴 ปิดแล้ว</button></div>
         <div id="amk-pending" class="pane on"><div id="list-market-pending"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
         <div id="amk-active" class="pane"><div id="list-market-active"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
@@ -1411,7 +1411,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: USERS      <!-- ADMIN: USERS -->
       <div id="p-admin-usr" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">👥</div><div><div class="ph-h1">สมาชิก</div><div class="ph-sub">จัดการบัญชีผู้ใช้งาน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-adduser')">+ เพิ่มสมาชิก</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">👥</div><div><div class="ph-h1">สมาชิก</div><div class="ph-sub">จัดการบัญชีผู้ใช้งาน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadMarketAdminPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="loadUsersPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-adduser')">+ เพิ่มสมาชิก</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">👥</div><div class="ct">รายชื่อสมาชิก</div></div>
           <div class="tw"><table><thead><tr><th>ID</th><th>Username</th><th>บ้าน</th><th>Role</th><th>สถานะ</th></tr></thead><tbody id="tbl-users">
             <tr><td colspan="5" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
@@ -1421,7 +1421,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: LOGIN LOGS -->
       <div id="p-admin-log" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📋</div><div><div class="ph-h1">Login Logs</div><div class="ph-sub">บันทึกการเข้าใช้ระบบ</div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📋</div><div><div class="ph-h1">Login Logs</div><div class="ph-sub">บันทึกการเข้าใช้ระบบ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadLoginLogsPage()" title="รีเฟรช">🔄</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📋</div><div class="ct">บันทึกล่าสุด</div></div>
           <div class="tw"><table><thead><tr><th>#</th><th>Username</th><th>Role</th><th>วันที่</th><th>ผล</th></tr></thead><tbody id="tbl-logs">
             <tr><td colspan="5" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
@@ -1436,7 +1436,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="ph-ico">⚙️</div>
             <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
           </div>
-          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadLogsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
         </div></div>
 
         <!-- ── 1: ข้อมูลหมู่บ้าน ── -->
@@ -1577,7 +1577,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="ph-ico">🚗</div>
             <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">จัดการยานพาหนะในหมู่บ้านทั้งหมด</div></div>
           </div>
-          <div class="ph-acts">
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadAdminVehiclePage()" title="รีเฟรช">🔄</button>
             <button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">+ เพิ่มรถ (Admin)</button>
           </div>
         </div></div>
@@ -1638,7 +1638,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: HOUSE -->
       <div id="p-res-house" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">บ้าน — ซอย —</span></div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">บ้าน — ซอย —</span></div></div></div>
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResHousePage()" title="รีเฟรช">🔄</button></div></div></div>
 
         <!-- Status Bar -->
         <div class="card" style="margin-bottom:16px">
@@ -1756,7 +1757,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: FEE -->
       <div id="p-res-fee" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💳</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">ประวัติใบแจ้งหนี้และการชำระ</div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💳</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">ประวัติใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResFeePage()" title="รีเฟรช">🔄</button></div></div></div>
         <div class="fee-hero"><div class="fhi">
           <div class="f-lbl">ยอดค้างชำระปัจจุบัน</div>
           <div class="f-amt" id="res-fee-amount">—</div>
@@ -1846,7 +1847,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: ISSUE -->
       <div id="p-res-issue" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">ปัญหาที่แจ้งไว้</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newissue')">+ แจ้งปัญหา</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">ปัญหาที่แจ้งไว้</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResIssuePage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newissue')">+ แจ้งปัญหา</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">🔧</div><div class="ct">ปัญหาที่แจ้ง</div></div><div class="cb" id="list-my-issues"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
@@ -1961,7 +1962,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="ph-ico">🚗</div>
             <div><div class="ph-h1">ยานพาหนะของฉัน</div><div class="ph-sub">รถที่จดทะเบียนในหมู่บ้าน</div></div>
           </div>
-          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openAddCarModal()">+ เพิ่มรถ</button></div>
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResVehiclePage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openAddCarModal()">+ เพิ่มรถ</button></div>
         </div></div>
         <div id="res-veh-pending-section" style="display:none">
           <div class="card" style="margin-bottom:14px;border-color:var(--wn)">
@@ -2068,6 +2069,22 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <option value="inactive">ไม่ได้ใช้งาน</option>
         </select></div>
     </div>
+  </div>
+    <div class="fg" style="margin-top:8px">
+      <label class="fl">รูปภาพรถ</label>
+      <div id="car-img-wrap"></div>
+    </div>
+  </div>
+  <div class="md-bd" style="border-top:1px solid var(--bo);padding-top:12px">
+    <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
+    <div id="car-img-input-wrap">
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
+        📷 เลือกรูปภาพ
+        <input type="file" id="car-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'car-')">
+      </label>
+      <span style="font-size:11.5px;color:var(--mu);margin-left:8px">JPG, PNG ไม่เกิน 5 รูป · จะบีบอัดอัตโนมัติ</span>
+    </div>
+    <div id="car-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-addcar')">ยกเลิก</button>
@@ -5077,6 +5094,8 @@ function _vdGetColor(mode) {
 
 // Open add car modal
 function openAddCarModal() {
+  _carImages = [];
+  _renderCarImagePreviews('car-');
   _initVehicleDropdowns('car-');
   var typeEl = document.getElementById('car-type');
   var plateEl = document.getElementById('car-plate');
@@ -5088,6 +5107,7 @@ function openAddCarModal() {
   var statEl = document.getElementById('car-status');  if (statEl)   statEl.value  = 'active';
   var brandInp = document.getElementById('car-brand');  if (brandInp) brandInp.style.display = 'none';
   var colorInp = document.getElementById('car-color');  if (colorInp) colorInp.style.display = 'none';
+  _initCarImageUpload('car');
   openM('m-addcar');
 }
 
@@ -5133,9 +5153,11 @@ async function doSubmitAddCar() {
 
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30...');
   try {
+    var imgUrls = await _uploadCarImages();
     await api('createVehicle', {
       type, plate_number: plate, brand, model, color, province: prov,
-      parking_location: park, status: stat
+      parking_location: park, status: stat,
+      image_urls: imgUrls
     });
     closeM('m-addcar');
     Swal.fire({ icon:'success', title:'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1800, showConfirmButton:false });
@@ -5299,6 +5321,8 @@ async function doRejectVehicle(vehicleId) {
 
 // ── Admin Add Car (auto-approved) ──
 function openAdminAddCarModal() {
+  _carImages = [];
+  _renderCarImagePreviews('acar-');
   _initVehicleDropdowns('acar-');
   // Populate house dropdown from _housesAllCache
   var houseSel = document.getElementById('acar-houseid');
@@ -5332,6 +5356,7 @@ function openAdminAddCarModal() {
         }).join('');
     }).catch(function(){});
   }
+  _initCarImageUpload('acar');
   openM('m-admin-addcar');
 }
 
@@ -5394,8 +5419,10 @@ async function doAdminAddCar() {
 
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
   try {
+    var imgUrls = await _uploadCarImages();
     await api('createVehicle', { house_id:houseId, type, plate_number:plate, brand, model,
-      color, province:prov, parking_location:park, status:stat });
+      color, province:prov, parking_location:park, status:stat,
+      image_urls: imgUrls });
     closeM('m-admin-addcar');
     invalidatePageCache('admin-vehicle');
     await loadAdminVehiclePage();
@@ -5535,6 +5562,113 @@ async function openResEditCarModal(vehicleId) {
     if (!v) return;
     openEditCarModal(v);
   } catch(e) { hideLoader(); }
+}
+
+
+// ============================================================
+// CAR IMAGE UPLOAD — up to 5 images, resize, rename CAR_date_time
+// ============================================================
+var _carImages = []; // [{file, dataUrl, renamed}]
+
+function _initCarImageUpload(prefix) {
+  // prefix = 'car' for addcar, 'acar' for admin addcar
+  _carImages = [];
+  var wrap = document.getElementById(prefix + '-img-wrap');
+  if (!wrap) return;
+  wrap.innerHTML =
+    '<div id="' + prefix + '-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>' +
+    '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border:2px dashed var(--bo);border-radius:10px;font-size:13px;color:var(--mu)">' +
+      '<input type="file" id="' + prefix + '-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,\'' + prefix + '\')">' +
+      '<span style="font-size:20px">📷</span>' +
+      '<span>แนบรูปรถ <span style="color:var(--ac);font-weight:600">สูงสุด 5 รูป</span> (คลิกหรือลากมาวาง)</span>' +
+    '</label>' +
+    '<div id="' + prefix + '-img-count" style="font-size:11.5px;color:var(--mu);margin-top:4px"></div>';
+}
+
+function onCarImageSelect(input, prefix) {
+  var files = Array.from(input.files);
+  var remaining = 5 - _carImages.length;
+  if (remaining <= 0) {
+    Swal.fire({ icon:'warning', title:'\u0e41\u0e19\u0e1a\u0e23\u0e39\u0e1b\u0e44\u0e14\u0e49\u0e2a\u0e39\u0e07\u0e2a\u0e38\u0e14 5 \u0e23\u0e39\u0e1b', timer:1500, showConfirmButton:false });
+    return;
+  }
+  files = files.slice(0, remaining);
+  input.value = '';
+
+  files.forEach(function(file) {
+    var now = new Date();
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var dt = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) +
+             '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) +
+             '_' + Math.floor(Math.random()*1000);
+    var ext = (file.name.match(/\.(\w+)$/) || [,'jpg'])[1].toLowerCase();
+    var renamed = 'CAR_' + dt + '.' + ext;
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      // Resize image: max 1280px width/height
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var MAX = 1280;
+        var w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        _carImages.push({ file: file, dataUrl: dataUrl, renamed: renamed });
+        _renderCarImagePreviews(prefix);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function _renderCarImagePreviews(prefix) {
+  var wrap = document.getElementById(prefix + '-img-previews');
+  var count = document.getElementById(prefix + '-img-count');
+  if (!wrap) return;
+  wrap.innerHTML = _carImages.map(function(img, idx) {
+    return '<div style="position:relative;display:inline-block">' +
+      '<img src="' + img.dataUrl + '" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
+      '<button onclick="_removeCarImage(' + idx + ',\'' + prefix + '\')" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;text-align:center;padding:0">\u00d7</button>' +
+      '<div style="font-size:9px;color:var(--mu);text-align:center;max-width:80px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">' + img.renamed + '</div>' +
+    '</div>';
+  }).join('');
+  if (count) count.textContent = _carImages.length + '/5 รูป';
+}
+
+function _removeCarImage(idx, prefix) {
+  _carImages.splice(idx, 1);
+  _renderCarImagePreviews(prefix);
+}
+
+// Upload all images to GAS as base64, return array of URLs
+async function _uploadCarImages() {
+  if (!_carImages.length) return [];
+  var urls = [];
+  for (var i = 0; i < _carImages.length; i++) {
+    var img = _carImages[i];
+    // Extract base64 data (remove data:image/jpeg;base64, prefix)
+    var base64 = img.dataUrl.split(',')[1];
+    var mimeType = img.dataUrl.split(';')[0].replace('data:','');
+    try {
+      var res = await api('uploadImage', {
+        filename: img.renamed,
+        base64: base64,
+        mimeType: mimeType
+      });
+      if (res && res.url) urls.push(res.url);
+    } catch(e) {
+      console.warn('Image upload failed:', img.renamed, e.message);
+    }
+  }
+  return urls;
 }
 
 </script>
@@ -5857,6 +5991,22 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
           <option value="inactive">ไม่ได้ใช้งาน</option>
         </select></div>
     </div>
+  </div>
+    <div class="fg" style="margin-top:8px">
+      <label class="fl">รูปภาพรถ</label>
+      <div id="acar-img-wrap"></div>
+    </div>
+  </div>
+  <div class="md-bd" style="border-top:1px solid var(--bo);padding-top:12px">
+    <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
+    <div>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
+        📷 เลือกรูปภาพ
+        <input type="file" id="acar-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'acar-')">
+      </label>
+      <span style="font-size:11.5px;color:var(--mu);margin-left:8px">JPG, PNG ไม่เกิน 5 รูป · จะบีบอัดอัตโนมัติ</span>
+    </div>
+    <div id="acar-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-admin-addcar')">ยกเลิก</button>

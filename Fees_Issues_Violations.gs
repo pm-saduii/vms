@@ -30,28 +30,51 @@ var Fees = (function() {
     if (!year || !period) throw new Error('year และ period (H1/H2) จำเป็น');
 
     const houses = sheetToObjects('HOUSES');
-    const existing = sheetToObjects('FEES').filter(
+    const allFees = sheetToObjects('FEES');
+
+    const existing = allFees.filter(
       r => String(r.year) === String(year) && r.period === period
     );
     const existingHids = existing.map(r => r.house_id);
 
+    // หางวดก่อนหน้า: H1/YYYY ← H2/(YYYY-1), H2/YYYY ← H1/YYYY
+    const prevPeriod = period === 'H1' ? 'H2' : 'H1';
+    const prevYear   = period === 'H1' ? String(Number(year) - 1) : String(year);
+
     const created = [];
     houses.forEach(h => {
-      if (existingHids.includes(h.house_id)) return; // skip ถ้ามีแล้ว
+      if (existingHids.includes(h.house_id)) return;
 
-      // คำนวณยอดค้างจากงวดก่อน
-      const allFees = sheetToObjects('FEES').filter(
-        r => r.house_id === h.house_id && r.status === 'overdue'
+      // คำนวณยอดค้างชำระจากงวดก่อนหน้าโดยตรง (ไม่ใช่ทุกงวดที่ค้าง)
+      // รวม: fee_amount + parking_fee + trash_fee + other_fee + penalty_fee
+      //       + penalty_10pct + collection_fee - discount (เฉพาะงวดก่อนหน้า ที่ยังไม่จ่าย)
+      // รวมยอดค้างชำระทุกรอบที่ยังไม่จ่าย (ไม่รวมรอบที่กำลัง generate)
+      // รวม: fee_amount + parking_fee + trash_fee + other_fee + penalty_fee
+      //       + penalty_10pct + collection_fee + overdue_carry - discount
+      const prevFees = allFees.filter(r =>
+        r.house_id === h.house_id &&
+        r.status !== 'paid' &&
+        !(String(r.year) === String(year) && r.period === period) // ไม่รวมรอบปัจจุบัน
       );
-      const overdue_carry = allFees.reduce((s, r) => s + (Number(r.total) || 0), 0);
+      const overdue_carry = parseFloat(prevFees.reduce((s, r) => {
+        const rowTotal =
+          (Number(r.fee_amount)     || 0) +
+          (Number(r.parking_fee)    || 0) +
+          (Number(r.trash_fee)      || 0) +
+          (Number(r.other_fee)      || 0) +
+          (Number(r.penalty_fee)    || 0) +
+          (Number(r.penalty_10pct)  || 0) +
+          (Number(r.collection_fee) || 0) +
+          (Number(r.overdue_carry)  || 0) - // รวม carry จากรอบก่อนด้วย
+          (Number(r.discount)       || 0);
+        return s + Math.max(0, rowTotal);
+      }, 0).toFixed(2));
 
-      const fee_amount   = Number(h.fee_per_year || 0) / 2;
-      const parking_fee  = Number(h.parking_fee_year || 0) / 2;
-      const trash_fee    = Number(h.trash_fee_period || 0);
-      const total_raw    = fee_amount + parking_fee + trash_fee + overdue_carry;
-      const due_date     = period === 'H1'
-        ? year + '-03-31'
-        : year + '-09-30';
+      const fee_amount  = parseFloat((Number(h.fee_per_year   || 0) / 2).toFixed(2));
+      const parking_fee = parseFloat((Number(h.parking_fee_year || 0) / 2).toFixed(2));
+      const trash_fee   = parseFloat(Number(h.trash_fee_period || 0).toFixed(2));
+      const total_raw   = parseFloat((fee_amount + parking_fee + trash_fee + overdue_carry).toFixed(2));
+      const due_date    = period === 'H1' ? year + '-03-31' : year + '-09-30';
 
       const row = {
         fee_id:           genId('FEE'),
@@ -63,7 +86,7 @@ var Fees = (function() {
         trash_fee:        trash_fee,
         other_fee:        0,
         penalty_fee:      0,
-        overdue_carry:    overdue_carry,
+        overdue_carry:    parseFloat(overdue_carry.toFixed(2)),
         penalty_10pct:    0,
         collection_fee:   0,
         discount:         0,
@@ -80,6 +103,12 @@ var Fees = (function() {
       };
       appendRow('FEES', row);
       created.push(row.fee_id);
+
+      Logger.log('Generated FEE for ' + h.house_id +
+        ' | period=' + period + '/' + year +
+        ' | fee=' + fee_amount + ' parking=' + parking_fee +
+        ' trash=' + trash_fee + ' carry=' + overdue_carry +
+        ' total=' + total_raw);
     });
     return { success: true, created: created.length };
   }
