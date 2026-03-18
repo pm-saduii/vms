@@ -34,8 +34,10 @@ function _route(body) {
 
     const R = {
       /* AUTH */
-      'login':                 () => Auth.login(body),
-      'changePassword':        () => Auth.changePassword(body, user),
+      'login':                  () => Auth.login(body),
+      'changePassword':         () => Auth.changePassword(body, user),
+      'verifyResetIdentity':    () => Auth.verifyResetIdentity(body),
+      'resetPasswordById':      () => Auth.resetPasswordById(body),
       /* HOUSES */
       'getHouses':             () => Houses.getAll(body, user),
       'getHouseById':          () => Houses.getById(body, user),

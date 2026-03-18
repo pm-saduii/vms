@@ -150,10 +150,11 @@ function _createFirstAdmin(ss) {
 // ── Seed default SETTINGS (only if empty) ──────────────────
 function _seedSettings(ss) {
   const sh = ss.getSheetByName('SETTINGS');
-  if (!sh || sh.getLastRow() > 1) {
-    Logger.log('SETTINGS already has data — skipping seed.');
-    return;
-  }
+  if (!sh) { Logger.log('SETTINGS sheet not found'); return; }
+  // Get existing keys to avoid duplicates
+  const existingRows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow()-1, 1).getValues().flat().map(String) : [];
+  const addMissing = existingRows.length > 0;
+  if (addMissing) Logger.log('SETTINGS has data — adding missing keys only.');
   const defaults = [
     // group: village
     ['village_name',        'The Greenfield',              'ชื่อหมู่บ้าน',              'village'],
@@ -179,12 +180,21 @@ function _seedSettings(ss) {
     ['juristic_name',       '',                            'ชื่อนิติบุคคล',              'juristic'],
     ['juristic_id',         '',                            'เลขทะเบียนนิติ',             'juristic'],
     ['juristic_address',    '',                            'ที่อยู่นิติบุคคล',            'juristic'],
+    // group: fee_calc
+    ['fee_rate_per_sqw',    '40',                          'ค่าส่วนกลางต่อตารางวา (บาท/เดือน)', 'fee_calc'],
+    ['fee_trash_per_year',  '600',                         'ค่าขยะต่อปี (บาท)',            'fee_calc'],
+    ['fee_parking_per_car', '1200',                        'ค่าจอดรถต่อคัน/ปี (บาท)',      'fee_calc'],
+    ['fee_discount_pct',    '5',                           '% ส่วนลดชำระเต็มปี',           'fee_calc'],
   ];
   const ts = new Date().toISOString();
+  var added = 0;
   defaults.forEach(function([key, value, label, group]) {
-    sh.appendRow([key, value, label, group, ts]);
+    if (!existingRows.includes(key)) {
+      sh.appendRow([key, value, label, group, ts]);
+      added++;
+    }
   });
-  Logger.log('SETTINGS seeded with ' + defaults.length + ' defaults.');
+  Logger.log('SETTINGS: added ' + added + ' new keys (' + existingRows.length + ' already existed).');
 }
 
 // ── Reset admin password (use if locked out) ──
