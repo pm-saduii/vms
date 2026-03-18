@@ -914,7 +914,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 /* Login Screen */
 #login-screen{position:fixed;inset:0;background:var(--bg);z-index:8000;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-box{width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--bo);border-radius:20px;overflow:hidden;box-shadow:var(--shm)}
+.login-box{width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--bo);border-radius:20px;overflow:hidden;box-shadow:var(--shm);transition:opacity .3s}
 .login-header{background:var(--hg);padding:28px 28px 24px;text-align:center;position:relative;overflow:hidden}
 .login-header::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.07);border-radius:50%}
 .login-logo{font-size:36px;margin-bottom:8px;position:relative;z-index:1}
@@ -986,7 +986,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 <!-- Login Screen -->
 <div id="login-screen">
-  <div class="login-box">
+  <div id="login-loading" style="color:var(--mu);font-size:13px;margin-bottom:16px;text-align:center;transition:opacity .3s">กำลังโหลด...</div>
+  <div class="login-box" id="login-box" style="opacity:0">
     <div class="login-header">
       <div class="login-logo" id="login-logo">🏘️</div>
       <div class="login-title" id="login-title">The Greenfield</div>
@@ -2581,6 +2582,10 @@ async function initApp() {
     // ONE request replaces 7+ separate calls (saves 12-18s)
     const boot = await api('getBoot');
     APP.settings = boot.settings || {};
+    // Cache settings for next login
+    if (boot.settings && Object.keys(boot.settings).length > 0) {
+      localStorage.setItem('vms5-settings', JSON.stringify(boot.settings));
+    }
     applySettings();
     if (user.role === 'admin') {
       document.getElementById('anav').style.display = 'flex';
@@ -3911,21 +3916,44 @@ function sw(t) {
 // STARTUP
 // ============================================================
 (function() {
-  // Load settings before login so login screen shows correct branding
+
+  function _showLoginBox() {
+    var box = document.getElementById('login-box');
+    var ldr = document.getElementById('login-loading');
+    if (box) box.style.opacity = '1';
+    if (ldr) ldr.style.opacity = '0';
+    setTimeout(function() { if (ldr) ldr.style.display = 'none'; }, 350);
+  }
+
+  // Step 1: Apply cached settings immediately (instant display)
+  try {
+    var cached = localStorage.getItem('vms5-settings');
+    if (cached) {
+      APP.settings = JSON.parse(cached);
+      applySettings();
+    }
+  } catch(e) {}
+
+  // Step 2: Fetch fresh settings from GAS (update cache + re-apply)
   (async function() {
     try {
-      // Public call — no token needed (we make getSettings public in Code.gs)
       var params = new URLSearchParams({ payload: JSON.stringify({ action: 'getSettings' }) });
-      var res = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
+      var res  = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
       var json = await res.json();
-      if (json.code === 200) {
-        APP.settings = json.data || {};
+      if (json.code === 200 && json.data && Object.keys(json.data).length > 0) {
+        APP.settings = json.data;
+        localStorage.setItem('vms5-settings', JSON.stringify(json.data));
         applySettings();
       }
-    } catch(e) { /* silently fail — use defaults */ }
+    } catch(e) { /* network error — use cache or defaults */ }
+    // Always show login box after fetch attempt (success or fail)
+    _showLoginBox();
   })();
 
-  // Check for saved session
+  // Fallback: show login box after 4 seconds even if GAS is very slow
+  setTimeout(_showLoginBox, 4000);
+
+  // Step 3: Check for saved session
   var savedToken = sessionStorage.getItem('vms_token');
   var savedUser  = sessionStorage.getItem('vms_user');
   if (savedToken && savedUser) {
@@ -4403,11 +4431,17 @@ async function doSaveSettings() {
   showLoader('บันทึกการตั้งค่า...');
   try {
     await api('saveSettings', { settings: updates });
-    // Update local cache
+    // Update local APP.settings cache
     Object.keys(updates).forEach(function(k) {
       if (!APP.settings[k]) APP.settings[k] = {};
       APP.settings[k].value = updates[k];
     });
+    // Refresh from server to get full row objects
+    try {
+      var fresh = await api('getSettings');
+      APP.settings = fresh;
+      localStorage.setItem('vms5-settings', JSON.stringify(fresh));
+    } catch(e) {}
     applySettings();
     hideLoader();
     Swal.fire({ icon:'success', title:'บันทึกสำเร็จ', text:'การตั้งค่าถูกอัปเดตแล้ว', timer:1800, showConfirmButton:false });
