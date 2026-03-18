@@ -106,6 +106,7 @@ var Fees = (function() {
         house_id:         h.house_id,
         year:             year,
         period:           period,
+        bill_type:        'half_year',
         fee_amount:       fee_amount,
         parking_fee:      parking_fee,
         trash_fee:        trash_fee,
@@ -231,7 +232,84 @@ var Fees = (function() {
     return { success: true, fee_id, total: updates.total };
   }
 
-  return { getAll, getByHouse, generate, submitSlip, approveSlip, issueNewBill, update };
+  
+  // ─────────────────────────────────────────
+  // generateFullYear: ออกใบแจ้งหนี้เต็มปี
+  // ─────────────────────────────────────────
+  function generateFullYear(body, user) {
+    requireAdmin(user);
+    const { year } = body;
+    if (!year) throw new Error('year จำเป็น');
+
+    const houses   = sheetToObjects('HOUSES');
+    const allFees  = sheetToObjects('FEES');
+    const settings = sheetToObjects('SETTINGS');
+    const cfg = {};
+    settings.forEach(r => { cfg[r.key] = r.value; });
+    const discPct = parseFloat(cfg['fee_discount_pct'] || 0);
+    const dueDay  = cfg['fee_due_day'] || '31';
+    const dueDate = year + '-01-' + String(dueDay).padStart(2, '0');
+
+    const existingFull = allFees
+      .filter(r => String(r.year) === String(year) && r.bill_type === 'full_year')
+      .map(r => r.house_id);
+
+    const created = [];
+    houses.forEach(h => {
+      if (existingFull.includes(h.house_id)) return;
+
+      const prevFees = allFees.filter(r =>
+        r.house_id === h.house_id &&
+        r.status !== 'paid' &&
+        String(r.year) !== String(year)
+      );
+      const overdue_carry = parseFloat(prevFees.reduce((s, r) => {
+        const t = (Number(r.fee_amount) || 0) + (Number(r.parking_fee) || 0) +
+          (Number(r.trash_fee) || 0) + (Number(r.other_fee) || 0) +
+          (Number(r.penalty_fee) || 0) + (Number(r.penalty_10pct) || 0) +
+          (Number(r.collection_fee) || 0) + (Number(r.overdue_carry) || 0) -
+          (Number(r.discount) || 0);
+        return s + Math.max(0, t);
+      }, 0).toFixed(2));
+
+      const fee_amount  = parseFloat(Number(h.fee_per_year    || 0).toFixed(2));
+      const parking_fee = parseFloat(Number(h.parking_fee_year || 0).toFixed(2));
+      const trash_fee   = parseFloat((Number(h.trash_fee_period || 0) * 2).toFixed(2));
+      // ส่วนลด: ค่าส่วนกลางเท่านั้น ไม่รวมค่ารถ/ขยะ/ค้าง
+      const discount    = parseFloat((fee_amount * discPct / 100).toFixed(2));
+      const total_raw   = parseFloat((fee_amount + parking_fee + trash_fee + overdue_carry - discount).toFixed(2));
+
+      const row = {
+        fee_id:           genId('FEE'),
+        house_id:         h.house_id,
+        year:             year,
+        period:           'Y',
+        bill_type:        'full_year',
+        fee_amount:       fee_amount,
+        parking_fee:      parking_fee,
+        trash_fee:        trash_fee,
+        other_fee:        0, penalty_fee: 0,
+        overdue_carry:    overdue_carry,
+        penalty_10pct:    0, collection_fee: 0,
+        discount:         discount,
+        total:            total_raw,
+        status:           'pending',
+        due_date:         dueDate,
+        slip_url:         '', slip_submitted_at: '',
+        receipt_no:       '',
+        issued_at:        now(),
+        issued_by:        user.user_id,
+        other_fee_note:   '', penalty_fee_note: ''
+      };
+      appendRow('FEES', row);
+      created.push(row.fee_id);
+      Logger.log('Full-year FEE ' + h.house_id + ' year=' + year +
+        ' fee=' + fee_amount + ' disc=' + discount + ' total=' + total_raw);
+    });
+    return { success: true, created: created.length };
+  }
+
+return { getAll, getByHouse, generate, generateFullYear, submitSlip, approveSlip, issueNewBill, update };
 })();
 
 

@@ -60,6 +60,7 @@ function _route(body) {
       'updateFee':             () => Fees.update(body, user),
       'getFeesByHouse':        () => Fees.getByHouse(body, user),
       'generateFees':          () => Fees.generate(body, user),
+      'generateFullYearBill':  () => Fees.generateFullYear(body, user),
       'submitSlip':            () => Fees.submitSlip(body, user),
       'approveSlip':           () => Fees.approveSlip(body, user),
       'issueNewBill':          () => Fees.issueNewBill(body, user),

@@ -7,8 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js" crossorigin="anonymous"></script>
 <script>
-if (typeof Swal === 'undefined') {
-  window.Swal = { fire: function(o) { var m=(o.title||'')+((o.text)?'\n'+o.text:''); if(o.showCancelButton) return Promise.resolve({isConfirmed:confirm(m)}); if(o.timer&&!o.showConfirmButton) return Promise.resolve({isConfirmed:true}); if(o.icon!=='success') alert(m); return Promise.resolve({isConfirmed:true}); } };
+if (typeof Swal === "undefined") {
+  window.Swal = { fire: function(o) { var m=(o.title||"")+(o.text?" "+o.text:""); if(o.showCancelButton) return Promise.resolve({isConfirmed:confirm(m)}); if(o.timer&&!o.showConfirmButton) return Promise.resolve({isConfirmed:true}); if(o.icon!=="success") alert(m); return Promise.resolve({isConfirmed:true}); } };
 }
 </script>
 <style>
@@ -263,20 +263,20 @@ a{color:var(--pr);text-decoration:none}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
 
 /* Nav */
-.sb-nav{flex:1;padding:3px 8px;overflow-y:auto;overflow-x:hidden}
+.sb-nav{flex:1;padding:8px 12px;overflow-y:auto;overflow-x:hidden}
 .sb-nav::-webkit-scrollbar{width:3px}
 .sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px}
 .sb-sec{
-  font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  font-size:10px;font-weight:700;letter-spacing:.1em;
   text-transform:uppercase;color:var(--sbm);
-  padding:7px 8px 2px;
+  padding:12px 8px 6px;
 }
 .sb-item{
-  display:flex;align-items:center;gap:7px;
-  padding:5px 10px;border-radius:7px;
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:9px;
   cursor:pointer;color:var(--sbm);
-  font-size:12px;font-weight:400;
-  transition:all .15s;margin-bottom:1px;
+  font-size:13.5px;font-weight:400;
+  transition:all .18s;margin-bottom:2px;
   white-space:nowrap;position:relative;
 }
 .sb-item:hover{background:var(--sbhv);color:var(--sbt)}
@@ -285,10 +285,10 @@ a{color:var(--pr);text-decoration:none}
   content:'';position:absolute;left:0;top:22%;bottom:22%;
   width:3px;background:var(--ac);border-radius:0 3px 3px 0;
 }
-.sb-ico{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sb-ico{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 .sb-badge{
   margin-left:auto;background:var(--dg);color:#fff;
-  font-size:9px;font-weight:700;padding:1px 6px;
+  font-size:10px;font-weight:700;padding:1px 6px;
   border-radius:10px;min-width:18px;text-align:center;flex-shrink:0;
 }
 .sb-foot{
@@ -1311,7 +1311,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: HOUSES -->
       <div id="p-admin-houses" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · <span id="cfg-village-name2">The Greenfield</span></div></div></div><div class="ph-acts" style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="loadHousesPage()" title="รีเฟรช">🔄</button>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · <span id="cfg-village-name2">The Greenfield</span></div></div></div><div class="ph-acts" style="display:flex;gap:8px">
               <button class="btn btn-ghost btn-sm" onclick="openBulkFeeModal()">🧮 คำนวณค่าส่วนกลาง</button>
               <button class="btn btn-ghost btn-sm" onclick="openAddHouseModal()">+ เพิ่มบ้าน</button>
             </div></div></div>
@@ -1334,7 +1334,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: FEES -->
       <div id="p-admin-fees" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💰</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">จัดการใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadFeesPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="doGenerateFees()">⚡ Generate ใบแจ้งหนี้</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💰</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">จัดการใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doGenerateFees()">⚡ ออกใบครึ่งปี</button>
+              <button class="btn btn-ghost btn-sm" onclick="doGenerateFullYear()" style="background:var(--acl);color:var(--ac)">📋 ออกใบเต็มปี</button></div></div></div>
         <div class="stats" style="grid-template-columns:repeat(3,1fr)">
           <div class="sc"><div class="sc-ico p">💰</div><div><div class="sc-v" id="stat-fee-total" style="font-size:15px">—</div><div class="sc-l">รวมทั้งหมด</div></div></div>
           <div class="sc"><div class="sc-ico a">✓</div><div><div class="sc-v" id="stat-fee-paid">—</div><div class="sc-l">ชำระแล้ว</div></div></div>
@@ -1345,14 +1346,14 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <select class="fs" style="width:auto;padding:5px 10px;font-size:12px"><option>ทุกสถานะ</option><option>รอชำระ</option><option>ชำระแล้ว</option><option>ค้างชำระ</option></select>
           </div>
           <div class="tw"><table><thead><tr><th>บ้าน</th><th>งวด/ปี</th><th>ส่วนกลาง</th><th>จอดรถ</th><th>ขยะ</th><th>ค่าอื่นๆ</th><th>ค่าปรับ</th><th>รวม</th><th>สถานะ</th><th></th></tr></thead><tbody id="tbl-fees">
-            <tr><td colspan="10" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
+            <tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
           </tbody></table></div>
         </div>
       </div>
 
       <!-- ADMIN: ISSUES -->
       <div id="p-admin-issues" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadIssuesPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ สร้างปัญหา</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน</div></div></div></div></div>
         <div class="tabs">
           <button class="tab on" id="tab-iss-open" onclick="stab('ai','open',this)">🔴 รอดำเนินการ</button>
           <button class="tab" id="tab-iss-doing" onclick="stab('ai','doing',this)">🟡 กำลังดำเนิน</button>
@@ -1365,7 +1366,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: VIO      <!-- ADMIN: VIO (แจ้งกระทำผิด) -->
       <div id="p-admin-vio" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadIssuesPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="loadViolationsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ แจ้งใหม่</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ แจ้งใหม่</button></div></div></div>
         <div class="card">
           <div class="ch"><div class="ch-ico">⚠️</div><div class="ct">รายการแจ้งเตือนทั้งหมด</div></div>
           <div class="cb" id="list-violations">
@@ -1376,25 +1377,25 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: REQUEST (คำขอแก้ไข) -->
       <div id="p-admin-req" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📝</div><div><div class="ph-h1">คำขอแก้ไข</div><div class="ph-sub" id="req-sub">รอการอนุมัติ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadChangeReqPage()" title="รีเฟรช">🔄</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📝</div><div><div class="ph-h1">คำขอแก้ไข</div><div class="ph-sub" id="req-sub">รอการอนุมัติ</div></div></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📝</div><div class="ct">คำขอแก้ไขข้อมูลบ้าน</div></div><div class="cb" id="list-change-reqs"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
       <!-- ADMIN: ANNOUNCE      <!-- ADMIN: ANNOUNCE -->
       <div id="p-admin-ann" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📢</div><div><div class="ph-h1">ประกาศ</div><div class="ph-sub">จัดการข่าวสารและประกาศ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadChangeReqPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="loadAnnouncementsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newann')">+ ออกประกาศ</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📢</div><div><div class="ph-h1">ประกาศ</div><div class="ph-sub">จัดการข่าวสารและประกาศ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newann')">+ ออกประกาศ</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📢</div><div class="ct">ประกาศทั้งหมด</div></div><div class="cb" id="list-announcements"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
       <!-- ADMIN: REPORT      <!-- ADMIN: REPORT -->
       <div id="p-admin-rep" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏆</div><div><div class="ph-h1">ผลงานนิติ</div><div class="ph-sub">รายงานประจำเดือน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadReportsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newrep')">+ เพิ่มรายงาน</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏆</div><div><div class="ph-h1">ผลงานนิติ</div><div class="ph-sub">รายงานประจำเดือน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newrep')">+ เพิ่มรายงาน</button></div></div></div>
         <div id="list-reports" class="g2"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">กำลังโหลด...</p></div>
       </div>
 
       <!-- ADMIN: CONTRACTOR      <!-- ADMIN: CONTRACTOR -->
       <div id="p-admin-contractor" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔨</div><div><div class="ph-h1">ทะเบียนช่าง</div><div class="ph-sub">จัดการข้อมูลช่างและผู้รับเหมา</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadContractorsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newcon')">+ เพิ่มช่าง</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔨</div><div><div class="ph-h1">ทะเบียนช่าง</div><div class="ph-sub">จัดการข้อมูลช่างและผู้รับเหมา</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newcon')">+ เพิ่มช่าง</button></div></div></div>
         <div class="tabs"><button class="tab on" onclick="stab('acon','approved',this)">✅ อนุมัติแล้ว</button><button class="tab" id="tab-con-pending" onclick="stab('acon','pending',this)">⏳ รออนุมัติ</button></div>
         <div id="acon-approved" class="pane on"><div class="g2" id="list-contractors-approved"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">กำลังโหลด...</p></div></div>
         <div id="acon-pending" class="pane"><div id="list-contractors-pending"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
@@ -1402,7 +1403,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: MARKET      <!-- ADMIN: MARKET -->
       <div id="p-admin-market" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🛒</div><div><div class="ph-h1">ประกาศขาย-ให้ฟรี</div><div class="ph-sub" id="mkt-sub">จัดการประกาศ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadMarketPage()" title="รีเฟรช">🔄</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🛒</div><div><div class="ph-h1">ประกาศขาย-ให้ฟรี</div><div class="ph-sub" id="mkt-sub">จัดการประกาศ</div></div></div></div></div>
         <div class="tabs"><button class="tab on" id="tab-amk-pending" onclick="stab('amk','pending',this)">⏳ รออนุมัติ</button><button class="tab" onclick="stab('amk','active',this)">✅ เปิดประกาศ</button><button class="tab" onclick="stab('amk','closed',this)">🔴 ปิดแล้ว</button></div>
         <div id="amk-pending" class="pane on"><div id="list-market-pending"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
         <div id="amk-active" class="pane"><div id="list-market-active"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
@@ -1411,7 +1412,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: USERS      <!-- ADMIN: USERS -->
       <div id="p-admin-usr" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">👥</div><div><div class="ph-h1">สมาชิก</div><div class="ph-sub">จัดการบัญชีผู้ใช้งาน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadMarketAdminPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="loadUsersPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-adduser')">+ เพิ่มสมาชิก</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">👥</div><div><div class="ph-h1">สมาชิก</div><div class="ph-sub">จัดการบัญชีผู้ใช้งาน</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-adduser')">+ เพิ่มสมาชิก</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">👥</div><div class="ct">รายชื่อสมาชิก</div></div>
           <div class="tw"><table><thead><tr><th>ID</th><th>Username</th><th>บ้าน</th><th>Role</th><th>สถานะ</th></tr></thead><tbody id="tbl-users">
             <tr><td colspan="5" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
@@ -1421,7 +1422,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: LOGIN LOGS -->
       <div id="p-admin-log" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📋</div><div><div class="ph-h1">Login Logs</div><div class="ph-sub">บันทึกการเข้าใช้ระบบ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadLoginLogsPage()" title="รีเฟรช">🔄</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📋</div><div><div class="ph-h1">Login Logs</div><div class="ph-sub">บันทึกการเข้าใช้ระบบ</div></div></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📋</div><div class="ct">บันทึกล่าสุด</div></div>
           <div class="tw"><table><thead><tr><th>#</th><th>Username</th><th>Role</th><th>วันที่</th><th>ผล</th></tr></thead><tbody id="tbl-logs">
             <tr><td colspan="5" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
@@ -1431,144 +1432,149 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: SETTINGS -->
       <div id="p-admin-settings" class="pane">
-        <div class="ph"><div class="ph-in">
-          <div style="display:flex;align-items:center;gap:13px">
-            <div class="ph-ico">⚙️</div>
-            <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
-          </div>
-          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadLogsPage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px">
+          <div class="ph-ico">⚙️</div>
+          <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
+        </div>
+        <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
         </div></div>
 
-        <!-- ── 1: ข้อมูลหมู่บ้าน ── -->
-        <div class="card" style="margin-top:14px">
-          <div class="ch"><div class="ch-ico">🏘️</div><div class="ct">ข้อมูลหมู่บ้าน</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr2">
-              <div class="fg"><label class="fl">ชื่อหมู่บ้าน</label>
-                <input class="fi" id="cfg-inp-village_name" placeholder="เช่น The Greenfield"></div>
-              <div class="fg"><label class="fl">คำบรรยาย (subtitle)</label>
-                <input class="fi" id="cfg-inp-village_subtitle" placeholder="Village Management System"></div>
-            </div>
-            <div class="fg"><label class="fl">ที่อยู่หมู่บ้าน</label>
-              <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
-            <div class="fr3">
-              <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
-                <input class="fi" id="cfg-inp-village_phone" placeholder="0x-xxxx-xxxx" type="tel"></div>
-              <div class="fg"><label class="fl">อีเมลนิติ</label>
-                <input class="fi" id="cfg-inp-village_email" placeholder="admin@village.com" type="email"></div>
+        <div class="tabs" id="settings-tabs">
+          <button class="tab on" onclick="stab('stab','village',this)">🏘️ ข้อมูลหมู่บ้าน</button>
+          <button class="tab" onclick="stab('stab','payment',this)">💳 การชำระเงิน</button>
+          <button class="tab" onclick="stab('stab','juristic',this)">🏢 นิติบุคคล</button>
+          <button class="tab" onclick="stab('stab','feecalc',this)">🧮 คำนวณค่าส่วนกลาง</button>
+        </div>
+
+        <!-- TAB: village -->
+        <div id="stab-village" class="pane on">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🏘️</div><div class="ct">ข้อมูลหมู่บ้าน</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ชื่อหมู่บ้าน</label>
+                  <input class="fi" id="cfg-inp-village_name" placeholder="เช่น The Greenfield"></div>
+                <div class="fg"><label class="fl">คำบรรยาย (subtitle)</label>
+                  <input class="fi" id="cfg-inp-village_subtitle" placeholder="Village Management System"></div>
+              </div>
+              <div class="fg"><label class="fl">ที่อยู่หมู่บ้าน</label>
+                <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
+                  <input class="fi" id="cfg-inp-village_phone" placeholder="0x-xxxx-xxxx" type="tel"></div>
+                <div class="fg"><label class="fl">อีเมลนิติ</label>
+                  <input class="fi" id="cfg-inp-village_email" placeholder="admin@village.com" type="email"></div>
+              </div>
               <div class="fg"><label class="fl">Logo (Emoji หรือ URL รูปภาพ)</label>
                 <input class="fi" id="cfg-inp-village_logo" placeholder="🏘️ หรือ https://...logo.png" oninput="updateLogoPreview(this.value)">
-                <div style="margin-top:5px;font-size:12px;color:var(--mu)">Preview: <span id="cfg-logo-preview" style="font-size:20px;vertical-align:middle">🏘️</span></div>
+                <div style="margin-top:6px;font-size:12px;color:var(--mu)">ตัวอย่าง: <span id="cfg-logo-preview" style="font-size:20px">🏘️</span></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ── 2: นิติบุคคล ── -->
-        <div class="card">
-          <div class="ch"><div class="ch-ico">🏢</div><div class="ct">นิติบุคคล</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr3">
-              <div class="fg"><label class="fl">ชื่อนิติบุคคล</label>
-                <input class="fi" id="cfg-inp-juristic_name" placeholder="บริษัทนิติบุคคลหมู่บ้าน..."></div>
-              <div class="fg"><label class="fl">เลขทะเบียนนิติ</label>
-                <input class="fi" id="cfg-inp-juristic_id" placeholder="0-xxxx-xxxxx-xx-x"></div>
-              <div class="fg"><label class="fl">ที่อยู่นิติบุคคล (สำหรับใบเสร็จ)</label>
-                <textarea class="ft" id="cfg-inp-juristic_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── 3: ธนาคาร & การชำระเงิน ── -->
-        <div class="card">
-          <div class="ch"><div class="ch-ico">💳</div><div class="ct">ธนาคาร &amp; การชำระเงิน</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr3">
-              <div class="fg"><label class="fl">ธนาคาร</label>
-                <input class="fi" id="cfg-inp-bank_name" placeholder="เช่น กสิกรไทย"></div>
-              <div class="fg"><label class="fl">เลขบัญชี</label>
-                <input class="fi" id="cfg-inp-bank_account_no" placeholder="xxx-x-xxxxx-x"></div>
-              <div class="fg"><label class="fl">ชื่อบัญชี</label>
-                <input class="fi" id="cfg-inp-bank_account_name" placeholder="นิติบุคคลหมู่บ้าน..."></div>
-            </div>
-            <div class="fr2" style="align-items:flex-start">
-              <div class="fg"><label class="fl">URL QR Code พร้อมเพย์</label>
-                <input class="fi" id="cfg-inp-payment_qr_url" placeholder="https://... (URL รูป QR Code)" oninput="updateQrPreview(this.value)">
+        <!-- TAB: payment -->
+        <div id="stab-payment" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">💳</div><div class="ct">ข้อมูลการชำระเงิน</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr3">
+                <div class="fg"><label class="fl">ธนาคาร</label>
+                  <input class="fi" id="cfg-inp-bank_name" placeholder="เช่น กสิกรไทย"></div>
+                <div class="fg"><label class="fl">เลขบัญชี</label>
+                  <input class="fi" id="cfg-inp-bank_account_no" placeholder="xxx-x-xxxxx-x"></div>
+                <div class="fg"><label class="fl">ชื่อบัญชี</label>
+                  <input class="fi" id="cfg-inp-bank_account_name" placeholder="นิติบุคคลหมู่บ้าน..."></div>
               </div>
-              <div style="padding-top:22px">
-                <div id="cfg-qr-preview-wrap" style="display:none">
-                  <img id="cfg-qr-preview" src="" style="width:80px;height:80px;object-fit:contain;border:1px solid var(--bo);border-radius:8px">
+              <div class="fg"><label class="fl">URL QR Code พร้อมเพย์ / PromptPay</label>
+                <input class="fi" id="cfg-inp-payment_qr_url" placeholder="https://... (URL รูป QR Code)" oninput="updateQrPreview(this.value)"></div>
+              <div id="cfg-qr-preview-wrap" style="display:none;margin-top:8px">
+                <img id="cfg-qr-preview" src="" style="width:120px;height:120px;object-fit:contain;border:1px solid var(--bo);border-radius:8px">
+              </div>
+              <div class="sl" style="margin-top:16px">📅 กำหนดการชำระ</div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">รูปแบบงวด</label>
+                  <select class="fs" id="cfg-inp-fee_period_label" onchange="updatePeriodPreview()">
+                    <option value="Y">เต็มปี — 1 งวด/ปี (Y)</option>
+                    <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
+                  </select>
                 </div>
+                <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
+                  <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="31"></div>
+              </div>
+              <!-- Period schedule display (auto-generated based on selection) -->
+              <div id="cfg-period-preview" style="margin-top:10px;padding:12px;background:var(--bg2);border-radius:10px;font-size:12.5px">
+                <div style="font-weight:700;margin-bottom:8px;color:var(--tx2)">📋 ตารางงวดการชำระ (อ้างอิง)</div>
+                <div id="cfg-period-table"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ── 4: กำหนดการชำระ ── -->
-        <div class="card">
-          <div class="ch"><div class="ch-ico">📅</div><div class="ct">กำหนดการชำระค่าส่วนกลาง</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr3">
-              <div class="fg"><label class="fl">รูปแบบงวด</label>
-                <select class="fs" id="cfg-inp-fee_period_label" onchange="updatePeriodPreview()">
-                  <option value="Y">เต็มปี — 1 งวด/ปี (Y)</option>
-                  <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
-                </select></div>
-              <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
-                <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="31"></div>
-              <div></div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">
-              <div>
-                <div class="sl" style="margin-bottom:8px">งวด 1</div>
-                <div class="fg"><label class="fl">ช่วงเวลา</label>
-                  <input class="fi" id="cfg-inp-fee_p1_range" placeholder="เช่น 1/1 - 30/6" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ชำระไม่เกิน</label>
-                  <input class="fi" id="cfg-inp-fee_p1_due" placeholder="เช่น 31/1" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ตัวย่อ</label>
-                  <input class="fi" id="cfg-inp-fee_p1_label" placeholder="เช่น H1" oninput="updatePeriodPreview()"></div>
+              <div class="fr3" style="margin-top:10px">
+                <div class="fg"><label class="fl">งวด 1: ช่วงเวลา</label>
+                  <input class="fi" id="cfg-inp-fee_p1_range" placeholder="เช่น 1/1 - 30/6"></div>
+                <div class="fg"><label class="fl">งวด 1: ชำระไม่เกิน</label>
+                  <input class="fi" id="cfg-inp-fee_p1_due" placeholder="เช่น 31/1"></div>
+                <div class="fg"><label class="fl">งวด 1: ตัวย่อ</label>
+                  <input class="fi" id="cfg-inp-fee_p1_label" placeholder="เช่น H1"></div>
               </div>
-              <div>
-                <div class="sl" style="margin-bottom:8px">งวด 2</div>
-                <div class="fg"><label class="fl">ช่วงเวลา</label>
-                  <input class="fi" id="cfg-inp-fee_p2_range" placeholder="เช่น 1/7 - 31/12" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ชำระไม่เกิน</label>
-                  <input class="fi" id="cfg-inp-fee_p2_due" placeholder="เช่น 31/7" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ตัวย่อ</label>
-                  <input class="fi" id="cfg-inp-fee_p2_label" placeholder="เช่น H2" oninput="updatePeriodPreview()"></div>
+              <div class="fr3">
+                <div class="fg"><label class="fl">งวด 2: ช่วงเวลา</label>
+                  <input class="fi" id="cfg-inp-fee_p2_range" placeholder="เช่น 1/7 - 31/12"></div>
+                <div class="fg"><label class="fl">งวด 2: ชำระไม่เกิน</label>
+                  <input class="fi" id="cfg-inp-fee_p2_due" placeholder="เช่น 31/7"></div>
+                <div class="fg"><label class="fl">งวด 2: ตัวย่อ</label>
+                  <input class="fi" id="cfg-inp-fee_p2_label" placeholder="เช่น H2"></div>
               </div>
-            </div>
-            <div id="cfg-period-preview" style="margin-top:14px;padding:12px 16px;background:var(--bg2);border-radius:10px;font-size:12.5px">
-              <div style="font-weight:700;margin-bottom:8px;color:var(--tx2)">📋 ตารางงวดการชำระ (อ้างอิง)</div>
-              <div id="cfg-period-table"></div>
             </div>
           </div>
         </div>
 
-        <!-- ── 5: อัตราค่าส่วนกลาง ── -->
-        <div class="card">
-          <div class="ch"><div class="ch-ico">🧮</div><div class="ct">อัตราค่าส่วนกลาง &amp; การคำนวณ</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr2">
-              <div class="fg"><label class="fl">ค่าส่วนกลางต่อตารางวา (บาท/เดือน)</label>
-                <input class="fi" id="cfg-inp-fee_rate_per_sqw" type="number" min="0" step="0.01" placeholder="40.00"></div>
-              <div class="fg"><label class="fl">ค่าขยะต่อปี (บาท)</label>
-                <input class="fi" id="cfg-inp-fee_trash_per_year" type="number" min="0" placeholder="600"></div>
-            </div>
-            <div class="fr2">
-              <div class="fg"><label class="fl">ค่าจอดรถต่อคัน/ปี (บาท)</label>
-                <input class="fi" id="cfg-inp-fee_parking_per_car" type="number" min="0" placeholder="1200"></div>
-              <div class="fg"><label class="fl">% ส่วนลดชำระเต็มปี</label>
-                <input class="fi" id="cfg-inp-fee_discount_pct" type="number" min="0" max="100" step="0.1" placeholder="5"></div>
-            </div>
-            <div style="margin-top:12px;padding:12px 16px;background:var(--acl);border-radius:10px;font-size:13px">
-              <strong>สูตรคำนวณ:</strong> ค่าส่วนกลาง/ปี = ค่า/ตร.ว. × พื้นที่ (ตร.ว.) × 12 เดือน<br>
-              <span style="color:var(--mu);font-size:12px">ตัวอย่าง: 40 × 52 ตร.ว. × 12 = ฿24,960.00/ปี</span>
+        <!-- TAB: juristic -->
+        <div id="stab-juristic" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🏢</div><div class="ct">นิติบุคคล</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ชื่อนิติบุคคล</label>
+                  <input class="fi" id="cfg-inp-juristic_name" placeholder="บริษัทนิติบุคคลหมู่บ้าน..."></div>
+                <div class="fg"><label class="fl">เลขทะเบียนนิติ</label>
+                  <input class="fi" id="cfg-inp-juristic_id" placeholder="0-xxxx-xxxxx-xx-x"></div>
+              </div>
+              <div class="fg"><label class="fl">ที่อยู่นิติบุคคล (สำหรับใบเสร็จ)</label>
+                <textarea class="ft" id="cfg-inp-juristic_address" rows="3" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
             </div>
           </div>
         </div>
 
-        <!-- ── 6: ข้อมูลใบแจ้งหนี้ ── -->
+        <!-- TAB: feecalc -->
+        <div id="stab-feecalc" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🧮</div><div class="ct">ค่าคำนวณค่าส่วนกลาง</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ค่าส่วนกลางต่อตารางวา (บาท/เดือน)</label>
+                  <input class="fi" id="cfg-inp-fee_rate_per_sqw" type="number" min="0" step="0.01" placeholder="40.00"></div>
+                <div class="fg"><label class="fl">ค่าขยะต่อปี (บาท)</label>
+                  <input class="fi" id="cfg-inp-fee_trash_per_year" type="number" min="0" placeholder="600"></div>
+              </div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">ค่าจอดรถต่อคัน/ปี (บาท)</label>
+                  <input class="fi" id="cfg-inp-fee_parking_per_car" type="number" min="0" placeholder="1200"></div>
+                <div class="fg"><label class="fl">% ส่วนลดชำระเต็มปี</label>
+                  <input class="fi" id="cfg-inp-fee_discount_pct" type="number" min="0" max="100" step="0.1" placeholder="5"></div>
+              </div>
+              <div style="margin-top:14px;padding:12px 16px;background:var(--acl);border-radius:10px;font-size:13px;color:var(--tx2)">
+                <strong>สูตรคำนวณ:</strong><br>
+                ค่าส่วนกลาง/ปี = ค่า/ตร.ว. × พื้นที่ (ตร.ว.) × 12 เดือน<br>
+                <span style="color:var(--mu)">ตัวอย่าง: 40 × 52 ตร.ว. × 12 = ฿24,960.00/ปี</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6: Invoice Settings -->
         <div class="card" style="margin-bottom:24px">
           <div class="ch"><div class="ch-ico">🧾</div><div class="ct">ข้อมูลใบแจ้งหนี้ &amp; เงื่อนไขการชำระ</div></div>
           <div style="padding:4px 16px 16px">
@@ -1590,7 +1596,6 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <input class="fi" id="cfg-inp-fee_condition_3" placeholder="ขอให้ส่งหลักฐานการชำระ..."></div>
           </div>
         </div>
-
       </div><!-- end p-admin-settings -->
 
       <!-- ADMIN: VEHICLES -->
@@ -1598,43 +1603,27 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         <div class="ph"><div class="ph-in">
           <div style="display:flex;align-items:center;gap:13px">
             <div class="ph-ico">🚗</div>
-            <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">จัดการยานพาหนะในหมู่บ้านทั้งหมด</div></div>
+            <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">จัดการยานพาหนะและการอนุมัติ</div></div>
           </div>
-          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadAdminVehiclePage()" title="รีเฟรช">🔄</button>
-            <button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">+ เพิ่มรถ (Admin)</button>
-          </div>
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">🚗 + เพิ่มรถ (Admin)</button></div>
         </div></div>
-
-        <!-- Stats row -->
-        <div class="stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:0">
+        <div class="stats" style="grid-template-columns:repeat(4,1fr)">
           <div class="sc"><div class="sc-ico w">⏳</div><div><div class="sc-v" id="stat-veh-pending">—</div><div class="sc-l">รออนุมัติ</div></div></div>
           <div class="sc"><div class="sc-ico a">✅</div><div><div class="sc-v" id="stat-veh-active">—</div><div class="sc-l">ใช้งานอยู่</div></div></div>
           <div class="sc"><div class="sc-ico d">🔴</div><div><div class="sc-v" id="stat-veh-inactive">—</div><div class="sc-l">ไม่ใช้งาน</div></div></div>
           <div class="sc"><div class="sc-ico p">🚗</div><div><div class="sc-v" id="stat-veh-total">—</div><div class="sc-l">ทั้งหมด</div></div></div>
         </div>
-
-        <!-- Tabs -->
         <div class="tabs">
-          <button class="tab on" id="tab-aveh-pending"  onclick="stab('aveh','pending',this)">⏳ รออนุมัติ</button>
-          <button class="tab"    id="tab-aveh-active"   onclick="stab('aveh','active',this)">✅ อนุมัติแล้ว</button>
-          <button class="tab"    id="tab-aveh-inactive" onclick="stab('aveh','inactive',this)">🔴 ไม่ใช้งาน</button>
-          <button class="tab"    id="tab-aveh-all"      onclick="stab('aveh','all',this)">📋 ทั้งหมด</button>
+          <button class="tab on" id="tab-aveh-pending" onclick="stab('aveh','pending',this)">⏳ รออนุมัติ</button>
+          <button class="tab" onclick="stab('aveh','active',this)">✅ อนุมัติแล้ว</button>
+          <button class="tab" onclick="stab('aveh','inactive',this)">🔴 ไม่ใช้งาน</button>
+          <button class="tab" onclick="stab('aveh','all',this)">📋 ทั้งหมด</button>
         </div>
-
-        <div id="aveh-pending"  class="pane on"><div id="list-vehicles-pending">
-          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
-        </div></div>
-        <div id="aveh-active"   class="pane"><div id="list-vehicles-active">
-          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
-        </div></div>
-        <div id="aveh-inactive" class="pane"><div id="list-vehicles-inactive">
-          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
-        </div></div>
-        <div id="aveh-all"      class="pane"><div id="list-vehicles-all">
-          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
-        </div></div>
+        <div id="aveh-pending" class="pane on"><div id="list-vehicles-pending"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="aveh-active" class="pane"><div id="list-vehicles-active"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="aveh-inactive" class="pane"><div id="list-vehicles-inactive"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="aveh-all" class="pane"><div id="list-vehicles-all"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
-
     </div><!-- end v-admin -->
 
     <!-- ═══ RESIDENT VIEW ═══ -->
@@ -1661,8 +1650,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: HOUSE -->
       <div id="p-res-house" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">บ้าน — ซอย —</span></div></div></div>
-          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResHousePage()" title="รีเฟรช">🔄</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">บ้าน — ซอย —</span></div></div></div></div></div>
 
         <!-- Status Bar -->
         <div class="card" style="margin-bottom:16px">
@@ -1739,7 +1727,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         <!-- TAB: ข้อมูลรถ -->
         <div id="rh-cars" class="pane">
           <div class="card">
-            <div class="ch"><div class="ch-ico">🚗</div><div class="ct">รถที่ลงทะเบียน</div><button class="btn btn-sm btn-p" onclick="openAddCarModal()">+ ขอเพิ่มรถ</button></div>
+            <div class="ch"><div class="ch-ico">🚗</div><div class="ct">รถที่ลงทะเบียน</div><button class="btn btn-sm btn-p" onclick="openM('m-addcar')">+ ขอเพิ่มรถ</button></div>
             <div class="cb">
               <div class="vc">
                 <div class="vc-ico">🚗</div>
@@ -1780,7 +1768,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: FEE -->
       <div id="p-res-fee" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💳</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">ประวัติใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResFeePage()" title="รีเฟรช">🔄</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💳</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">ประวัติใบแจ้งหนี้และการชำระ</div></div></div></div></div>
         <div class="fee-hero"><div class="fhi">
           <div class="f-lbl">ยอดค้างชำระปัจจุบัน</div>
           <div class="f-amt" id="res-fee-amount">—</div>
@@ -1870,7 +1858,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: ISSUE -->
       <div id="p-res-issue" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">ปัญหาที่แจ้งไว้</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResIssuePage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newissue')">+ แจ้งปัญหา</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">ปัญหาที่แจ้งไว้</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newissue')">+ แจ้งปัญหา</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">🔧</div><div class="ct">ปัญหาที่แจ้ง</div></div><div class="cb" id="list-my-issues"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
@@ -1985,7 +1973,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="ph-ico">🚗</div>
             <div><div class="ph-h1">ยานพาหนะของฉัน</div><div class="ph-sub">รถที่จดทะเบียนในหมู่บ้าน</div></div>
           </div>
-          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="loadResVehiclePage()" title="รีเฟรช">🔄</button><button class="btn btn-ghost btn-sm" onclick="openAddCarModal()">+ เพิ่มรถ</button></div>
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openAddCarModal()">+ เพิ่มรถ</button></div>
         </div></div>
         <div id="res-veh-pending-section" style="display:none">
           <div class="card" style="margin-bottom:14px;border-color:var(--wn)">
@@ -1998,7 +1986,6 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <div class="cb" id="list-res-vehicles-active"><p class="text-mu" style="font-size:13px;text-align:center;padding:12px">กำลังโหลด...</p></div>
         </div>
       </div>
-
     </div><!-- end v-res -->
 
   </div><!-- end page -->
@@ -2048,125 +2035,69 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 <!-- MODAL: เพิ่มรถ -->
 <div class="mo" id="m-addcar">
-<div class="md wide">
+<div class="md">
   <div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">เพิ่มยานพาหนะ</div><div class="md-sub">กรอกข้อมูลยานพาหนะ</div></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">ขอเพิ่มรถใหม่</div><div class="md-sub">ส่งคำขอเพื่อรออนุมัติ</div></div>
   </div>
   <div class="md-bd">
     <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทยานพาหนะ *</label>
-        <select class="fs" id="car-type">
-          <option value="">-- เลือกประเภท --</option>
-          <option value="รถยนต์">🚗 รถยนต์</option>
-          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
-          <option value="รถตู้">🚐 รถตู้</option>
-          <option value="รถกระบะ">🛻 รถกระบะ</option>
-          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select></div>
-      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
-        <input class="fi" id="car-plate" placeholder="เช่น กข-1234"></div>
+      <div class="fg"><label class="fl">ประเภทรถ</label>
+        <select class="fs"><option>รถเก๋ง</option><option>รถกระบะ</option><option>รถมอเตอร์ไซค์</option><option>รถตู้</option></select>
+      </div>
+      <div class="fg"><label class="fl">ทะเบียนรถ</label><input class="fi" placeholder="กข-1234"></div>
     </div>
     <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ *</label>
-        <select class="fs" id="car-brand-sel" onchange="_vdBrandChange('add')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="car-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
-      <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="car-model" placeholder="เช่น Camry"></div>
-      <div class="fg"><label class="fl">สี *</label>
-        <select class="fs" id="car-color-sel" onchange="_vdColorChange('add')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="car-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">ยี่ห้อ</label><input class="fi" placeholder="Toyota"></div>
+      <div class="fg"><label class="fl">รุ่น</label><input class="fi" placeholder="Camry"></div>
+      <div class="fg"><label class="fl">สี</label><input class="fi" placeholder="ขาว"></div>
     </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">จังหวัด *</label>
-        <select class="fs" id="car-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">จังหวัด</label><input class="fi" placeholder="กรุงเทพ"></div>
       <div class="fg"><label class="fl">ที่จอดรถ</label>
-        <select class="fs" id="car-park">
-          <option value="ในบ้าน">ในบ้าน</option>
-          <option value="หน้าบ้าน">หน้าบ้าน</option>
-          <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select></div>
-      <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="car-status">
-          <option value="active">ใช้งานปกติ</option>
-          <option value="inactive">ไม่ได้ใช้งาน</option>
-        </select></div>
+        <select class="fs"><option>หน้าบ้าน</option><option>ในบ้าน</option><option>ส่วนกลาง</option></select>
+      </div>
     </div>
-  </div>
-    <div class="fg" style="margin-top:8px">
-      <label class="fl">รูปภาพรถ</label>
-      <div id="car-img-wrap"></div>
+    <div class="fg"><label class="fl">รูปภาพรถ (ถ่ายเพิ่ม)</label>
+      <div class="upl"><div class="upl-ico">📷</div><div class="upl-txt"><strong>คลิกเพื่ออัปโหลด</strong> หรือลากมาวาง</div></div>
     </div>
-  </div>
-  <div class="md-bd" style="border-top:1px solid var(--bo);padding-top:12px">
-    <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
-    <div id="car-img-input-wrap">
-      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
-        📷 เลือกรูปภาพ
-        <input type="file" id="car-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'car-')">
-      </label>
-      <span style="font-size:11.5px;color:var(--mu);margin-left:8px">JPG, PNG ไม่เกิน 5 รูป · จะบีบอัดอัตโนมัติ</span>
-    </div>
-    <div id="car-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-addcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">🚗 บันทึก</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">📤 ส่งคำขอ</button>
   </div>
 </div></div>
+
 <!-- MODAL: แก้ไขรถ -->
 <div class="mo" id="m-editcar">
-<div class="md wide">
+<div class="md">
   <div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">แก้ไขยานพาหนะ</div><div class="md-sub" id="editcar-sub">—</div></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">ขอแก้ไขข้อมูลรถ</div><div class="md-sub">กข-1234 · Toyota Camry</div></div>
   </div>
-  <input type="hidden" id="editcar-id">
   <div class="md-bd">
-    <div class="al al-i" style="margin-bottom:12px">ℹ️ การแก้ไขต้องรออนุมัติจากนิติ</div>
+    <div class="al al-i">ℹ️ การแก้ไขทะเบียนรถต้องรออนุมัติจากนิติ</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
-        <select class="fs" id="editcar-type">
-          <option value="รถยนต์">🚗 รถยนต์</option>
-          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
-          <option value="รถตู้">🚐 รถตู้</option>
-          <option value="รถกระบะ">🛻 รถกระบะ</option>
-          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select></div>
-      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
-        <input class="fi" id="editcar-plate" placeholder="กข-1234"></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ</label><input class="fi" value="กข-1234"></div>
+      <div class="fg"><label class="fl">จังหวัด</label><input class="fi" value="กรุงเทพ"></div>
     </div>
     <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ</label>
-        <select class="fs" id="editcar-brand-sel" onchange="_vdBrandChange('edit')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="editcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
-      <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="editcar-model" placeholder="เช่น Camry"></div>
-      <div class="fg"><label class="fl">สี</label>
-        <select class="fs" id="editcar-color-sel" onchange="_vdColorChange('edit')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="editcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">ยี่ห้อ</label><input class="fi" value="Toyota" disabled></div>
+      <div class="fg"><label class="fl">รุ่น</label><input class="fi" value="Camry" disabled></div>
+      <div class="fg"><label class="fl">สี</label><input class="fi" value="ขาว"></div>
     </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">จังหวัด</label>
-        <select class="fs" id="editcar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
-      <div class="fg"><label class="fl">ที่จอดรถ</label>
-        <select class="fs" id="editcar-park">
-          <option value="ในบ้าน">ในบ้าน</option>
-          <option value="หน้าบ้าน">หน้าบ้าน</option>
-          <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select></div>
-      <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="editcar-status">
-          <option value="active">ใช้งานปกติ</option>
-          <option value="inactive">ไม่ได้ใช้งาน</option>
-        </select></div>
+    <div class="fg"><label class="fl">ที่จอดรถ</label>
+      <select class="fs"><option selected>หน้าบ้าน</option><option>ในบ้าน</option><option>ส่วนกลาง</option></select>
     </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-editcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitEditCar()">📤 ส่งคำขอแก้ไข</button>
+    <button class="btn btn-p btn-sm" onclick="sw('submit');closeM('m-editcar')">📤 ส่งคำขอแก้ไข</button>
   </div>
 </div></div>
+
 <!-- MODAL: แจ้งชำระ -->
 <div class="mo" id="m-pay">
 <div class="md">
@@ -2266,30 +2197,23 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="md-hd">
     <div class="md-hd-ico">💰</div>
     <div><div class="md-title">รายละเอียดใบแจ้งหนี้</div><div class="md-sub" id="fd-sub">—</div></div>
+    <button class="md-x" onclick="closeM('m-fee-detail')">✕</button>
   </div>
   <div class="md-bd">
-    <div class="sl">💳 ค่าธรรมเนียมหลัก</div>
     <div class="fee-row"><div class="fee-lbl">ค่าส่วนกลาง</div><div class="fee-val" id="fd-fee-amount">—</div></div>
     <div class="fee-row"><div class="fee-lbl">ค่าจอดรถ</div><div class="fee-val" id="fd-parking">—</div></div>
     <div class="fee-row"><div class="fee-lbl">ค่าเก็บขยะ</div><div class="fee-val" id="fd-trash">—</div></div>
-    <div class="fee-row" id="fd-other-row" style="display:none"><div class="fee-lbl">ค่าอื่นๆ <span id="fd-other-note" style="font-size:11px;color:var(--mu)"></span></div><div class="fee-val" id="fd-other-fee">—</div></div>
-    <div class="sl" style="margin-top:10px">⚠️ ค้างชำระ &amp; ค่าปรับ</div>
-    <div class="fee-row" id="fd-carry-row" style="display:none"><div class="fee-lbl text-dg">ยอดค้างจากงวดก่อน</div><div class="fee-val text-dg" id="fd-carry">—</div></div>
-    <div class="fee-row" id="fd-p10-row" style="display:none"><div class="fee-lbl text-dg">ค่าปรับ 10%</div><div class="fee-val text-dg" id="fd-penalty10">—</div></div>
-    <div class="fee-row" id="fd-col-row" style="display:none"><div class="fee-lbl text-dg">ค่าทวงถาม</div><div class="fee-val text-dg" id="fd-collection">—</div></div>
-    <div class="fee-row" id="fd-pen-row" style="display:none"><div class="fee-lbl text-dg">ค่ากระทำผิด</div><div class="fee-val text-dg" id="fd-penalty">—</div></div>
-    <div class="fee-row" id="fd-disc-row" style="display:none"><div class="fee-lbl text-ok">ส่วนลด</div><div class="fee-val text-ok" id="fd-discount">—</div></div>
-    <div style="border-top:2px solid var(--bo);margin-top:8px;padding-top:8px">
-      <div class="fee-row tot"><div class="fee-lbl">รวมยอดที่ต้องชำระ</div><div class="fee-val" id="fd-total">—</div></div>
-    </div>
-    <div id="fd-slip-section" style="display:none;margin-top:12px">
-      <div class="fee-row"><div class="fee-lbl">สลิปโอน</div><div class="fee-val"><a id="fd-slip-link" href="#" target="_blank">ดูสลิป</a></div></div>
-    </div>
+    <div class="fee-row"><div class="fee-lbl">ยอดค้างจากงวดก่อน</div><div class="fee-val" id="fd-carry">—</div></div>
+    <div class="fee-row"><div class="fee-lbl text-dg">ค่าปรับ 10%</div><div class="fee-val text-dg" id="fd-penalty10">—</div></div>
+    <div class="fee-row"><div class="fee-lbl text-dg">ค่าทวงถาม</div><div class="fee-val text-dg" id="fd-collection">—</div></div>
+    <div class="fee-row"><div class="fee-lbl text-dg">ค่ากระทำผิด</div><div class="fee-val text-dg" id="fd-penalty">—</div></div>
+    <div class="fee-row"><div class="fee-lbl text-ok">ส่วนลด</div><div class="fee-val text-ok" id="fd-discount">—</div></div>
+    <div class="fee-row tot"><div class="fee-lbl">รวมทั้งหมด</div><div class="fee-val" id="fd-total">—</div></div>
+    <div id="fd-slip-section" style="display:none;margin-top:12px"><div class="fee-row"><div class="fee-lbl">สลิปโอน</div><div class="fee-val"><a id="fd-slip-link" href="#" target="_blank">ดูสลิป</a></div></div></div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-fee-detail')">ปิด</button>
-    <button class="btn btn-o btn-sm" onclick="printFeeInvoiceById(_curFee)">🖨️ พิมพ์ใบแจ้งหนี้</button>
-    <button class="btn btn-p btn-sm" id="btn-fee-approve" style="display:none" onclick="doApproveSlipFromModal()">✓ Approve</button>
+    <button class="btn btn-p btn-sm" id="btn-fee-approve" onclick="doApproveSlipFromModal()">✓ Approve</button>
   </div>
 </div></div>
 
@@ -2425,11 +2349,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 <div class="mo" id="m-condetail">
 <div class="md">
   <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🔧</div>
-    <div><div class="md-title" id="cd-name">รายละเอียดช่าง</div><div class="md-sub" id="cd-rating">—</div></div>
-    <button class="md-x" onclick="closeM('m-condetail')">✕</button>
-  </div>
+  <div class="md-hd"><div class="md-hd-ico">🔧</div><div><div class="md-title" id="cd-name">รายละเอียดช่าง</div><div class="md-sub" id="cd-rating">—</div></div><button class="md-x" onclick="closeM('m-condetail')">✕</button></div>
   <div class="md-bd">
     <div class="ig" style="margin-bottom:14px">
       <div class="ii"><div class="ik">เบอร์โทร</div><div class="iv" id="cd-phone">—</div></div>
@@ -2442,13 +2362,31 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     <div class="sl">หมายเหตุ</div>
     <p id="cd-bio" style="font-size:13px;color:var(--mu);margin-bottom:14px">—</p>
   </div>
+  <div class="md-ft"><button class="btn btn-g btn-sm" onclick="closeM('m-condetail')">ปิด</button><a id="cd-tel-link" href="#" class="btn btn-p btn-sm">📞 โทรหาช่าง</a></div>
+</div></div>
+  </div>
+  <div class="md-bd">
+    <div class="ig" style="margin-bottom:14px">
+      <div class="ii"><div class="ik">เบอร์โทร</div><div class="iv">📞 081-111-2222</div></div>
+      <div class="ii"><div class="ik">Line</div><div class="iv">@somsak_elec</div></div>
+      <div class="ii"><div class="ik">พื้นที่</div><div class="iv">📍 กรุงเทพ/นนทบุรี</div></div>
+      <div class="ii"><div class="ik">สถานะ</div><div class="iv"><span class="bd b-ok">✓ นิติรับรอง</span></div></div>
+    </div>
+    <div class="sl">ความสามารถ</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+      <span class="con-tag">⚡ ช่างไฟ</span><span class="con-tag">ไฟฟ้า</span><span class="con-tag">วงจรไฟ</span><span class="con-tag">ระบบไฟ</span>
+    </div>
+    <div class="sl">รีวิวจากลูกบ้าน</div>
+    <div class="card-soft mb-8"><div style="font-size:13px;font-weight:700;margin-bottom:4px">⭐⭐⭐⭐⭐ บ้าน 10/1</div><div style="font-size:12.5px;color:var(--mu)">ช่างทำงานดี ตรงเวลา ราคาสมเหตุสมผล แนะนำเลย</div></div>
+    <div class="card-soft"><div style="font-size:13px;font-weight:700;margin-bottom:4px">⭐⭐⭐⭐ บ้าน 22/5</div><div style="font-size:12.5px;color:var(--mu)">ช่างซ่อมเร็ว แต่มีงานเยอะต้องนัดล่วงหน้า</div></div>
+  </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-condetail')">ปิด</button>
-    <a id="cd-tel-link" href="#" class="btn btn-p btn-sm">📞 โทรหาช่าง</a>
+    <a href="tel:081-111-2222" class="btn btn-p btn-sm">📞 โทรเลย</a>
   </div>
 </div></div>
 
-
+<!-- MODAL: ลงประกาศขาย -->
 <div class="mo" id="m-newmarket">
 <div class="md wide">
   <div class="md-handle"></div>
@@ -3111,6 +3049,8 @@ async function loadPageData(view, page) {
     if (key === 'admin-ann')        await loadAnnouncementsPage();
     if (key === 'admin-rep')        await loadReportsPage();
     if (key === 'admin-contractor') await loadContractorsPage();
+    if (key === 'admin-vehicle')    { await loadAdminVehiclePage(); return; }
+    if (key === 'res-vehicle')      { await loadResVehiclePage(); return; }
     if (key === 'admin-market')     await loadMarketAdminPage();
     if (key === 'admin-usr')        await loadUsersPage();
     if (key === 'admin-log')        await loadLogsPage();
@@ -3430,13 +3370,14 @@ async function loadResHousePage() {
     if (vEl) {
       vEl.innerHTML = vehicles.filter(function(v){ return v.status!=='pending'; }).map(function(v) {
         return '<div class="vc">' +
-          '<div class="vc-ico">' + _vehicleIcon(v.type) + '</div>' +
+          '<div class="vc-ico">' + (v.type==='motorcycle'?'\ud83c\udfcd\ufe0f':'\ud83d\ude97') + '</div>' +
           '<div style="flex:1;min-width:0">' +
-            '<div class="vc-pl">' + v.plate_number + ' <span style="font-size:11px;color:var(--mu)">' + v.province + '</span></div>' +
+            '<div class="vc-pl">' + v.plate_number + ' ' + v.province + '</div>' +
             '<div class="vc-dt">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
-            '<div style="margin-top:6px"><span class="bd b-ok">\u2713 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19</span></div>' +
-          '</div>' +
-          '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openResEditCarModal(this.dataset.vid)">\u270f\ufe0f</button></div>';
+            '<div style="margin-top:6px"><span class="bd b-ok">\u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19</span>' +
+              (v.fee_required ? '<span class="bd b-wn" style="margin-left:5px">\u0e40\u0e2a\u0e35\u0e22\u0e04\u0e48\u0e32\u0e08\u0e2d\u0e14</span>' : '') +
+            '</div></div>' +
+          '<button class="btn btn-xs btn-o" onclick="openEditCarModal(\'' + v.vehicle_id + '\')">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button></div>';
       }).join('') || '<p class="text-mu" style="font-size:13px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30</p>';
     }
     // My change requests
@@ -3688,39 +3629,87 @@ async function doCloseListing(item_id) {
 
 // ── Generate Fees ─────────────────────────────────────────────
 async function doGenerateFees() {
-  const currentYear = new Date().getFullYear() + 543;
-  const r = await Swal.fire({
-    allowOutsideClick: false,
-    allowEscapeKey: false,
-    icon:'question',
-    title:'Generate \u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e2b\u0e19\u0e35\u0e49?',
+  var currentYear = new Date().getFullYear() + 543;
+  var p1label = _cfg('fee_p1_label','H1');
+  var p1range = _cfg('fee_p1_range','1/1 - 30/6');
+  var p1due   = _cfg('fee_p1_due','31/1');
+  var p2label = _cfg('fee_p2_label','H2');
+  var p2range = _cfg('fee_p2_range','1/7 - 31/12');
+  var p2due   = _cfg('fee_p2_due','31/7');
+  var r = await Swal.fire({
+    allowOutsideClick: false, allowEscapeKey: false,
+    icon: 'question',
+    title: '\u23a1 \u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e2b\u0e19\u0e35\u0e49\u0e04\u0e23\u0e36\u0e48\u0e07\u0e1b\u0e35',
     html: '<div style="text-align:left;margin-top:10px">' +
-      '<label style="font-size:12.5px;font-weight:700;display:block;margin-bottom:5px">\u0e1b\u0e35 (พ.ศ.)</label>' +
-      '<input id="gen-year" class="fi" value="' + currentYear + '">' +
-      '<label style="font-size:12.5px;font-weight:700;display:block;margin:10px 0 5px">\u0e07\u0e27\u0e14</label>' +
-      '<select id="gen-period" class="fs"><option value="H1">\u0e04\u0e23\u0e36\u0e48\u0e07\u0e1b\u0e35\u0e41\u0e23\u0e01 (H1)</option><option value="H2">\u0e04\u0e23\u0e36\u0e48\u0e07\u0e1b\u0e35\u0e2b\u0e25\u0e31\u0e07 (H2)</option></select>' +
+      '<div class="fg" style="margin-bottom:10px"><label class="fl">\u0e1b\u0e35 (\u0e1e.\u0e28.)</label>' +
+      '<input id="gen-year" class="fi" type="number" value="' + currentYear + '"></div>' +
+      '<div class="fg"><label class="fl">\u0e07\u0e27\u0e14</label>' +
+      '<select id="gen-period" class="fs">' +
+        '<option value="H1">' + p1label + ' \u2014 ' + p1range + ' (\u0e0a\u0e33\u0e23\u0e30\u0e44\u0e21\u0e48\u0e40\u0e01\u0e34\u0e19 ' + p1due + ')</option>' +
+        '<option value="H2">' + p2label + ' \u2014 ' + p2range + ' (\u0e0a\u0e33\u0e23\u0e30\u0e44\u0e21\u0e48\u0e40\u0e01\u0e14\u0e34\u0e19 ' + p2due + ')</option>' +
+      '</select></div>' +
     '</div>',
-    confirmButtonText:'Generate', showCancelButton:true, cancelButtonText:'\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
-    customClass:{confirmButton:'btn btn-p',cancelButton:'btn btn-g'}, buttonsStyling:false,
+    confirmButtonText: '\u23a1 \u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07',
+    showCancelButton: true, cancelButtonText: '\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
+    customClass: { confirmButton: 'btn btn-p', cancelButton: 'btn btn-g' },
+    buttonsStyling: false,
     preConfirm: function() {
-      return {
-        year:   document.getElementById('gen-year').value,
-        period: document.getElementById('gen-period').value
-      };
+      var yr = document.getElementById('gen-year').value;
+      var pd = document.getElementById('gen-period').value;
+      if (!yr) { Swal.showValidationMessage('\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e1b\u0e35'); return false; }
+      return { year: yr, period: pd };
     }
   });
   if (!r.isConfirmed) return;
-  showLoader('Generate \u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e2b\u0e19\u0e35\u0e49...');
+  showLoader('\u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e2b\u0e19\u0e35\u0e49...');
   try {
-    const res = await api('generateFees', r.value);
+    var res = await api('generateFees', r.value);
     hideLoader();
-    Swal.fire({ icon:'success', title:'Generate \u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',
+    invalidatePageCache('admin-fees');
+    window._feesAll = null;
+    Swal.fire({ icon:'success', title:'\u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e2b\u0e19\u0e35\u0e49\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',
       html: '\u0e2a\u0e23\u0e49\u0e32\u0e07 <strong>' + res.created + ' \u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</strong>',
-      timer:3000, showConfirmButton:false });
+      timer: 3000, showConfirmButton: false });
     loadFeesPage();
-  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text: e.message }); }
 }
 
+async function doGenerateFullYear() {
+  var currentYear = new Date().getFullYear() + 543;
+  var discPct = parseFloat(_cfg('fee_discount_pct','0')) || 0;
+  var r = await Swal.fire({
+    allowOutsideClick: false, allowEscapeKey: false,
+    icon: 'question',
+    title: '\u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e2b\u0e19\u0e35\u0e49\u0e40\u0e15\u0e47\u0e21\u0e1b\u0e35',
+    html: '<div style="text-align:left;margin-top:10px">' +
+      '<div class="fg"><label class="fl">\u0e1b\u0e35 (\u0e1e.\u0e28.)</label>' +
+      '<input id="gen-fy-year" class="fi" type="number" value="' + currentYear + '"></div>' +
+      '<div style="margin-top:10px;padding:10px 12px;background:var(--acl);border-radius:8px;font-size:13px">' +
+        '\u2139\ufe0f \u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14: <strong>' + discPct + '%</strong> (\u0e08\u0e32\u0e01\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07\u0e40\u0e17\u0e48\u0e32\u0e19\u0e31\u0e49\u0e19)' +
+      '</div></div>',
+    confirmButtonText: '\u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e40\u0e15\u0e47\u0e21\u0e1b\u0e35',
+    showCancelButton: true, cancelButtonText: '\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
+    customClass: { confirmButton: 'btn btn-a', cancelButton: 'btn btn-g' },
+    buttonsStyling: false,
+    preConfirm: function() {
+      var yr = document.getElementById('gen-fy-year').value;
+      if (!yr) { Swal.showValidationMessage('\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e1b\u0e35'); return false; }
+      return { year: yr };
+    }
+  });
+  if (!r.isConfirmed) return;
+  showLoader('\u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e40\u0e15\u0e47\u0e21\u0e1b\u0e35...');
+  try {
+    var res = await api('generateFullYearBill', r.value);
+    hideLoader();
+    invalidatePageCache('admin-fees');
+    window._feesAll = null;
+    Swal.fire({ icon:'success', title:'\u0e2d\u0e2d\u0e01\u0e43\u0e1a\u0e40\u0e15\u0e47\u0e21\u0e1b\u0e35\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',
+      html: '\u0e2a\u0e23\u0e49\u0e32\u0e07 <strong>' + res.created + ' \u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</strong> \u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14 ' + discPct + '%',
+      timer: 3000, showConfirmButton: false });
+    loadFeesPage();
+  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text: e.message }); }
+}
 // ── Submit Slip (resident) ────────────────────────────────────
 var _payFeeId = null;
 function openPayModal(fee_id, total) {
@@ -3819,6 +3808,23 @@ async function doSubmitHouseEditReq() {
 }
 
 // ── Submit new vehicle request (resident) ─────────────────────
+async function doSubmitAddCar() {
+  const plate  = document.getElementById('car-plate').value.trim();
+  const brand  = document.getElementById('car-brand').value.trim();
+  const model  = document.getElementById('car-model').value.trim();
+  const color  = document.getElementById('car-color').value.trim();
+  const prov   = document.getElementById('car-prov').value.trim();
+  const type   = document.getElementById('car-type').value;
+  const park   = document.getElementById('car-park').value;
+  if (!plate) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16' }); return; }
+  showLoader('...');
+  try {
+    await api('createVehicle', { plate_number:plate, brand, model, color, province:prov, type, parking_location:park });
+    hideLoader(); closeM('m-addcar');
+    Swal.fire({ icon:'success', title:'\u0e2a\u0e48\u0e07\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e25\u0e49\u0e27', timer:2000, showConfirmButton:false });
+    loadResHousePage();
+  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+}
 
 // ── Post marketplace listing (resident) ───────────────────────
 async function doPostListing() {
@@ -4033,21 +4039,22 @@ function sw(t) {
 // STARTUP
 // ============================================================
 (function() {
-  // Apply cached settings instantly, then fetch fresh
-  try { var c=localStorage.getItem('vms5-settings'); if(c){APP.settings=JSON.parse(c);applySettings();} } catch(e){}
+  // Load settings before login so login screen shows correct branding
   (async function() {
     try {
+      // Public call — no token needed (we make getSettings public in Code.gs)
       var params = new URLSearchParams({ payload: JSON.stringify({ action: 'getSettings' }) });
       var res = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
       var json = await res.json();
-      if (json.code === 200 && json.data && Object.keys(json.data).length > 0) {
-        APP.settings = json.data;
-        localStorage.setItem('vms5-settings', JSON.stringify(json.data));
+      if (json.code === 200) {
+        APP.settings = json.data || {};
         applySettings();
       }
-    } catch(e) {}
+    } catch(e) { /* silently fail — use defaults */ }
   })();
 
+  // Apply cached settings instantly
+  try { var _sc=localStorage.getItem('vms5-settings'); if(_sc){APP.settings=JSON.parse(_sc);applySettings();} } catch(_e){}
   // Check for saved session
   var savedToken = sessionStorage.getItem('vms_token');
   var savedUser  = sessionStorage.getItem('vms_user');
@@ -4844,8 +4851,6 @@ async function calcHouseFee(houseId) {
   var feeYear     = parseFloat((ratePerSqw * areaSqw * 12).toFixed(2));
 
   var r = await Swal.fire({
-    allowOutsideClick: false,
-    allowEscapeKey: false,
     title: '\u0e04\u0e33\u0e19\u0e27\u0e13\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07 — \u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no),
     html: '<div style="text-align:left;font-size:13px;line-height:2">' +
       '<b>\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48:</b> ' + areaSqw.toFixed(2) + ' \u0e15\u0e23.\u0e27.<br>' +
@@ -4901,8 +4906,6 @@ async function openBulkFeeModal() {
   }).join('');
 
   var r = await Swal.fire({
-    allowOutsideClick: false,
-    allowEscapeKey: false,
     title: '\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07\u0e17\u0e38\u0e01\u0e1a\u0e49\u0e32\u0e19',
     html: '<div style="font-size:13px;margin-bottom:10px;text-align:left">' +
       '\u0e2d\u0e31\u0e15\u0e23\u0e32 \u0e3f' + ratePerSqw + '/\u0e15\u0e23.\u0e27./\u0e40\u0e14\u0e37\u0e2d\u0e19 · \u0e04\u0e48\u0e32\u0e02\u0e22\u0e30 \u0e3f' + trashYear + '/\u0e1b\u0e35</div>' +
@@ -4936,6 +4939,7 @@ async function openBulkFeeModal() {
     Swal.fire({ icon:'error', title:'\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14', text: err.message });
   } finally { hideLoader(); }
 }
+
 
 
 // ============================================================
@@ -5081,7 +5085,7 @@ function _setSelectOrCustom(selId, inpId, value) {
 }
 
 function _vdBrandChange(mode) {
-  var pre = mode === 'add' ? 'car-' : mode === 'acar' ? 'acar-' : mode === 'aeditcar' ? 'aeditcar-' : 'editcar-';
+  var pre = mode === 'add' ? 'car-' : 'editcar-';
   var sel = document.getElementById(pre + 'brand-sel');
   var inp = document.getElementById(pre + 'brand');
   if (!sel || !inp) return;
@@ -5091,7 +5095,7 @@ function _vdBrandChange(mode) {
 }
 
 function _vdColorChange(mode) {
-  var pre = mode === 'add' ? 'car-' : mode === 'acar' ? 'acar-' : mode === 'aeditcar' ? 'aeditcar-' : 'editcar-';
+  var pre = mode === 'add' ? 'car-' : 'editcar-';
   var sel = document.getElementById(pre + 'color-sel');
   var inp = document.getElementById(pre + 'color');
   if (!sel || !inp) return;
@@ -5118,8 +5122,6 @@ function _vdGetColor(mode) {
 
 // Open add car modal
 function openAddCarModal() {
-  _carImages = [];
-  _renderCarImagePreviews('car-');
   _initVehicleDropdowns('car-');
   var typeEl = document.getElementById('car-type');
   var plateEl = document.getElementById('car-plate');
@@ -5131,7 +5133,6 @@ function openAddCarModal() {
   var statEl = document.getElementById('car-status');  if (statEl)   statEl.value  = 'active';
   var brandInp = document.getElementById('car-brand');  if (brandInp) brandInp.style.display = 'none';
   var colorInp = document.getElementById('car-color');  if (colorInp) colorInp.style.display = 'none';
-  _initCarImageUpload('car');
   openM('m-addcar');
 }
 
@@ -5177,11 +5178,9 @@ async function doSubmitAddCar() {
 
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30...');
   try {
-    var imgUrls = await _uploadCarImages();
     await api('createVehicle', {
       type, plate_number: plate, brand, model, color, province: prov,
-      parking_location: park, status: stat,
-      image_urls: imgUrls
+      parking_location: park, status: stat
     });
     closeM('m-addcar');
     Swal.fire({ icon:'success', title:'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1800, showConfirmButton:false });
@@ -5219,6 +5218,154 @@ async function doSubmitEditCar() {
   } finally { hideLoader(); }
 }
 
+// ============================================================
+// ADMIN: VEHICLE PAGE
+// ============================================================
+async function loadAdminVehiclePage() {
+  try {
+    var all = await api('getVehicles');
+    var pending  = all.filter(function(v){ return v.status === 'pending'; });
+    var active   = all.filter(function(v){ return v.status === 'active';  });
+    var inactive = all.filter(function(v){ return v.status === 'inactive';});
+
+    // Badge
+    var badge = document.getElementById('badge-vehicle');
+    if (badge) badge.textContent = pending.length > 0 ? pending.length : '';
+
+    // Tab badge
+    var tabPending = document.getElementById('tab-veh-pending');
+    if (tabPending) tabPending.textContent = '\u23f3 \u0e23\u0e2d\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34' + (pending.length ? ' (' + pending.length + ')' : '');
+
+    _renderAdminVehicles('list-vehicles-pending',  pending,  true);
+    _renderAdminVehicles('list-vehicles-active',   active,   false);
+    _renderAdminVehicles('list-vehicles-inactive', inactive, false);
+  } catch(e) { console.warn('loadAdminVehiclePage:', e); }
+}
+
+function _vehicleIcon(type) {
+  return {'\u0e23\u0e16\u0e22\u0e19\u0e15\u0e4c':'\ud83d\ude97','\u0e23\u0e16\u0e08\u0e31\u0e01\u0e23\u0e22\u0e32\u0e19\u0e22\u0e19\u0e15\u0e4c':'\ud83c\udfcd\ufe0f','\u0e23\u0e16\u0e15\u0e39\u0e49':'\ud83d\ude90','\u0e23\u0e16\u0e01\u0e23\u0e30\u0e1a\u0e30':'\ud83d\udebb'}[type] || '\ud83d\ude97';
+}
+
+function _renderAdminVehicles(elId, vehicles, showApprove) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  if (!vehicles.length) {
+    el.innerHTML = '<p class="text-mu" style="text-align:center;padding:24px;font-size:13px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</p>';
+    return;
+  }
+  el.innerHTML = vehicles.map(function(v) {
+    var approveBtn = showApprove
+      ? '<button class="btn btn-xs btn-a" data-vid="' + v.vehicle_id + '" onclick="doApproveVehicle(this.dataset.vid)">\u2713 \u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34</button>' +
+        '<button class="btn btn-xs btn-dg" data-vid="' + v.vehicle_id + '" onclick="doRejectVehicle(this.dataset.vid)">\u2717 \u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18</button>'
+      : '';
+    return '<div class="card" style="margin-bottom:12px"><div class="cb">' +
+      '<div style="display:flex;align-items:flex-start;gap:12px">' +
+        '<div style="font-size:28px">' + _vehicleIcon(v.type) + '</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-weight:700;font-size:14px">' + (v.plate_number||'') + ' <span style="font-size:12px;color:var(--mu)">' + (v.province||'') + '</span></div>' +
+          '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + (v.brand||'') + ' ' + (v.model||'') + ' \u00b7 \u0e2a\u0e35' + (v.color||'') + ' \u00b7 ' + (v.parking_location||'') + '</div>' +
+          '<div style="font-size:11.5px;color:var(--mu);margin-top:3px">\u0e1a\u0e49\u0e32\u0e19: ' + (v.house_id||'') + ' \u00b7 ' + _fmtDate(v.created_at) + '</div>' +
+          '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">' + approveBtn + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div></div>';
+  }).join('');
+}
+
+async function doApproveVehicle(vehicleId) {
+  showLoader('\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34...');
+  try {
+    await api('updateVehicle', { vehicle_id: vehicleId, status: 'active' });
+    await loadAdminVehiclePage();
+    Swal.fire({ icon:'success', title:'\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
+  } catch(e) { Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+  finally { hideLoader(); }
+}
+
+async function doRejectVehicle(vehicleId) {
+  var r = await Swal.fire({
+    title:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e04\u0e33\u0e02\u0e2d?',
+    input:'text', inputPlaceholder:'\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25 (\u0e16\u0e49\u0e32\u0e21\u0e35)',
+    showCancelButton:true, confirmButtonText:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18',
+    cancelButtonText:'\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
+    customClass:{ confirmButton:'btn btn-dg', cancelButton:'btn btn-g' }, buttonsStyling:false
+  });
+  if (!r.isConfirmed) return;
+  showLoader('\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18...');
+  try {
+    await api('updateVehicle', { vehicle_id: vehicleId, status: 'rejected', reject_reason: r.value||'' });
+    await loadAdminVehiclePage();
+    Swal.fire({ icon:'success', title:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e41\u0e25\u0e49\u0e27', timer:1500, showConfirmButton:false });
+  } catch(e) { Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+  finally { hideLoader(); }
+}
+
+// ============================================================
+// RESIDENT: VEHICLE PAGE
+// ============================================================
+async function loadResVehiclePage() {
+  try {
+    var vehicles = await api('getVehiclesByHouse');
+    var pending  = vehicles.filter(function(v){ return v.status === 'pending'; });
+    var active   = vehicles.filter(function(v){ return v.status === 'active';  });
+    var inactive = vehicles.filter(function(v){ return v.status === 'inactive'; });
+
+    // Show/hide pending section
+    var ps = document.getElementById('res-veh-pending-section');
+    if (ps) ps.style.display = pending.length ? 'block' : 'none';
+
+    // Render pending
+    var pelEl = document.getElementById('list-res-vehicles-pending');
+    if (pelEl && pending.length) {
+      pelEl.innerHTML = pending.map(function(v) {
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bo)">' +
+          '<div style="font-size:22px">' + _vehicleIcon(v.type) + '</div>' +
+          '<div style="flex:1">' +
+            '<div style="font-weight:600;font-size:13px">' + v.plate_number + ' ' + v.province + '</div>' +
+            '<div style="font-size:11.5px;color:var(--mu)">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + '</div>' +
+          '</div>' +
+          '<span class="bd b-wn">\u23f3 \u0e23\u0e2d</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    // Render active + inactive together
+    var allShown = active.concat(inactive);
+    var aEl = document.getElementById('list-res-vehicles-active');
+    if (aEl) {
+      if (!allShown.length) {
+        aEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:16px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30</p>';
+      } else {
+        aEl.innerHTML = allShown.map(function(v) {
+          var isActive = v.status === 'active';
+          return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--bo)">' +
+            '<div style="font-size:28px">' + _vehicleIcon(v.type) + '</div>' +
+            '<div style="flex:1">' +
+              '<div style="font-weight:700;font-size:14px">' + v.plate_number + ' <span style="font-size:11px;color:var(--mu)">' + v.province + '</span></div>' +
+              '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
+              '<div style="margin-top:6px;display:flex;gap:6px;align-items:center">' +
+                '<span class="bd ' + (isActive ? 'b-ok' : 'b-mu') + '">' + (isActive ? '\u2713 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19' : '\u23f8 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e49') + '</span>' +
+                '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openResEditCarModal(this.dataset.vid)">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  } catch(e) { console.warn('loadResVehiclePage:', e); }
+}
+
+// Open edit car from resident page (by vehicle_id, look up from cache)
+async function openResEditCarModal(vehicleId) {
+  showLoader('...');
+  try {
+    var vehicles = await api('getVehiclesByHouse');
+    var v = vehicles.find(function(x){ return x.vehicle_id === vehicleId; });
+    hideLoader();
+    if (!v) return;
+    openEditCarModal(v);
+  } catch(e) { hideLoader(); }
+}
 
 // ============================================================
 // ADMIN VEHICLE PAGE — Full CRUD + Approve Flow
@@ -5325,7 +5472,6 @@ async function doApproveVehicle(vehicleId) {
 
 async function doRejectVehicle(vehicleId) {
   var r = await Swal.fire({
-    allowOutsideClick: false,
     title:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e04\u0e33\u0e02\u0e2d\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30?',
     input:'text', inputLabel:'\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25 (\u0e16\u0e49\u0e32\u0e21\u0e35)',
     showCancelButton:true, confirmButtonText:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18',
@@ -5345,50 +5491,17 @@ async function doRejectVehicle(vehicleId) {
 
 // ── Admin Add Car (auto-approved) ──
 function openAdminAddCarModal() {
-  _carImages = [];
-  _renderCarImagePreviews('acar-');
   _initVehicleDropdowns('acar-');
-  // Populate house dropdown from _housesAllCache
-  var houseSel = document.getElementById('acar-houseid');
-  if (houseSel) {
-    var houses = _housesAllCache || [];
-    houseSel.innerHTML = '<option value="">— เลือกบ้าน —</option>' +
-      houses.map(function(h) {
-        var label = _safeHouseNo(h.house_no) + (h.owner_name ? ' — '+h.owner_name : '');
-        return '<option value="'+h.house_id+'">'+label+'</option>';
-      }).join('');
-  }
-  var lbl = document.getElementById('acar-house-label');
-  if (lbl) lbl.textContent = '';
-  var plate = document.getElementById('acar-plate'); if(plate) plate.value = '';
-  var model = document.getElementById('acar-model'); if(model) model.value = '';
+  ['acar-houseid','acar-plate','acar-model'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
   var t = document.getElementById('acar-type'); if(t) t.value = '';
-  var p = document.getElementById('acar-park'); if(p) p.value = 'ในบ้าน';
+  var p = document.getElementById('acar-park'); if(p) p.value = '\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
   var s = document.getElementById('acar-status'); if(s) s.value = 'active';
   var bi = document.getElementById('acar-brand'); if(bi) bi.style.display='none';
   var ci = document.getElementById('acar-color'); if(ci) ci.style.display='none';
-  // Load houses if not cached
-  if (!(_housesAllCache && _housesAllCache.length)) {
-    api('getHouses').then(function(h) {
-      _housesAllCache = h;
-      var sel = document.getElementById('acar-houseid');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">— เลือกบ้าน —</option>' +
-        h.map(function(hh) {
-          var label = _safeHouseNo(hh.house_no) + (hh.owner_name ? ' — '+hh.owner_name : '');
-          return '<option value="'+hh.house_id+'">'+label+'</option>';
-        }).join('');
-    }).catch(function(){});
-  }
-  _initCarImageUpload('acar');
+  var sg = document.getElementById('acar-house-suggest'); if(sg) sg.style.display='none';
   openM('m-admin-addcar');
-}
-
-function onAdminCarHouseChange(houseId) {
-  var houses = _housesAllCache || [];
-  var h = houses.find(function(x){ return x.house_id === houseId; });
-  var lbl = document.getElementById('acar-house-label');
-  if (lbl) lbl.textContent = h ? '✓ บ้าน '+_safeHouseNo(h.house_no)+(h.owner_name?' — '+h.owner_name:'') : '';
 }
 
 function searchHouseForCar(q) {
@@ -5426,7 +5539,8 @@ function selectHouseForCar(houseId, label) {
 }
 
 async function doAdminAddCar() {
-  var houseId = ((document.getElementById('acar-houseid')||{}).value||'').trim();
+  var houseId = (document.getElementById('acar-houseid')||{}).dataset?.houseId ||
+                (document.getElementById('acar-houseid')||{}).value||'';
   var type    = (document.getElementById('acar-type')||{}).value||'';
   var plate   = ((document.getElementById('acar-plate')||{}).value||'').trim();
   var brand   = _vdGetBrand('acar');
@@ -5443,10 +5557,8 @@ async function doAdminAddCar() {
 
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
   try {
-    var imgUrls = await _uploadCarImages();
     await api('createVehicle', { house_id:houseId, type, plate_number:plate, brand, model,
-      color, province:prov, parking_location:park, status:stat,
-      image_urls: imgUrls });
+      color, province:prov, parking_location:park, status:stat });
     closeM('m-admin-addcar');
     invalidatePageCache('admin-vehicle');
     await loadAdminVehiclePage();
@@ -5520,181 +5632,6 @@ _vdGetColor = function(mode) {
   }
   return _origVdGetColor(mode);
 };
-
-// ============================================================
-// RESIDENT: VEHICLE PAGE
-// ============================================================
-async function loadResVehiclePage() {
-  try {
-    var vehicles = await api('getVehiclesByHouse');
-    var pending  = vehicles.filter(function(v){ return v.status === 'pending'; });
-    var active   = vehicles.filter(function(v){ return v.status === 'active';  });
-    var inactive = vehicles.filter(function(v){ return v.status === 'inactive'; });
-
-    // Show/hide pending section
-    var ps = document.getElementById('res-veh-pending-section');
-    if (ps) ps.style.display = pending.length ? 'block' : 'none';
-
-    // Render pending
-    var pelEl = document.getElementById('list-res-vehicles-pending');
-    if (pelEl && pending.length) {
-      pelEl.innerHTML = pending.map(function(v) {
-        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bo)">' +
-          '<div style="font-size:22px">' + _vehicleIcon(v.type) + '</div>' +
-          '<div style="flex:1">' +
-            '<div style="font-weight:600;font-size:13px">' + v.plate_number + ' ' + v.province + '</div>' +
-            '<div style="font-size:11.5px;color:var(--mu)">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + '</div>' +
-          '</div>' +
-          '<span class="bd b-wn">\u23f3 \u0e23\u0e2d</span>' +
-        '</div>';
-      }).join('');
-    }
-
-    // Render active + inactive together
-    var allShown = active.concat(inactive);
-    var aEl = document.getElementById('list-res-vehicles-active');
-    if (aEl) {
-      if (!allShown.length) {
-        aEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:16px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30</p>';
-      } else {
-        aEl.innerHTML = allShown.map(function(v) {
-          var isActive = v.status === 'active';
-          return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--bo)">' +
-            '<div style="font-size:28px">' + _vehicleIcon(v.type) + '</div>' +
-            '<div style="flex:1">' +
-              '<div style="font-weight:700;font-size:14px">' + v.plate_number + ' <span style="font-size:11px;color:var(--mu)">' + v.province + '</span></div>' +
-              '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
-              '<div style="margin-top:6px;display:flex;gap:6px;align-items:center">' +
-                '<span class="bd ' + (isActive ? 'b-ok' : 'b-mu') + '">' + (isActive ? '\u2713 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19' : '\u23f8 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e49') + '</span>' +
-                '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openResEditCarModal(this.dataset.vid)">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button>' +
-              '</div>' +
-            '</div>' +
-          '</div>';
-        }).join('');
-      }
-    }
-  } catch(e) { console.warn('loadResVehiclePage:', e); }
-}
-
-// Open edit car from resident page (by vehicle_id, look up from cache)
-async function openResEditCarModal(vehicleId) {
-  showLoader('...');
-  try {
-    var vehicles = await api('getVehiclesByHouse');
-    var v = vehicles.find(function(x){ return x.vehicle_id === vehicleId; });
-    hideLoader();
-    if (!v) return;
-    openEditCarModal(v);
-  } catch(e) { hideLoader(); }
-}
-
-
-// ============================================================
-// CAR IMAGE UPLOAD — up to 5 images, resize, rename CAR_date_time
-// ============================================================
-var _carImages = []; // [{file, dataUrl, renamed}]
-
-function _initCarImageUpload(prefix) {
-  // prefix = 'car' for addcar, 'acar' for admin addcar
-  _carImages = [];
-  var wrap = document.getElementById(prefix + '-img-wrap');
-  if (!wrap) return;
-  wrap.innerHTML =
-    '<div id="' + prefix + '-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px"></div>' +
-    '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border:2px dashed var(--bo);border-radius:10px;font-size:13px;color:var(--mu)">' +
-      '<input type="file" id="' + prefix + '-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,\'' + prefix + '\')">' +
-      '<span style="font-size:20px">📷</span>' +
-      '<span>แนบรูปรถ <span style="color:var(--ac);font-weight:600">สูงสุด 5 รูป</span> (คลิกหรือลากมาวาง)</span>' +
-    '</label>' +
-    '<div id="' + prefix + '-img-count" style="font-size:11.5px;color:var(--mu);margin-top:4px"></div>';
-}
-
-function onCarImageSelect(input, prefix) {
-  var files = Array.from(input.files);
-  var remaining = 5 - _carImages.length;
-  if (remaining <= 0) {
-    Swal.fire({ icon:'warning', title:'\u0e41\u0e19\u0e1a\u0e23\u0e39\u0e1b\u0e44\u0e14\u0e49\u0e2a\u0e39\u0e07\u0e2a\u0e38\u0e14 5 \u0e23\u0e39\u0e1b', timer:1500, showConfirmButton:false });
-    return;
-  }
-  files = files.slice(0, remaining);
-  input.value = '';
-
-  files.forEach(function(file) {
-    var now = new Date();
-    var pad = function(n){ return String(n).padStart(2,'0'); };
-    var dt = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) +
-             '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) +
-             '_' + Math.floor(Math.random()*1000);
-    var ext = (file.name.match(/\.(\w+)$/) || [,'jpg'])[1].toLowerCase();
-    var renamed = 'CAR_' + dt + '.' + ext;
-
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      // Resize image: max 1280px width/height
-      var img = new Image();
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        var MAX = 1280;
-        var w = img.width, h = img.height;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else       { w = Math.round(w * MAX / h); h = MAX; }
-        }
-        canvas.width = w; canvas.height = h;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-        _carImages.push({ file: file, dataUrl: dataUrl, renamed: renamed });
-        _renderCarImagePreviews(prefix);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function _renderCarImagePreviews(prefix) {
-  var wrap = document.getElementById(prefix + '-img-previews');
-  var count = document.getElementById(prefix + '-img-count');
-  if (!wrap) return;
-  wrap.innerHTML = _carImages.map(function(img, idx) {
-    return '<div style="position:relative;display:inline-block">' +
-      '<img src="' + img.dataUrl + '" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
-      '<button onclick="_removeCarImage(' + idx + ',\'' + prefix + '\')" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;text-align:center;padding:0">\u00d7</button>' +
-      '<div style="font-size:9px;color:var(--mu);text-align:center;max-width:80px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">' + img.renamed + '</div>' +
-    '</div>';
-  }).join('');
-  if (count) count.textContent = _carImages.length + '/5 รูป';
-}
-
-function _removeCarImage(idx, prefix) {
-  _carImages.splice(idx, 1);
-  _renderCarImagePreviews(prefix);
-}
-
-// Upload all images to GAS as base64, return array of URLs
-async function _uploadCarImages() {
-  if (!_carImages.length) return [];
-  var urls = [];
-  for (var i = 0; i < _carImages.length; i++) {
-    var img = _carImages[i];
-    // Extract base64 data (remove data:image/jpeg;base64, prefix)
-    var base64 = img.dataUrl.split(',')[1];
-    var mimeType = img.dataUrl.split(';')[0].replace('data:','');
-    try {
-      var res = await api('uploadImage', {
-        filename: img.renamed,
-        base64: base64,
-        mimeType: mimeType
-      });
-      if (res && res.url) urls.push(res.url);
-    } catch(e) {
-      console.warn('Image upload failed:', img.renamed, e.message);
-    }
-  }
-  return urls;
-}
-
 
 // ============================================================
 // PRINT FEE INVOICE — ใบแจ้งค่าส่วนกลาง
@@ -6005,7 +5942,7 @@ function _openInvoiceWindow(f, isFullYear) {
       '<span>วัน/เวลาที่พิมพ์ ' + new Date().toLocaleString('th-TH') + '</span>' +
     '</div>' +
 
-    '<scr' + 'ipt>window.onload = function(){ window.print(); }<\/scr' + 'ipt>' +
+    '<scr'+'ipt>window.onload = function(){ window.print(); }<\/scr'+'ipt>' +
     '</body></html>';
 
   var w = window.open('', '_blank', 'width=900,height=700');
@@ -6017,6 +5954,84 @@ function _openInvoiceWindow(f, isFullYear) {
   }
 }
 
+
+// ============================================================
+// CAR IMAGE UPLOAD — resize to max 1280px, rename CAR_date_time
+// ============================================================
+var _carImages = []; // [{file, dataUrl, renamed}]
+
+function onCarImageSelect(input, prefix) {
+  var files = Array.from(input.files);
+  var remaining = 5 - _carImages.length;
+  if (remaining <= 0) {
+    Swal.fire({ icon:'warning', title:'\u0e41\u0e19\u0e1a\u0e23\u0e39\u0e1b\u0e44\u0e14\u0e49\u0e2a\u0e39\u0e07\u0e2a\u0e38\u0e14 5 \u0e23\u0e39\u0e1b', timer:1500, showConfirmButton:false });
+    return;
+  }
+  files = files.slice(0, remaining);
+  input.value = '';
+  files.forEach(function(file) {
+    var now = new Date();
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var dt = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) +
+             '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) +
+             '_' + Math.floor(Math.random()*1000);
+    var ext = (file.name.match(/\.(\w+)$/) || [,'jpg'])[1].toLowerCase();
+    var renamed = 'CAR_' + dt + '.' + ext;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var MAX = 1280;
+        var w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        _carImages.push({ file: file, dataUrl: dataUrl, renamed: renamed });
+        _renderCarImagePreviews(prefix);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function _renderCarImagePreviews(prefix) {
+  var wrap = document.getElementById(prefix + 'img-previews');
+  if (!wrap) return;
+  wrap.innerHTML = _carImages.map(function(img, idx) {
+    return '<div style="position:relative;display:inline-block">' +
+      '<img src="' + img.dataUrl + '" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
+      '<button onclick="_removeCarImage(' + idx + ',\'' + prefix + '\')" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;text-align:center;padding:0">\u00d7</button>' +
+      '<div style="font-size:9px;color:var(--mu);text-align:center;max-width:80px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">' + img.renamed + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function _removeCarImage(idx, prefix) {
+  _carImages.splice(idx, 1);
+  _renderCarImagePreviews(prefix);
+}
+
+async function _uploadCarImages() {
+  if (!_carImages.length) return [];
+  var urls = [];
+  for (var i = 0; i < _carImages.length; i++) {
+    var img = _carImages[i];
+    var base64 = img.dataUrl.split(',')[1];
+    var mimeType = img.dataUrl.split(';')[0].replace('data:','');
+    try {
+      var res = await api('uploadImage', { filename: img.renamed, base64: base64, mimeType: mimeType });
+      if (res && res.url) urls.push(res.url);
+    } catch(e) { console.warn('Image upload failed:', img.renamed, e.message); }
+  }
+  return urls;
+}
 </script>
 
 <!-- MODAL: เพิ่มสมาชิก -->
@@ -6038,51 +6053,9 @@ var _housesCache=[];
 async function loadHousesPage(){showLoader('\u0e42\u0e2b\u0e25\u0e14...');try{const h=await api('getHouses');_housesCache=h;const tb=document.getElementById('tbl-houses');if(!tb)return;tb.innerHTML=h.map(function(x){var b={normal:'<span class="bd b-ok">\u25cf \u0e1b\u0e01\u0e15\u0e34</span>',overdue:'<span class="bd b-wn">\u25cf \u0e04\u0e49\u0e32\u0e07</span>',suspended:'<span class="bd b-dg">\u25cf \u0e23\u0e30\u0e07\u0e31\u0e1a</span>',legal:'<span class="bd b-pur">\u2696 \u0e1f\u0e49\u0e2d\u0e07</span>'}[x.status]||'<span class="bd b-mu">'+x.status+'</span>';var dn=_safeHouseNo(x.house_no);return'<tr><td><strong>'+dn+'</strong> <span class="tag">'+(x.soi||'')+'</span></td><td>'+(x.owner_name||'')+'</td><td>'+(x.phone||'')+'</td><td class="text-pr fw-7">\u0e3f'+Number(x.fee_per_year||0).toLocaleString()+'</td><td>'+b+'</td><td><button class="btn btn-xs btn-o" onclick="openEditHouseModal(\''+x.house_id+'\')">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button></td></tr>';}).join('');}finally{hideLoader();}}
 async function openEditHouseModal(id){var h=_housesCache.find(function(x){return x.house_id===id;});if(!h){try{h=await api('getHouseById',{house_id:id});}catch(e){}}if(!h){Swal.fire({icon:'error',title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a'});return;}document.getElementById('edithouse-id').value=h.house_id;document.getElementById('edithouse-no').value=_safeHouseNo(h.house_no);document.getElementById('edithouse-soi').value=h.soi||'';document.getElementById('edithouse-area').value=h.area_sqm||'';document.getElementById('edithouse-owner').value=h.owner_name||'';document.getElementById('edithouse-renter').value=h.renter_name||'';document.getElementById('edithouse-phone').value=h.phone||'';document.getElementById('edithouse-email').value=h.email||'';document.getElementById('edithouse-fee').value=h.fee_per_year||'';document.getElementById('edithouse-parking').value=h.parking_fee_year||'';document.getElementById('edithouse-trash').value=h.trash_fee_period||'';document.getElementById('edithouse-statusnote').value=h.status_note||'';var u=document.getElementById('edithouse-usage');if(u)u.value=h.usage_type||'owner';var s=document.getElementById('edithouse-status');if(s)s.value=h.status||'normal';_setEl('edithouse-sub','\u0e1a\u0e49\u0e32\u0e19 '+_safeHouseNo(h.house_no)+' \u00b7 Admin Mode');openM('m-admin-edithouse');}
 async function doSaveEditHouse(){var id=document.getElementById('edithouse-id').value;if(!id)return;var hn=document.getElementById('edithouse-no').value.trim(),own=document.getElementById('edithouse-owner').value.trim();if(!hn||!own){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25'});return;}showLoader('...');try{await api('updateHouse',{house_id:id,house_no:hn,soi:document.getElementById('edithouse-soi').value.trim(),area_sqm:Number(document.getElementById('edithouse-area').value)||0,owner_name:own,renter_name:document.getElementById('edithouse-renter').value.trim(),phone:document.getElementById('edithouse-phone').value.trim(),email:document.getElementById('edithouse-email').value.trim(),fee_per_year:Number(document.getElementById('edithouse-fee').value)||0,parking_fee_year:Number(document.getElementById('edithouse-parking').value)||0,trash_fee_period:Number(document.getElementById('edithouse-trash').value)||0,usage_type:document.getElementById('edithouse-usage').value,status:document.getElementById('edithouse-status').value,status_note:(document.getElementById('edithouse-statusnote')||{}).value||''});closeM('m-admin-edithouse');await loadHousesPage();Swal.fire({icon:'success',title:'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-function filterFeesTable(){var v=(document.getElementById('fee-filter-status')||{}).value||'';var fees=(window._feesAll||[]).filter(function(f){return!v||f.status===v;});var tb=document.getElementById('tbl-fees');if(!tb)return;if(!fees.length){tb.innerHTML='<tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</td></tr>';return;}tb.innerHTML=fees.map(function(f){var b={pending:'<span class="bd b-wn">\u0e23\u0e2d</span>',slip_submitted:'<span class="bd b-pr">\u0e2a\u0e25\u0e34\u0e1b</span>',paid:'<span class="bd b-ok">\u0e0a\u0e33\u0e23\u0e30</span>',overdue:'<span class="bd b-dg">\u0e04\u0e49\u0e32\u0e07</span>'}[f.status]||'<span class="bd b-mu">'+f.status+'</span>';var ab=f.status==='slip_submitted'?'<button class="btn btn-xs btn-a" data-fid="'+f.fee_id+'" onclick="doApproveSlip(this.dataset.fid)">\u2713 Approve</button>':'';var oth=Number(f.other_fee||0)>0?'\u0e3f'+Number(f.other_fee).toLocaleString()+(f.other_fee_note?'<br><span style="font-size:10px;color:var(--mu)">'+f.other_fee_note+'</span>':''):'\u2014';return'<tr><td><strong>'+(f.house_id||'')+'</strong></td><td>'+f.period+'/'+f.year+'</td><td>\u0e3f'+Number(f.fee_amount||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.parking_fee||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.trash_fee||0).toLocaleString()+'</td><td>'+oth+'</td><td class="text-dg">'+(Number(f.penalty_fee||0)>0?'\u0e3f'+Number(f.penalty_fee).toLocaleString():'\u2014')+'</td><td class="fw-7">\u0e3f'+Number(f.total||0).toLocaleString()+'</td><td>'+b+'</td><td style="display:flex;gap:4px;flex-wrap:wrap">'+ab+'<button class="btn btn-xs btn-o" data-fid="'+f.fee_id+'" onclick="openEditFeeModal(this.dataset.fid)">\u270f\ufe0f</button>'+'<button class="btn btn-xs btn-g" data-fid="'+f.fee_id+'" onclick="openFeeDetail(this.dataset.fid)">\u0e14\u0e39</button></td></tr>';}).join('');}
+function filterFeesTable(){var v=(document.getElementById('fee-filter-status')||{}).value||'';var fees=(window._feesAll||[]).filter(function(f){return!v||f.status===v;});var tb=document.getElementById('tbl-fees');if(!tb)return;if(!fees.length){tb.innerHTML='<tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</td></tr>';return;}tb.innerHTML=fees.map(function(f){var b={pending:'<span class="bd b-wn">\u0e23\u0e2d</span>',slip_submitted:'<span class="bd b-pr">\u0e2a\u0e25\u0e34\u0e1b</span>',paid:'<span class="bd b-ok">\u0e0a\u0e33\u0e23\u0e30</span>',overdue:'<span class="bd b-dg">\u0e04\u0e49\u0e32\u0e07</span>'}[f.status]||'<span class="bd b-mu">'+f.status+'</span>';var ab=f.status==='slip_submitted'?'<button class="btn btn-xs btn-a" data-fid="'+f.fee_id+'" onclick="doApproveSlip(this.dataset.fid)">\u2713 Approve</button>':'';return'<tr><td><strong>'+(f.house_id||'')+'</strong></td><td>'+f.period+'/'+f.year+'</td><td>\u0e3f'+Number(f.fee_amount||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.parking_fee||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.trash_fee||0).toLocaleString()+'</td><td class="text-dg">'+(Number(f.penalty_fee||0)>0?'\u0e3f'+Number(f.penalty_fee).toLocaleString():'\u2014')+'</td><td class="fw-7">\u0e3f'+Number(f.total||0).toLocaleString()+'</td><td>'+b+'</td><td style="display:flex;gap:5px">'+ab+'<button class="btn btn-xs btn-o" data-fid="'+f.fee_id+'" onclick="openEditFeeModal(this.dataset.fid)">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button>'+'<button class="btn btn-xs btn-g" data-fid="'+f.fee_id+'" onclick="openFeeDetail(this.dataset.fid)">\u0e14\u0e39</button></td></tr>';}).join('');}
 var _curFee=null;
-async function openFeeDetail(id) {
-  _curFee = id;
-  var f = (window._feesAll||[]).find(function(x){ return x.fee_id === id; });
-  if (!f) {
-    try { var fs = await api('getFees'); window._feesAll = fs; f = fs.find(function(x){ return x.fee_id === id; }); } catch(e) {}
-  }
-  if (!f) { Swal.fire({ icon:'error', title:'ไม่พบ' }); return; }
-
-  function _fv(v) { return '฿' + Number(v||0).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-  function _showRow(rowId, val) {
-    var el = document.getElementById(rowId);
-    if (el) el.style.display = Number(val||0) !== 0 ? 'flex' : 'none';
-  }
-
-  _setEl('fd-sub', 'บ้าน '+(f.house_id||'')+' · '+(f.period||'')+'/'+(f.year||''));
-  _setEl('fd-fee-amount', _fv(f.fee_amount));
-  _setEl('fd-parking', _fv(f.parking_fee));
-  _setEl('fd-trash', _fv(f.trash_fee));
-
-  // ค่าอื่นๆ
-  _setEl('fd-other-fee', _fv(f.other_fee));
-  _setEl('fd-other-note', f.other_fee_note ? '('+f.other_fee_note+')' : '');
-  _showRow('fd-other-row', f.other_fee);
-
-  // ค้างชำระ & ค่าปรับ (show only if non-zero)
-  _setEl('fd-carry', _fv(f.overdue_carry));      _showRow('fd-carry-row', f.overdue_carry);
-  _setEl('fd-penalty10', _fv(f.penalty_10pct));  _showRow('fd-p10-row', f.penalty_10pct);
-  _setEl('fd-collection', _fv(f.collection_fee));_showRow('fd-col-row', f.collection_fee);
-  _setEl('fd-penalty', _fv(f.penalty_fee));       _showRow('fd-pen-row', f.penalty_fee);
-  _setEl('fd-discount', '-฿'+Number(f.discount||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}));
-  _showRow('fd-disc-row', f.discount);
-
-  _setEl('fd-total', _fv(f.total));
-
-  var ss = document.getElementById('fd-slip-section');
-  if (ss) ss.style.display = f.slip_url ? 'block' : 'none';
-  var sl = document.getElementById('fd-slip-link');
-  if (sl && f.slip_url) sl.href = f.slip_url;
-
-  var ab = document.getElementById('btn-fee-approve');
-  if (ab) ab.style.display = f.status === 'slip_submitted' ? 'inline-flex' : 'none';
-  openM('m-fee-detail');
-}
+async function openFeeDetail(id){_curFee=id;var f=(window._feesAll||[]).find(function(x){return x.fee_id===id;});if(!f){try{var fs=await api('getFees');window._feesAll=fs;f=fs.find(function(x){return x.fee_id===id;});}catch(e){}}if(!f){Swal.fire({icon:'error',title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a'});return;}_setEl('fd-sub','\u0e1a\u0e49\u0e32\u0e19 '+(f.house_id||'')+' \u00b7 '+(f.period||'')+'/'+(f.year||''));_setEl('fd-fee-amount','\u0e3f'+Number(f.fee_amount||0).toLocaleString());_setEl('fd-parking','\u0e3f'+Number(f.parking_fee||0).toLocaleString());_setEl('fd-trash','\u0e3f'+Number(f.trash_fee||0).toLocaleString());_setEl('fd-carry','\u0e3f'+Number(f.overdue_carry||0).toLocaleString());_setEl('fd-penalty10','\u0e3f'+Number(f.penalty_10pct||0).toLocaleString());_setEl('fd-collection','\u0e3f'+Number(f.collection_fee||0).toLocaleString());_setEl('fd-penalty','\u0e3f'+Number(f.penalty_fee||0).toLocaleString());_setEl('fd-discount','-\u0e3f'+Number(f.discount||0).toLocaleString());_setEl('fd-total','\u0e3f'+Number(f.total||0).toLocaleString());var ss=document.getElementById('fd-slip-section');if(ss)ss.style.display=f.slip_url?'block':'none';var sl=document.getElementById('fd-slip-link');if(sl&&f.slip_url)sl.href=f.slip_url;var ab=document.getElementById('btn-fee-approve');if(ab)ab.style.display=f.status==='slip_submitted'?'inline-flex':'none';openM('m-fee-detail');}
 async function doApproveSlipFromModal(){if(!_curFee)return;showLoader('...');try{await api('approveSlip',{fee_id:_curFee});closeM('m-fee-detail');await loadFeesPage();loadAdminDashboard();Swal.fire({icon:'success',title:'Approve \u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1200,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
 async function loadReportsPage(){try{const r=await api('getReports');const el=document.getElementById('list-reports');if(!el)return;if(!r.length){el.innerHTML='<p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35</p>';return;}var g={};r.forEach(function(x){var k=x.month+'/'+x.year;if(!g[k])g[k]=[];g[k].push(x);});el.innerHTML=Object.keys(g).map(function(k){var it=g[k],tot=it.reduce(function(s,x){return s+Number(x.budget||0);},0);return'<div class="card"><div class="ch"><div class="ch-ico">&#127942;</div><div class="ct">\u0e40\u0e14\u0e37\u0e2d\u0e19 '+k+'</div></div><div class="cb">'+it.map(function(x){return'<div class="ann"><div class="ann-dot ad-evt"></div><div><div class="ann-t">'+x.title+'</div><div class="ann-b">\u0e07\u0e1a \u0e3f'+Number(x.budget||0).toLocaleString()+(x.summary?' \u00b7 '+x.summary.substring(0,60):'')+'</div></div></div>';}).join('')+'<div class="fee-row" style="margin-top:8px;border-top:1px solid var(--bo);padding-top:8px"><div class="fee-lbl">\u0e23\u0e27\u0e21\u0e07\u0e1a</div><div class="fee-val fw-7 text-pr">\u0e3f'+tot.toLocaleString()+'</div></div></div></div>';}).join('');}catch(e){}}
 async function loadResWorkPage(){try{const r=await api('getReports');const el=document.getElementById('list-res-reports');if(!el)return;if(!r.length){el.innerHTML='<p class="text-mu" style="text-align:center;padding:20px;font-size:13px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35</p>';return;}var g={};r.forEach(function(x){var k=x.month+'/'+x.year;if(!g[k])g[k]=[];g[k].push(x);});el.innerHTML=Object.keys(g).map(function(k){return'<div class="card" style="margin-bottom:14px"><div class="ch"><div class="ch-ico">&#127942;</div><div class="ct">\u0e40\u0e14\u0e37\u0e2d\u0e19 '+k+'</div></div><div class="cb">'+g[k].map(function(x){return'<div class="ann"><div class="ann-dot ad-evt"></div><div><div class="ann-t">'+x.title+'</div><div class="ann-b">\u0e07\u0e1a \u0e3f'+Number(x.budget||0).toLocaleString()+(x.summary?' \u00b7 '+x.summary.substring(0,60):'')+'</div></div></div>';}).join('')+'</div></div>';}).join('');}catch(e){}}
@@ -6283,20 +6256,132 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
     <button class="btn btn-p btn-sm" onclick="doSaveFee()">💾 บันทึก</button>
   </div>
 </div></div>
+<!-- MODAL: เพิ่มรถ -->
+<div class="mo" id="m-addcar">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">เพิ่มยานพาหนะ</div><div class="md-sub">กรอกข้อมูลยานพาหนะ</div></div>
+  </div>
+  <div class="md-bd">
+    <div class="fr2">
+      <div class="fg"><label class="fl">ประเภทยานพาหนะ *</label>
+        <select class="fs" id="car-type">
+          <option value="">-- เลือกประเภท --</option>
+          <option value="รถยนต์">🚗 รถยนต์</option>
+          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
+          <option value="รถตู้">🚐 รถตู้</option>
+          <option value="รถกระบะ">🛻 รถกระบะ</option>
+          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="car-plate" placeholder="เช่น กข-1234"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ยี่ห้อ *</label>
+        <select class="fs" id="car-brand-sel" onchange="_vdBrandChange('add')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <input class="fi" id="car-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">รุ่น</label>
+        <input class="fi" id="car-model" placeholder="เช่น Camry"></div>
+      <div class="fg"><label class="fl">สี *</label>
+        <select class="fs" id="car-color-sel" onchange="_vdColorChange('add')"><option value="">-- เลือกสี --</option></select>
+        <input class="fi" id="car-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">จังหวัด *</label>
+        <select class="fs" id="car-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
+      <div class="fg"><label class="fl">ที่จอดรถ</label>
+        <select class="fs" id="car-park">
+          <option value="ในบ้าน">ในบ้าน</option>
+          <option value="หน้าบ้าน">หน้าบ้าน</option>
+          <option value="ส่วนกลาง">ส่วนกลาง</option>
+        </select></div>
+      <div class="fg"><label class="fl">สถานะ</label>
+        <select class="fs" id="car-status">
+          <option value="active">ใช้งานปกติ</option>
+          <option value="inactive">ไม่ได้ใช้งาน</option>
+        </select></div>
+    </div>
+    <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:4px">
+      <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
+        📷 เลือกรูปภาพ
+        <input type="file" id="car-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'car-')">
+      </label>
+      <span style="font-size:11.5px;color:var(--mu);margin-left:8px">JPG, PNG ไม่เกิน 5 รูป</span>
+      <div id="car-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-addcar')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">🚗 บันทึก</button>
+  </div>
+</div></div>
 
-<!-- MODAL: Admin เพิ่มรถ (auto approved) -->
+<!-- MODAL: แก้ไขรถ (ลูกบ้าน) -->
+<div class="mo" id="m-editcar">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">แก้ไขยานพาหนะ</div><div class="md-sub" id="editcar-sub">—</div></div>
+  </div>
+  <input type="hidden" id="editcar-id">
+  <div class="md-bd">
+    <div class="al al-i" style="margin-bottom:12px">ℹ️ การแก้ไขต้องรออนุมัติจากนิติ</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
+        <select class="fs" id="editcar-type">
+          <option value="รถยนต์">🚗 รถยนต์</option>
+          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
+          <option value="รถตู้">🚐 รถตู้</option>
+          <option value="รถกระบะ">🛻 รถกระบะ</option>
+          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="editcar-plate" placeholder="กข-1234"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ยี่ห้อ</label>
+        <select class="fs" id="editcar-brand-sel" onchange="_vdBrandChange('edit')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <input class="fi" id="editcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">รุ่น</label>
+        <input class="fi" id="editcar-model" placeholder="เช่น Camry"></div>
+      <div class="fg"><label class="fl">สี</label>
+        <select class="fs" id="editcar-color-sel" onchange="_vdColorChange('edit')"><option value="">-- เลือกสี --</option></select>
+        <input class="fi" id="editcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">จังหวัด</label>
+        <select class="fs" id="editcar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
+      <div class="fg"><label class="fl">ที่จอดรถ</label>
+        <select class="fs" id="editcar-park">
+          <option value="ในบ้าน">ในบ้าน</option>
+          <option value="หน้าบ้าน">หน้าบ้าน</option>
+          <option value="ส่วนกลาง">ส่วนกลาง</option>
+        </select></div>
+      <div class="fg"><label class="fl">สถานะ</label>
+        <select class="fs" id="editcar-status">
+          <option value="active">ใช้งานปกติ</option>
+          <option value="inactive">ไม่ได้ใช้งาน</option>
+        </select></div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-editcar')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitEditCar()">📤 ส่งคำขอแก้ไข</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Admin เพิ่มรถ -->
 <div class="mo" id="m-admin-addcar">
 <div class="md wide">
   <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🚗</div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
     <div><div class="md-title">เพิ่มรถ (Admin)</div><div class="md-sub">รถที่เพิ่มโดย Admin จะ approved ทันที</div></div>
   </div>
   <div class="md-bd">
-    <div class="fg"><label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label>
-      <select class="fs" id="acar-houseid" onchange="onAdminCarHouseChange(this.value)">
-        <option value="">-- เลือกบ้าน --</option>
-      </select>
+    <div class="fg"><label class="fl">บ้านเลขที่ *</label>
+      <select class="fs" id="acar-houseid" onchange="onAdminCarHouseChange(this.value)"><option value="">-- เลือกบ้าน --</option></select>
       <div id="acar-house-label" style="font-size:11.5px;color:var(--ac);margin-top:4px;font-weight:600"></div>
     </div>
     <div class="fr2">
@@ -6337,22 +6422,14 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
           <option value="inactive">ไม่ได้ใช้งาน</option>
         </select></div>
     </div>
-  </div>
-    <div class="fg" style="margin-top:8px">
-      <label class="fl">รูปภาพรถ</label>
-      <div id="acar-img-wrap"></div>
-    </div>
-  </div>
-  <div class="md-bd" style="border-top:1px solid var(--bo);padding-top:12px">
-    <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
-    <div>
+    <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:4px">
+      <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
       <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
         📷 เลือกรูปภาพ
         <input type="file" id="acar-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'acar-')">
       </label>
-      <span style="font-size:11.5px;color:var(--mu);margin-left:8px">JPG, PNG ไม่เกิน 5 รูป · จะบีบอัดอัตโนมัติ</span>
+      <div id="acar-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
     </div>
-    <div id="acar-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-admin-addcar')">ยกเลิก</button>
@@ -6364,8 +6441,7 @@ function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return 
 <div class="mo" id="m-admin-editcar">
 <div class="md wide">
   <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">✏️</div>
+  <div class="md-hd"><div class="md-hd-ico">✏️</div>
     <div><div class="md-title">แก้ไขข้อมูลรถ</div><div class="md-sub" id="aeditcar-sub">—</div></div>
   </div>
   <input type="hidden" id="aeditcar-id">

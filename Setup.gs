@@ -32,7 +32,7 @@ function setupAllSheets() {
       'reject_reason','note','created_at','resolved_at'
     ],
     'FEES': [
-      'fee_id','house_id','year','period','fee_amount','parking_fee',
+      'fee_id','house_id','year','period','bill_type','fee_amount','parking_fee',
       'trash_fee','other_fee','penalty_fee','overdue_carry',
       'penalty_10pct','collection_fee','discount','total',
       'status','due_date','slip_url','slip_submitted_at',
