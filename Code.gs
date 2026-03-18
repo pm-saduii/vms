@@ -45,6 +45,7 @@ function _route(body) {
       'createHouse':           () => Houses.create(body, user),
       'updateHouse':           () => Houses.update(body, user),
       /* VEHICLES */
+      'getVehicles':           () => Vehicles.getAll(body, user),
       'getVehiclesByHouse':    () => Vehicles.getByHouse(body, user),
       'createVehicle':         () => Vehicles.create(body, user),
       'updateVehicle':         () => Vehicles.update(body, user),

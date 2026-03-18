@@ -8,15 +8,7 @@
 <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js" crossorigin="anonymous"></script>
 <script>
 if (typeof Swal === 'undefined') {
-  window.Swal = {
-    fire: function(opts) {
-      var msg = (opts.title||'') + (opts.text ? '\n'+opts.text : '');
-      if (opts.showCancelButton) return Promise.resolve({isConfirmed: confirm(msg)});
-      if (opts.timer && !opts.showConfirmButton) return Promise.resolve({isConfirmed:true});
-      if (opts.icon !== 'success') alert(msg);
-      return Promise.resolve({isConfirmed: true});
-    }
-  };
+  window.Swal = { fire: function(o) { var m=(o.title||'')+((o.text)?'\n'+o.text:''); if(o.showCancelButton) return Promise.resolve({isConfirmed:confirm(m)}); if(o.timer&&!o.showConfirmButton) return Promise.resolve({isConfirmed:true}); if(o.icon!=='success') alert(m); return Promise.resolve({isConfirmed:true}); } };
 }
 </script>
 <style>
@@ -1064,6 +1056,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="sb-item" onclick="go('admin','rep',this)"><span class="sb-ico">🏆</span>ผลงานนิติ</div>
       <div class="sb-item" onclick="go('admin','contractor',this)"><span class="sb-ico">🔨</span>ทะเบียนช่าง</div>
       <div class="sb-item" onclick="go('admin','market',this)"><span class="sb-ico">🛒</span>ประกาศขาย<span class="sb-badge">3</span></div>
+      <div class="sb-item" onclick="go('admin','vehicle',this)"><span class="sb-ico">🚗</span>ยานพาหนะ<span class="sb-badge" id="badge-vehicle"></span></div>
       <div class="sb-sec">ระบบ</div>
       <div class="sb-item" onclick="go('admin','settings',this)"><span class="sb-ico">⚙️</span>ตั้งค่าระบบ</div>
       <div class="sb-item" onclick="go('admin','usr',this)"><span class="sb-ico">👥</span>สมาชิก</div>
@@ -1107,6 +1100,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="sb-item" onclick="go('res','work',this)"><span class="sb-ico">🏆</span>ผลงานนิติ</div>
       <div class="sb-item" onclick="go('res','contractor',this)"><span class="sb-ico">🔨</span>ทะเบียนช่าง</div>
       <div class="sb-item" onclick="go('res','market',this)"><span class="sb-ico">🛒</span>ประกาศขาย-ให้</div>
+      <div class="sb-item" onclick="go('res','vehicle',this)"><span class="sb-ico">🚗</span>ยานพาหนะของฉัน</div>
       <div class="sb-sec">บัญชี</div>
       <div class="sb-item" onclick="go('res','profile',this)"><span class="sb-ico">👤</span>โปรไฟล์</div>
     </nav>
@@ -1581,6 +1575,22 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       </div><!-- end p-admin-settings -->
 
+      <!-- ADMIN: VEHICLES -->
+      <div id="p-admin-vehicle" class="pane">
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px">
+          <div class="ph-ico">🚗</div>
+          <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">จัดการยานพาหนะและการอนุมัติ</div></div>
+        </div></div></div>
+        <div class="tabs">
+          <button class="tab on" id="tab-veh-pending" onclick="stab('aveh','pending',this)">⏳ รออนุมัติ</button>
+          <button class="tab" onclick="stab('aveh','active',this)">✅ อนุมัติแล้ว</button>
+          <button class="tab" onclick="stab('aveh','inactive',this)">🔴 ไม่ใช้งาน</button>
+        </div>
+        <div id="aveh-pending" class="pane on"><div id="list-vehicles-pending"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="aveh-active"  class="pane"><div id="list-vehicles-active"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="aveh-inactive" class="pane"><div id="list-vehicles-inactive"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+      </div>
+
     </div><!-- end v-admin -->
 
     <!-- ═══ RESIDENT VIEW ═══ -->
@@ -1923,6 +1933,27 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         </div></div>
       </div>
 
+      <!-- RES: VEHICLES -->
+      <div id="p-res-vehicle" class="pane">
+        <div class="ph"><div class="ph-in">
+          <div style="display:flex;align-items:center;gap:13px">
+            <div class="ph-ico">🚗</div>
+            <div><div class="ph-h1">ยานพาหนะของฉัน</div><div class="ph-sub">รถที่จดทะเบียนในหมู่บ้าน</div></div>
+          </div>
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openAddCarModal()">+ เพิ่มรถ</button></div>
+        </div></div>
+        <div id="res-veh-pending-section" style="display:none">
+          <div class="card" style="margin-bottom:14px;border-color:var(--wn)">
+            <div class="ch"><div class="ch-ico">⏳</div><div class="ct" style="color:var(--wn)">รออนุมัติจาก Admin</div></div>
+            <div class="cb" id="list-res-vehicles-pending"><p class="text-mu" style="font-size:13px;text-align:center;padding:12px">กำลังโหลด...</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ch-ico">🚗</div><div class="ct">รถที่อนุมัติแล้ว</div></div>
+          <div class="cb" id="list-res-vehicles-active"><p class="text-mu" style="font-size:13px;text-align:center;padding:12px">กำลังโหลด...</p></div>
+        </div>
+      </div>
+
     </div><!-- end v-res -->
 
   </div><!-- end page -->
@@ -1974,13 +2005,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 <div class="mo" id="m-addcar">
 <div class="md wide">
   <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">เพิ่มยานพาหนะ</div><div class="md-sub" id="addcar-sub">กรอกข้อมูลยานพาหนะ</div></div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">เพิ่มยานพาหนะ</div><div class="md-sub">กรอกข้อมูลยานพาหนะ</div></div>
   </div>
   <div class="md-bd">
     <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทยานพาหนะ <span style="color:var(--dg)">*</span></label>
+      <div class="fg"><label class="fl">ประเภทยานพาหนะ *</label>
         <select class="fs" id="car-type">
           <option value="">-- เลือกประเภท --</option>
           <option value="รถยนต์">🚗 รถยนต์</option>
@@ -1988,61 +2018,51 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <option value="รถตู้">🚐 รถตู้</option>
           <option value="รถกระบะ">🛻 รถกระบะ</option>
           <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select>
-      </div>
-      <div class="fg"><label class="fl">ทะเบียนรถ <span style="color:var(--dg)">*</span></label>
-        <input class="fi" id="car-plate" placeholder="เช่น กข-1234">
-      </div>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="car-plate" placeholder="เช่น กข-1234"></div>
     </div>
     <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ <span style="color:var(--dg)">*</span></label>
+      <div class="fg"><label class="fl">ยี่ห้อ *</label>
         <select class="fs" id="car-brand-sel" onchange="_vdBrandChange('add')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="car-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px">
-      </div>
+        <input class="fi" id="car-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="car-model" placeholder="เช่น Camry, Wave">
-      </div>
-      <div class="fg"><label class="fl">สี <span style="color:var(--dg)">*</span></label>
+        <input class="fi" id="car-model" placeholder="เช่น Camry"></div>
+      <div class="fg"><label class="fl">สี *</label>
         <select class="fs" id="car-color-sel" onchange="_vdColorChange('add')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="car-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px">
-      </div>
+        <input class="fi" id="car-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
     </div>
     <div class="fr3">
-      <div class="fg"><label class="fl">จังหวัด <span style="color:var(--dg)">*</span></label>
-        <select class="fs" id="car-prov"><option value="">-- เลือกจังหวัด --</option></select>
-      </div>
+      <div class="fg"><label class="fl">จังหวัด *</label>
+        <select class="fs" id="car-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
       <div class="fg"><label class="fl">ที่จอดรถ</label>
         <select class="fs" id="car-park">
           <option value="ในบ้าน">ในบ้าน</option>
           <option value="หน้าบ้าน">หน้าบ้าน</option>
           <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select>
-      </div>
+        </select></div>
       <div class="fg"><label class="fl">สถานะ</label>
         <select class="fs" id="car-status">
           <option value="active">ใช้งานปกติ</option>
           <option value="inactive">ไม่ได้ใช้งาน</option>
-        </select>
-      </div>
+        </select></div>
     </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-addcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">🚗 บันทึกยานพาหนะ</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">🚗 บันทึก</button>
   </div>
 </div></div>
-
 <!-- MODAL: แก้ไขรถ -->
 <div class="mo" id="m-editcar">
 <div class="md wide">
   <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">แก้ไขข้อมูลยานพาหนะ</div><div class="md-sub" id="editcar-sub">—</div></div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">แก้ไขยานพาหนะ</div><div class="md-sub" id="editcar-sub">—</div></div>
   </div>
   <input type="hidden" id="editcar-id">
   <div class="md-bd">
-    <div class="al al-i" style="margin-bottom:12px">ℹ️ การแก้ไขทะเบียนรถต้องรออนุมัติจากนิติ</div>
+    <div class="al al-i" style="margin-bottom:12px">ℹ️ การแก้ไขต้องรออนุมัติจากนิติ</div>
     <div class="fr2">
       <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
         <select class="fs" id="editcar-type">
@@ -2051,50 +2071,41 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <option value="รถตู้">🚐 รถตู้</option>
           <option value="รถกระบะ">🛻 รถกระบะ</option>
           <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select>
-      </div>
-      <div class="fg"><label class="fl">ทะเบียนรถ <span style="color:var(--dg)">*</span></label>
-        <input class="fi" id="editcar-plate" placeholder="กข-1234">
-      </div>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="editcar-plate" placeholder="กข-1234"></div>
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">ยี่ห้อ</label>
         <select class="fs" id="editcar-brand-sel" onchange="_vdBrandChange('edit')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="editcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px">
-      </div>
+        <input class="fi" id="editcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="editcar-model" placeholder="เช่น Camry, Wave">
-      </div>
+        <input class="fi" id="editcar-model" placeholder="เช่น Camry"></div>
       <div class="fg"><label class="fl">สี</label>
         <select class="fs" id="editcar-color-sel" onchange="_vdColorChange('edit')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="editcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px">
-      </div>
+        <input class="fi" id="editcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">จังหวัด</label>
-        <select class="fs" id="editcar-prov"><option value="">-- เลือกจังหวัด --</option></select>
-      </div>
+        <select class="fs" id="editcar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
       <div class="fg"><label class="fl">ที่จอดรถ</label>
         <select class="fs" id="editcar-park">
           <option value="ในบ้าน">ในบ้าน</option>
           <option value="หน้าบ้าน">หน้าบ้าน</option>
           <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select>
-      </div>
+        </select></div>
       <div class="fg"><label class="fl">สถานะ</label>
         <select class="fs" id="editcar-status">
           <option value="active">ใช้งานปกติ</option>
           <option value="inactive">ไม่ได้ใช้งาน</option>
-        </select>
-      </div>
+        </select></div>
     </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-editcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitEditCar()">💾 บันทึกการแก้ไข</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitEditCar()">📤 ส่งคำขอแก้ไข</button>
   </div>
 </div></div>
-
 <!-- MODAL: แจ้งชำระ -->
 <div class="mo" id="m-pay">
 <div class="md">
@@ -3984,17 +3995,12 @@ function sw(t) {
 // STARTUP
 // ============================================================
 (function() {
-  // Apply cached settings instantly (no wait)
-  try {
-    var cached = localStorage.getItem('vms5-settings');
-    if (cached) { APP.settings = JSON.parse(cached); applySettings(); }
-  } catch(e) {}
-
-  // Fetch fresh settings (public, no token)
+  // Apply cached settings instantly, then fetch fresh
+  try { var c=localStorage.getItem('vms5-settings'); if(c){APP.settings=JSON.parse(c);applySettings();} } catch(e){}
   (async function() {
     try {
       var params = new URLSearchParams({ payload: JSON.stringify({ action: 'getSettings' }) });
-      var res  = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
+      var res = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
       var json = await res.json();
       if (json.code === 200 && json.data && Object.keys(json.data).length > 0) {
         APP.settings = json.data;
@@ -5164,6 +5170,156 @@ async function doSubmitEditCar() {
   } catch(e) {
     Swal.fire({ icon:'error', title:'Error', text: e.message });
   } finally { hideLoader(); }
+}
+
+
+// ============================================================
+// ADMIN: VEHICLE PAGE
+// ============================================================
+async function loadAdminVehiclePage() {
+  try {
+    var all = await api('getVehicles');
+    var pending  = all.filter(function(v){ return v.status === 'pending'; });
+    var active   = all.filter(function(v){ return v.status === 'active';  });
+    var inactive = all.filter(function(v){ return v.status === 'inactive';});
+
+    // Badge
+    var badge = document.getElementById('badge-vehicle');
+    if (badge) badge.textContent = pending.length > 0 ? pending.length : '';
+
+    // Tab badge
+    var tabPending = document.getElementById('tab-veh-pending');
+    if (tabPending) tabPending.textContent = '\u23f3 \u0e23\u0e2d\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34' + (pending.length ? ' (' + pending.length + ')' : '');
+
+    _renderAdminVehicles('list-vehicles-pending',  pending,  true);
+    _renderAdminVehicles('list-vehicles-active',   active,   false);
+    _renderAdminVehicles('list-vehicles-inactive', inactive, false);
+  } catch(e) { console.warn('loadAdminVehiclePage:', e); }
+}
+
+function _vehicleIcon(type) {
+  return {'\u0e23\u0e16\u0e22\u0e19\u0e15\u0e4c':'\ud83d\ude97','\u0e23\u0e16\u0e08\u0e31\u0e01\u0e23\u0e22\u0e32\u0e19\u0e22\u0e19\u0e15\u0e4c':'\ud83c\udfcd\ufe0f','\u0e23\u0e16\u0e15\u0e39\u0e49':'\ud83d\ude90','\u0e23\u0e16\u0e01\u0e23\u0e30\u0e1a\u0e30':'\ud83d\udebb'}[type] || '\ud83d\ude97';
+}
+
+function _renderAdminVehicles(elId, vehicles, showApprove) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  if (!vehicles.length) {
+    el.innerHTML = '<p class="text-mu" style="text-align:center;padding:24px;font-size:13px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</p>';
+    return;
+  }
+  el.innerHTML = vehicles.map(function(v) {
+    var approveBtn = showApprove
+      ? '<button class="btn btn-xs btn-a" data-vid="' + v.vehicle_id + '" onclick="doApproveVehicle(this.dataset.vid)">\u2713 \u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34</button>' +
+        '<button class="btn btn-xs btn-dg" data-vid="' + v.vehicle_id + '" onclick="doRejectVehicle(this.dataset.vid)">\u2717 \u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18</button>'
+      : '';
+    return '<div class="card" style="margin-bottom:12px"><div class="cb">' +
+      '<div style="display:flex;align-items:flex-start;gap:12px">' +
+        '<div style="font-size:28px">' + _vehicleIcon(v.type) + '</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-weight:700;font-size:14px">' + (v.plate_number||'') + ' <span style="font-size:12px;color:var(--mu)">' + (v.province||'') + '</span></div>' +
+          '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + (v.brand||'') + ' ' + (v.model||'') + ' \u00b7 \u0e2a\u0e35' + (v.color||'') + ' \u00b7 ' + (v.parking_location||'') + '</div>' +
+          '<div style="font-size:11.5px;color:var(--mu);margin-top:3px">\u0e1a\u0e49\u0e32\u0e19: ' + (v.house_id||'') + ' \u00b7 ' + _fmtDate(v.created_at) + '</div>' +
+          '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">' + approveBtn + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div></div>';
+  }).join('');
+}
+
+async function doApproveVehicle(vehicleId) {
+  showLoader('\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34...');
+  try {
+    await api('updateVehicle', { vehicle_id: vehicleId, status: 'active' });
+    await loadAdminVehiclePage();
+    Swal.fire({ icon:'success', title:'\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
+  } catch(e) { Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+  finally { hideLoader(); }
+}
+
+async function doRejectVehicle(vehicleId) {
+  var r = await Swal.fire({
+    title:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e04\u0e33\u0e02\u0e2d?',
+    input:'text', inputPlaceholder:'\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25 (\u0e16\u0e49\u0e32\u0e21\u0e35)',
+    showCancelButton:true, confirmButtonText:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18',
+    cancelButtonText:'\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
+    customClass:{ confirmButton:'btn btn-dg', cancelButton:'btn btn-g' }, buttonsStyling:false
+  });
+  if (!r.isConfirmed) return;
+  showLoader('\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18...');
+  try {
+    await api('updateVehicle', { vehicle_id: vehicleId, status: 'rejected', reject_reason: r.value||'' });
+    await loadAdminVehiclePage();
+    Swal.fire({ icon:'success', title:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e41\u0e25\u0e49\u0e27', timer:1500, showConfirmButton:false });
+  } catch(e) { Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+  finally { hideLoader(); }
+}
+
+// ============================================================
+// RESIDENT: VEHICLE PAGE
+// ============================================================
+async function loadResVehiclePage() {
+  try {
+    var vehicles = await api('getVehiclesByHouse');
+    var pending  = vehicles.filter(function(v){ return v.status === 'pending'; });
+    var active   = vehicles.filter(function(v){ return v.status === 'active';  });
+    var inactive = vehicles.filter(function(v){ return v.status === 'inactive'; });
+
+    // Show/hide pending section
+    var ps = document.getElementById('res-veh-pending-section');
+    if (ps) ps.style.display = pending.length ? 'block' : 'none';
+
+    // Render pending
+    var pelEl = document.getElementById('list-res-vehicles-pending');
+    if (pelEl && pending.length) {
+      pelEl.innerHTML = pending.map(function(v) {
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bo)">' +
+          '<div style="font-size:22px">' + _vehicleIcon(v.type) + '</div>' +
+          '<div style="flex:1">' +
+            '<div style="font-weight:600;font-size:13px">' + v.plate_number + ' ' + v.province + '</div>' +
+            '<div style="font-size:11.5px;color:var(--mu)">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + '</div>' +
+          '</div>' +
+          '<span class="bd b-wn">\u23f3 \u0e23\u0e2d</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    // Render active + inactive together
+    var allShown = active.concat(inactive);
+    var aEl = document.getElementById('list-res-vehicles-active');
+    if (aEl) {
+      if (!allShown.length) {
+        aEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:16px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30</p>';
+      } else {
+        aEl.innerHTML = allShown.map(function(v) {
+          var isActive = v.status === 'active';
+          return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--bo)">' +
+            '<div style="font-size:28px">' + _vehicleIcon(v.type) + '</div>' +
+            '<div style="flex:1">' +
+              '<div style="font-weight:700;font-size:14px">' + v.plate_number + ' <span style="font-size:11px;color:var(--mu)">' + v.province + '</span></div>' +
+              '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
+              '<div style="margin-top:6px;display:flex;gap:6px;align-items:center">' +
+                '<span class="bd ' + (isActive ? 'b-ok' : 'b-mu') + '">' + (isActive ? '\u2713 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19' : '\u23f8 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e49') + '</span>' +
+                '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openResEditCarModal(this.dataset.vid)">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  } catch(e) { console.warn('loadResVehiclePage:', e); }
+}
+
+// Open edit car from resident page (by vehicle_id, look up from cache)
+async function openResEditCarModal(vehicleId) {
+  showLoader('...');
+  try {
+    var vehicles = await api('getVehiclesByHouse');
+    var v = vehicles.find(function(x){ return x.vehicle_id === vehicleId; });
+    hideLoader();
+    if (!v) return;
+    openEditCarModal(v);
+  } catch(e) { hideLoader(); }
 }
 
 </script>
