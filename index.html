@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title id="page-title">The Greenfield — Village Management v5.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js" crossorigin="anonymous"></script>
+<script>
+if (typeof Swal === 'undefined') {
+  window.Swal = {
+    fire: function(opts) {
+      var msg = (opts.title||'') + (opts.text ? '\n'+opts.text : '');
+      if (opts.showCancelButton) return Promise.resolve({isConfirmed: confirm(msg)});
+      if (opts.timer && !opts.showConfirmButton) return Promise.resolve({isConfirmed:true});
+      if (opts.icon !== 'success') alert(msg);
+      return Promise.resolve({isConfirmed: true});
+    }
+  };
+}
+</script>
 <style>
 /* ═══════════════════════════════════════════
    CSS VARIABLES — Soft Pastel Themes
@@ -914,7 +927,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 /* Login Screen */
 #login-screen{position:fixed;inset:0;background:var(--bg);z-index:8000;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-box{width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--bo);border-radius:20px;overflow:hidden;box-shadow:var(--shm);transition:opacity .3s}
+.login-box{width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--bo);border-radius:20px;overflow:hidden;box-shadow:var(--shm)}
 .login-header{background:var(--hg);padding:28px 28px 24px;text-align:center;position:relative;overflow:hidden}
 .login-header::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.07);border-radius:50%}
 .login-logo{font-size:36px;margin-bottom:8px;position:relative;z-index:1}
@@ -986,7 +999,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 <!-- Login Screen -->
 <div id="login-screen">
-  <div class="login-box" id="login-box">
+  <div class="login-box">
     <div class="login-header">
       <div class="login-logo" id="login-logo">🏘️</div>
       <div class="login-title" id="login-title">The Greenfield</div>
@@ -1424,141 +1437,144 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: SETTINGS -->
       <div id="p-admin-settings" class="pane">
-        <div class="ph"><div class="ph-in">
-          <div style="display:flex;align-items:center;gap:13px">
-            <div class="ph-ico">⚙️</div>
-            <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
-          </div>
-          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px">
+          <div class="ph-ico">⚙️</div>
+          <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
+        </div>
+        <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
         </div></div>
 
-        <!-- ── SECTION 1: ข้อมูลหมู่บ้าน ── -->
-        <div class="card" style="margin-top:14px">
-          <div class="ch"><div class="ch-ico">🏘️</div><div class="ct">ข้อมูลหมู่บ้าน</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr2">
-              <div class="fg"><label class="fl">ชื่อหมู่บ้าน</label>
-                <input class="fi" id="cfg-inp-village_name" placeholder="เช่น The Greenfield"></div>
-              <div class="fg"><label class="fl">คำบรรยาย (subtitle)</label>
-                <input class="fi" id="cfg-inp-village_subtitle" placeholder="Village Management System"></div>
-            </div>
-            <div class="fg"><label class="fl">ที่อยู่หมู่บ้าน</label>
-              <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
-            <div class="fr3">
-              <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
-                <input class="fi" id="cfg-inp-village_phone" placeholder="0x-xxxx-xxxx" type="tel"></div>
-              <div class="fg"><label class="fl">อีเมลนิติ</label>
-                <input class="fi" id="cfg-inp-village_email" placeholder="admin@village.com" type="email"></div>
+        <div class="tabs" id="settings-tabs">
+          <button class="tab on" onclick="stab('stab','village',this)">🏘️ ข้อมูลหมู่บ้าน</button>
+          <button class="tab" onclick="stab('stab','payment',this)">💳 การชำระเงิน</button>
+          <button class="tab" onclick="stab('stab','juristic',this)">🏢 นิติบุคคล</button>
+          <button class="tab" onclick="stab('stab','feecalc',this)">🧮 คำนวณค่าส่วนกลาง</button>
+        </div>
+
+        <!-- TAB: village -->
+        <div id="stab-village" class="pane on">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🏘️</div><div class="ct">ข้อมูลหมู่บ้าน</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ชื่อหมู่บ้าน</label>
+                  <input class="fi" id="cfg-inp-village_name" placeholder="เช่น The Greenfield"></div>
+                <div class="fg"><label class="fl">คำบรรยาย (subtitle)</label>
+                  <input class="fi" id="cfg-inp-village_subtitle" placeholder="Village Management System"></div>
+              </div>
+              <div class="fg"><label class="fl">ที่อยู่หมู่บ้าน</label>
+                <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
+                  <input class="fi" id="cfg-inp-village_phone" placeholder="0x-xxxx-xxxx" type="tel"></div>
+                <div class="fg"><label class="fl">อีเมลนิติ</label>
+                  <input class="fi" id="cfg-inp-village_email" placeholder="admin@village.com" type="email"></div>
+              </div>
               <div class="fg"><label class="fl">Logo (Emoji หรือ URL รูปภาพ)</label>
                 <input class="fi" id="cfg-inp-village_logo" placeholder="🏘️ หรือ https://...logo.png" oninput="updateLogoPreview(this.value)">
-                <div style="margin-top:5px;font-size:12px;color:var(--mu)">Preview: <span id="cfg-logo-preview" style="font-size:20px;vertical-align:middle">🏘️</span></div>
+                <div style="margin-top:6px;font-size:12px;color:var(--mu)">ตัวอย่าง: <span id="cfg-logo-preview" style="font-size:20px">🏘️</span></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ── SECTION 2: นิติบุคคล ── -->
-        <div class="card">
-          <div class="ch"><div class="ch-ico">🏢</div><div class="ct">นิติบุคคล</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr3">
-              <div class="fg"><label class="fl">ชื่อนิติบุคคล</label>
-                <input class="fi" id="cfg-inp-juristic_name" placeholder="บริษัทนิติบุคคลหมู่บ้าน..."></div>
-              <div class="fg"><label class="fl">เลขทะเบียนนิติ</label>
-                <input class="fi" id="cfg-inp-juristic_id" placeholder="0-xxxx-xxxxx-xx-x"></div>
-              <div class="fg"><label class="fl">ที่อยู่นิติบุคคล (สำหรับใบเสร็จ)</label>
-                <textarea class="ft" id="cfg-inp-juristic_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── SECTION 3: ข้อมูลธนาคาร / การชำระเงิน ── -->
-        <div class="card">
-          <div class="ch"><div class="ch-ico">💳</div><div class="ct">ข้อมูลธนาคาร &amp; การชำระเงิน</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr3">
-              <div class="fg"><label class="fl">ธนาคาร</label>
-                <input class="fi" id="cfg-inp-bank_name" placeholder="เช่น กสิกรไทย"></div>
-              <div class="fg"><label class="fl">เลขบัญชี</label>
-                <input class="fi" id="cfg-inp-bank_account_no" placeholder="xxx-x-xxxxx-x"></div>
-              <div class="fg"><label class="fl">ชื่อบัญชี</label>
-                <input class="fi" id="cfg-inp-bank_account_name" placeholder="นิติบุคคลหมู่บ้าน..."></div>
-            </div>
-            <div class="fr2" style="align-items:flex-start">
+        <!-- TAB: payment -->
+        <div id="stab-payment" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">💳</div><div class="ct">ข้อมูลการชำระเงิน</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr3">
+                <div class="fg"><label class="fl">ธนาคาร</label>
+                  <input class="fi" id="cfg-inp-bank_name" placeholder="เช่น กสิกรไทย"></div>
+                <div class="fg"><label class="fl">เลขบัญชี</label>
+                  <input class="fi" id="cfg-inp-bank_account_no" placeholder="xxx-x-xxxxx-x"></div>
+                <div class="fg"><label class="fl">ชื่อบัญชี</label>
+                  <input class="fi" id="cfg-inp-bank_account_name" placeholder="นิติบุคคลหมู่บ้าน..."></div>
+              </div>
               <div class="fg"><label class="fl">URL QR Code พร้อมเพย์ / PromptPay</label>
-                <input class="fi" id="cfg-inp-payment_qr_url" placeholder="https://... (URL รูป QR Code)" oninput="updateQrPreview(this.value)">
+                <input class="fi" id="cfg-inp-payment_qr_url" placeholder="https://... (URL รูป QR Code)" oninput="updateQrPreview(this.value)"></div>
+              <div id="cfg-qr-preview-wrap" style="display:none;margin-top:8px">
+                <img id="cfg-qr-preview" src="" style="width:120px;height:120px;object-fit:contain;border:1px solid var(--bo);border-radius:8px">
               </div>
-              <div style="padding-top:22px">
-                <div id="cfg-qr-preview-wrap" style="display:none">
-                  <img id="cfg-qr-preview" src="" style="width:80px;height:80px;object-fit:contain;border:1px solid var(--bo);border-radius:8px">
+              <div class="sl" style="margin-top:16px">📅 กำหนดการชำระ</div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">รูปแบบงวด</label>
+                  <select class="fs" id="cfg-inp-fee_period_label" onchange="updatePeriodPreview()">
+                    <option value="Y">เต็มปี — 1 งวด/ปี (Y)</option>
+                    <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
+                  </select>
                 </div>
+                <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
+                  <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="31"></div>
+              </div>
+              <!-- Period schedule display (auto-generated based on selection) -->
+              <div id="cfg-period-preview" style="margin-top:10px;padding:12px;background:var(--bg2);border-radius:10px;font-size:12.5px">
+                <div style="font-weight:700;margin-bottom:8px;color:var(--tx2)">📋 ตารางงวดการชำระ (อ้างอิง)</div>
+                <div id="cfg-period-table"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ── SECTION 4: กำหนดการชำระค่าส่วนกลาง ── -->
-        <div class="card">
-          <div class="ch"><div class="ch-ico">📅</div><div class="ct">กำหนดการชำระค่าส่วนกลาง</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr3">
-              <div class="fg"><label class="fl">รูปแบบงวด</label>
-                <select class="fs" id="cfg-inp-fee_period_label" onchange="updatePeriodPreview()">
-                  <option value="Y">เต็มปี — 1 งวด/ปี (Y)</option>
-                  <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
-                </select>
+              <div class="fr3" style="margin-top:10px">
+                <div class="fg"><label class="fl">งวด 1: ช่วงเวลา</label>
+                  <input class="fi" id="cfg-inp-fee_p1_range" placeholder="เช่น 1/1 - 30/6"></div>
+                <div class="fg"><label class="fl">งวด 1: ชำระไม่เกิน</label>
+                  <input class="fi" id="cfg-inp-fee_p1_due" placeholder="เช่น 31/1"></div>
+                <div class="fg"><label class="fl">งวด 1: ตัวย่อ</label>
+                  <input class="fi" id="cfg-inp-fee_p1_label" placeholder="เช่น H1"></div>
               </div>
-              <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
-                <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="31"></div>
-              <div></div>
-            </div>
-            <div style="margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div>
-                <div class="sl" style="margin-bottom:8px">งวด 1</div>
-                <div class="fg"><label class="fl">ช่วงเวลา</label>
-                  <input class="fi" id="cfg-inp-fee_p1_range" placeholder="เช่น 1/1 - 30/6" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ชำระไม่เกิน</label>
-                  <input class="fi" id="cfg-inp-fee_p1_due" placeholder="เช่น 31/1" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ตัวย่อ</label>
-                  <input class="fi" id="cfg-inp-fee_p1_label" placeholder="เช่น H1" oninput="updatePeriodPreview()"></div>
+              <div class="fr3">
+                <div class="fg"><label class="fl">งวด 2: ช่วงเวลา</label>
+                  <input class="fi" id="cfg-inp-fee_p2_range" placeholder="เช่น 1/7 - 31/12"></div>
+                <div class="fg"><label class="fl">งวด 2: ชำระไม่เกิน</label>
+                  <input class="fi" id="cfg-inp-fee_p2_due" placeholder="เช่น 31/7"></div>
+                <div class="fg"><label class="fl">งวด 2: ตัวย่อ</label>
+                  <input class="fi" id="cfg-inp-fee_p2_label" placeholder="เช่น H2"></div>
               </div>
-              <div>
-                <div class="sl" style="margin-bottom:8px">งวด 2</div>
-                <div class="fg"><label class="fl">ช่วงเวลา</label>
-                  <input class="fi" id="cfg-inp-fee_p2_range" placeholder="เช่น 1/7 - 31/12" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ชำระไม่เกิน</label>
-                  <input class="fi" id="cfg-inp-fee_p2_due" placeholder="เช่น 31/7" oninput="updatePeriodPreview()"></div>
-                <div class="fg"><label class="fl">ตัวย่อ</label>
-                  <input class="fi" id="cfg-inp-fee_p2_label" placeholder="เช่น H2" oninput="updatePeriodPreview()"></div>
-              </div>
-            </div>
-            <div id="cfg-period-preview" style="margin-top:14px;padding:12px 16px;background:var(--bg2);border-radius:10px;font-size:12.5px">
-              <div style="font-weight:700;margin-bottom:8px;color:var(--tx2)">📋 ตารางงวดการชำระ (อ้างอิง)</div>
-              <div id="cfg-period-table"></div>
             </div>
           </div>
         </div>
 
-        <!-- ── SECTION 5: คำนวณค่าส่วนกลาง ── -->
-        <div class="card" style="margin-bottom:24px">
-          <div class="ch"><div class="ch-ico">🧮</div><div class="ct">อัตราค่าส่วนกลาง &amp; การคำนวณ</div></div>
-          <div style="padding:4px 16px 16px">
-            <div class="fr2">
-              <div class="fg"><label class="fl">ค่าส่วนกลางต่อตารางวา (บาท/เดือน)</label>
-                <input class="fi" id="cfg-inp-fee_rate_per_sqw" type="number" min="0" step="0.01" placeholder="40.00"></div>
-              <div class="fg"><label class="fl">ค่าขยะต่อปี (บาท)</label>
-                <input class="fi" id="cfg-inp-fee_trash_per_year" type="number" min="0" placeholder="600"></div>
+        <!-- TAB: juristic -->
+        <div id="stab-juristic" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🏢</div><div class="ct">นิติบุคคล</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ชื่อนิติบุคคล</label>
+                  <input class="fi" id="cfg-inp-juristic_name" placeholder="บริษัทนิติบุคคลหมู่บ้าน..."></div>
+                <div class="fg"><label class="fl">เลขทะเบียนนิติ</label>
+                  <input class="fi" id="cfg-inp-juristic_id" placeholder="0-xxxx-xxxxx-xx-x"></div>
+              </div>
+              <div class="fg"><label class="fl">ที่อยู่นิติบุคคล (สำหรับใบเสร็จ)</label>
+                <textarea class="ft" id="cfg-inp-juristic_address" rows="3" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
             </div>
-            <div class="fr2">
-              <div class="fg"><label class="fl">ค่าจอดรถต่อคัน/ปี (บาท)</label>
-                <input class="fi" id="cfg-inp-fee_parking_per_car" type="number" min="0" placeholder="1200"></div>
-              <div class="fg"><label class="fl">% ส่วนลดชำระเต็มปี</label>
-                <input class="fi" id="cfg-inp-fee_discount_pct" type="number" min="0" max="100" step="0.1" placeholder="5"></div>
-            </div>
-            <div style="margin-top:12px;padding:12px 16px;background:var(--acl);border-radius:10px;font-size:13px;color:var(--tx2)">
-              <strong>สูตรคำนวณ:</strong>
-              ค่าส่วนกลาง/ปี = ค่า/ตร.ว. × พื้นที่ (ตร.ว.) × 12 เดือน<br>
-              <span style="color:var(--mu);font-size:12px">ตัวอย่าง: 40 × 52 ตร.ว. × 12 = ฿24,960.00/ปี</span>
+          </div>
+        </div>
+
+        <!-- TAB: feecalc -->
+        <div id="stab-feecalc" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🧮</div><div class="ct">ค่าคำนวณค่าส่วนกลาง</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ค่าส่วนกลางต่อตารางวา (บาท/เดือน)</label>
+                  <input class="fi" id="cfg-inp-fee_rate_per_sqw" type="number" min="0" step="0.01" placeholder="40.00"></div>
+                <div class="fg"><label class="fl">ค่าขยะต่อปี (บาท)</label>
+                  <input class="fi" id="cfg-inp-fee_trash_per_year" type="number" min="0" placeholder="600"></div>
+              </div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">ค่าจอดรถต่อคัน/ปี (บาท)</label>
+                  <input class="fi" id="cfg-inp-fee_parking_per_car" type="number" min="0" placeholder="1200"></div>
+                <div class="fg"><label class="fl">% ส่วนลดชำระเต็มปี</label>
+                  <input class="fi" id="cfg-inp-fee_discount_pct" type="number" min="0" max="100" step="0.1" placeholder="5"></div>
+              </div>
+              <div style="margin-top:14px;padding:12px 16px;background:var(--acl);border-radius:10px;font-size:13px;color:var(--tx2)">
+                <strong>สูตรคำนวณ:</strong><br>
+                ค่าส่วนกลาง/ปี = ค่า/ตร.ว. × พื้นที่ (ตร.ว.) × 12 เดือน<br>
+                <span style="color:var(--mu)">ตัวอย่าง: 40 × 52 ตร.ว. × 12 = ฿24,960.00/ปี</span>
+              </div>
             </div>
           </div>
         </div>
@@ -2015,6 +2031,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     <button class="btn btn-p btn-sm" onclick="doSubmitAddCar()">🚗 บันทึกยานพาหนะ</button>
   </div>
 </div></div>
+
 <!-- MODAL: แก้ไขรถ -->
 <div class="mo" id="m-editcar">
 <div class="md wide">
@@ -2079,43 +2096,51 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แจ้งชำระ -->
-<div class="mo" id="m-pay" onclick="omOut(event,'m-pay')">
+<div class="mo" id="m-pay">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">💳</div>
-    <div><div class="md-title">แจ้งชำระค่าส่วนกลาง</div><div class="md-sub">บ้าน 10/1 · H1/2568 · ฿2,750</div></div>
-    <button class="md-x" onclick="closeM('m-pay')">✕</button>
+    <div><div class="md-title">แจ้งชำระค่าส่วนกลาง</div><div class="md-sub" id="pay-modal-sub">—</div></div>
   </div>
   <div class="md-bd">
-    <div class="card-soft" style="text-align:center;margin-bottom:16px">
-      <div style="font-size:28px;margin-bottom:6px">🏦</div>
-      <div style="font-size:12px;color:var(--mu);margin-bottom:3px">โอนเงินมาที่</div>
-      <div style="font-size:15px;font-weight:800">กสิกรไทย xxx-x-x1234-x</div>
-      <div style="font-size:13px;color:var(--mu)">นิติบุคคล เดอะ กรีนฟิลด์</div>
-      <div style="font-size:20px;font-weight:800;color:var(--pr);margin-top:8px">฿2,750</div>
+    <!-- Bank info (dynamic from settings) -->
+    <div class="card" style="margin-bottom:14px;background:var(--prl)">
+      <div class="cb" style="padding:12px">
+        <div class="fee-row"><div class="fee-lbl">ธนาคาร</div><div class="fee-val fw-7" id="pay-bank-name">—</div></div>
+        <div class="fee-row"><div class="fee-lbl">เลขบัญชี</div><div class="fee-val fw-7" id="pay-bank-no" style="font-size:15px;letter-spacing:.05em">—</div></div>
+        <div class="fee-row"><div class="fee-lbl">ชื่อบัญชี</div><div class="fee-val" id="pay-bank-acc">—</div></div>
+      </div>
     </div>
-    <div class="fg"><label class="fl">ยอดที่โอน</label><input class="fi" value="2750" type="number"></div>
-    <div class="fg"><label class="fl">วันที่โอน</label><input class="fi" type="date"></div>
-    <div class="fg"><label class="fl">URL ลิงก์รูปสลิป (Google Drive public link)</label><input class="fi" id="pay-slip-url" placeholder="https://drive.google.com/..."><div class="fg"><label class="fl">อัปโหลดสลิป</label>
-      <div class="upl"><div class="upl-ico">📱</div><div class="upl-txt"><strong>อัปโหลดสลิป</strong> รูปภาพ / Screenshot</div></div>
+    <!-- QR Code -->
+    <div id="pay-qr-wrap" style="text-align:center;margin-bottom:14px;display:none">
+      <img id="pay-qr-img" src="" style="width:160px;height:160px;object-fit:contain;border:1px solid var(--bo);border-radius:12px">
+      <div style="font-size:11px;color:var(--mu);margin-top:6px">สแกน QR Code เพื่อชำระเงิน</div>
     </div>
-    <div class="fg"><label class="fl">หมายเหตุ (ถ้ามี)</label><textarea class="ft" placeholder="เช่น โอนพร้อม... "></textarea></div>
+    <!-- Slip upload -->
+    <div class="sl">📎 แนบสลิปการโอน</div>
+    <div class="fg">
+      <label class="fl">อัปโหลดรูปสลิป (URL หรือ Base64)</label>
+      <input class="fi" id="pay-slip-url" placeholder="วาง URL รูปสลิปที่นี่...">
+    </div>
+    <div class="fg" style="margin-top:8px">
+      <label class="fl">หมายเหตุ (ถ้ามี)</label>
+      <input class="fi" id="pay-note" placeholder="เช่น โอนเมื่อ 15 มี.ค. เวลา 10:30 น.">
+    </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-pay')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitSlip()">📤 ส่งหลักฐาน</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitSlip()">📤 ส่งสลิป</button>
   </div>
 </div></div>
 
 <!-- MODAL: แจ้งปัญหาใหม่ -->
-<div class="mo" id="m-newissue" onclick="omOut(event,'m-newissue')">
+<div class="mo" id="m-newissue">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🔧</div>
     <div><div class="md-title">แจ้งปัญหาใหม่</div><div class="md-sub">บ้าน 10/1</div></div>
-    <button class="md-x" onclick="closeM('m-newissue')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">หัวข้อปัญหา</label><input class="fi" id="new-issue-title" placeholder="เช่น ไฟถนนดับ ท่อน้ำรั่ว..."></div>
@@ -2134,13 +2159,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แจ้งกระทำผิดใหม่ (Admin) -->
-<div class="mo" id="m-newvio" onclick="omOut(event,'m-newvio')">
+<div class="mo" id="m-newvio">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">⚠️</div>
     <div><div class="md-title">แจ้งกระทำผิดกฎหมู่บ้าน</div><div class="md-sub">ส่งการแจ้งเตือนไปยังลูกบ้าน</div></div>
-    <button class="md-x" onclick="closeM('m-newvio')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">บ้านที่กระทำผิด</label>
@@ -2164,7 +2188,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: Fee Detail -->
-<div class="mo" id="m-fee-detail" onclick="omOut(event,'m-fee-detail')">
+<div class="mo" id="m-fee-detail">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
@@ -2191,60 +2215,68 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แก้ไขบ้าน (Admin) -->
-<div class="mo" id="m-admin-edithouse" onclick="omOut(event,'m-admin-edithouse')">
+<div class="mo" id="m-admin-edithouse">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">✏️</div>
     <div><div class="md-title">แก้ไขข้อมูลบ้าน</div><div class="md-sub" id="edithouse-sub">Admin Mode</div></div>
-    <button class="md-x" onclick="closeM('m-admin-edithouse')">✕</button>
   </div>
+  <input type="hidden" id="edithouse-id">
   <div class="md-bd">
     <div class="sl">📍 ที่อยู่</div>
     <div class="fr3">
-      <input type="hidden" id="edithouse-id">
-      <div class="fg"><label class="fl">บ้านเลขที่</label><input class="fi" id="edithouse-no"></div>
-      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="edithouse-soi"></div>
-      <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="edithouse-area" type="number"></div>
+      <div class="fg"><label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label><input class="fi" id="edithouse-no" placeholder="เช่น 10/1"></div>
+      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="edithouse-soi" placeholder="เช่น ซอย 3"></div>
+      <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="edithouse-area" type="number" placeholder="0"></div>
     </div>
     <div class="sl">👤 เจ้าของ</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์</label><input class="fi" id="edithouse-owner"></div>
+      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์ <span style="color:var(--dg)">*</span></label><input class="fi" id="edithouse-owner"></div>
       <div class="fg"><label class="fl">ผู้เช่า</label><input class="fi" id="edithouse-renter" placeholder="(ไม่มี)"></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="edit-phone" value="081-234-5678"></div>
-      <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="edit-email" value="somchai@email.com"></div>
+      <div class="fg"><label class="fl">เบอร์โทรติดต่อ</label><input class="fi" id="edithouse-phone" type="tel"></div>
+      <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="edithouse-email" type="email"></div>
     </div>
-    <div class="sl">💰 ค่าธรรมเนียม</div>
+    <div class="sl">💰 ค่าธรรมเนียม (บาท)</div>
     <div class="fr3">
-      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="edithouse-fee" type="number"></div>
-      <div class="fg"><label class="fl">ค่าจอดรถ/ปี</label><input class="fi" id="edithouse-parking" type="number"></div>
-      <div class="fg"><label class="fl">ค่าขยะ/งวด</label><input class="fi" id="edithouse-trash" type="number"></div>
+      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="edithouse-fee" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ/ปี</label><input class="fi" id="edithouse-parking" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าขยะ/งวด</label><input class="fi" id="edithouse-trash" type="number" placeholder="0" min="0"></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทบ้าน</label>
-        <select class="fs"><option>อยู่เอง</option><option>ให้เช่า</option><option>ว่าง</option></select>
+      <div class="fg"><label class="fl">ประเภทการใช้</label>
+        <select class="fs" id="edithouse-usage">
+          <option value="owner">อยู่เอง</option>
+          <option value="rent">ให้เช่า</option>
+          <option value="vacant">ว่าง</option>
+        </select>
       </div>
       <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="edithouse-status"><option value="normal">ปกติ</option><option value="overdue">ค้างชำระ</option><option value="suspended">ระงับกรมที่ดิน</option><option value="legal">ฟ้องร้อง</option></select>
+        <select class="fs" id="edithouse-status">
+          <option value="normal">ปกติ</option>
+          <option value="overdue">ค้างชำระ</option>
+          <option value="suspended">ระงับกรมที่ดิน</option>
+          <option value="legal">ฟ้องร้อง</option>
+        </select>
       </div>
     </div>
+    <div class="fg"><label class="fl">หมายเหตุสถานะ</label><input class="fi" id="edithouse-statusnote" placeholder="(ถ้ามี)"></div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-admin-edithouse')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSaveEditHouse()">💾 บันทึก</button>
+    <button class="btn btn-p btn-sm" onclick="doSaveEditHouse()">💾 บันทึกการแก้ไข</button>
   </div>
 </div></div>
 
 <!-- MODAL: เพิ่มช่าง -->
-<div class="mo" id="m-newcon" onclick="omOut(event,'m-newcon')">
+<div class="mo" id="m-newcon">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🔨</div>
     <div><div class="md-title">เพิ่มข้อมูลช่าง</div><div class="md-sub">เพิ่มช่างเข้าทะเบียนโดยนิติ</div></div>
-    <button class="md-x" onclick="closeM('m-newcon')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fr2">
@@ -2279,13 +2311,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: แนะนำช่าง (Resident) -->
-<div class="mo" id="m-suggestcon" onclick="omOut(event,'m-suggestcon')">
+<div class="mo" id="m-suggestcon">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🔨</div>
     <div><div class="md-title">แนะนำช่าง</div><div class="md-sub">ส่งข้อมูลเพื่อรออนุมัติจากนิติ</div></div>
-    <button class="md-x" onclick="closeM('m-suggestcon')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fr2">
@@ -2312,7 +2343,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: Contractor Detail -->
-<div class="mo" id="m-condetail" onclick="omOut(event,'m-condetail')">
+<div class="mo" id="m-condetail">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">🔧</div><div><div class="md-title" id="cd-name">รายละเอียดช่าง</div><div class="md-sub" id="cd-rating">—</div></div><button class="md-x" onclick="closeM('m-condetail')">✕</button></div>
@@ -2330,7 +2361,6 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   </div>
   <div class="md-ft"><button class="btn btn-g btn-sm" onclick="closeM('m-condetail')">ปิด</button><a id="cd-tel-link" href="#" class="btn btn-p btn-sm">📞 โทรหาช่าง</a></div>
 </div></div>
-    <button class="md-x" onclick="closeM('m-condetail')">✕</button>
   </div>
   <div class="md-bd">
     <div class="ig" style="margin-bottom:14px">
@@ -2354,13 +2384,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: ลงประกาศขาย -->
-<div class="mo" id="m-newmarket" onclick="omOut(event,'m-newmarket')">
+<div class="mo" id="m-newmarket">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🛒</div>
     <div><div class="md-title">ลงประกาศ</div><div class="md-sub">ขาย / ให้ฟรี / ให้เช่า · รออนุมัติจากนิติ</div></div>
-    <button class="md-x" onclick="closeM('m-newmarket')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">ประเภทประกาศ</label>
@@ -2384,13 +2413,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: ออกประกาศใหม่ (Admin) -->
-<div class="mo" id="m-newann" onclick="omOut(event,'m-newann')">
+<div class="mo" id="m-newann">
 <div class="md">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">📢</div>
     <div><div class="md-title">ออกประกาศใหม่</div><div class="md-sub">เผยแพร่ถึงลูกบ้านทุกคน</div></div>
-    <button class="md-x" onclick="closeM('m-newann')">✕</button>
   </div>
   <div class="md-bd">
     <div class="fg"><label class="fl">หมวดหมู่</label>
@@ -2407,11 +2435,11 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 
 <!-- MODAL: Update Issue Status (Admin) -->
-<div class="mo" id="m-update-issue" onclick="omOut(event,'m-update-issue')">
+<div class="mo" id="m-update-issue">
 <div class="md"><div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">🔧</div>
     <div><div class="md-title">อัปเดตสถานะปัญหา</div></div>
-    <button class="md-x" onclick="closeM('m-update-issue')">✕</button></div>
+</div>
   <div class="md-bd">
     <div class="fg"><label class="fl">สถานะใหม่</label>
       <select class="fs" id="iss-status">
@@ -2430,11 +2458,11 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 </div></div>
 
 <!-- MODAL: Rate Issue (Resident) -->
-<div class="mo" id="m-rate-issue" onclick="omOut(event,'m-rate-issue')">
+<div class="mo" id="m-rate-issue">
 <div class="md"><div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">⭐</div>
     <div><div class="md-title">ให้คะแนนการแก้ไข</div></div>
-    <button class="md-x" onclick="closeM('m-rate-issue')">✕</button></div>
+</div>
   <div class="md-bd">
     <div style="text-align:center;margin-bottom:16px">
       <div class="sr" id="rate-stars" style="justify-content:center">
@@ -2479,6 +2507,7 @@ let APP = {
   user:      null,
   house:     null,
   dashboard: null,
+  settings:  {},   // loaded from SETTINGS sheet on login
 };
 
 // ============================================================
@@ -2516,6 +2545,9 @@ function hideLoader() {
 // ============================================================
 function setTheme(t) {
   document.body.setAttribute('data-theme', t);
+  document.querySelectorAll('.th-txt-btn').forEach(function(b){
+    b.classList.toggle('on', b.dataset.t === t);
+  });
   document.querySelectorAll('.th-dot').forEach(function(d) {
     d.classList.toggle('on', d.dataset.t === t);
   });
@@ -2604,160 +2636,341 @@ function doLogout() {
 async function initApp() {
   showLoader('\u0e40\u0e23\u0e35\u0e22\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25...');
   try {
-    // Hide login screen
+    // Guard: APP.user must exist
+    if (!APP.user) {
+      hideLoader();
+      document.getElementById('login-screen').style.display = 'flex';
+      return;
+    }
     document.getElementById('login-screen').style.display = 'none';
-
     const user = APP.user;
-    // Set user name in sidebar
-    // Fill sidebar + profile
-    document.querySelectorAll('.sb-uname').forEach(function(el) {
-      el.textContent = user.display_name || user.username;
+    document.querySelectorAll('.sb-uname').forEach(function(el){ el.textContent = user.display_name || user.username; });
+    document.querySelectorAll('.sb-urole').forEach(function(el){
+      el.textContent = user.role === 'admin' ? '\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e19\u0e34\u0e15\u0e34' : '\u0e1a\u0e49\u0e32\u0e19 ' + (user.house_id || '');
     });
-    // Profile page fields
-    var profName = document.getElementById('prof-name');
-    var profUser = document.getElementById('prof-username');
-    var profHouse = document.getElementById('prof-houseid');
-    var profPhone = document.getElementById('edit-phone');
-    var profEmail = document.getElementById('edit-email');
-    if (profName)  profName.value  = user.display_name || '';
-    if (profUser)  profUser.value  = user.username || '';
-    if (profHouse) profHouse.value = user.house_id  || '';
-    if (profPhone) profPhone.value = user.phone     || '';
-    if (profEmail) profEmail.value = user.email     || '';
-    document.querySelectorAll('.sb-urole').forEach(function(el) {
-      el.textContent = user.role === 'admin'
-        ? '\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e19\u0e34\u0e15\u0e34'
-        : '\u0e1a\u0e49\u0e32\u0e19 ' + (user.house_id || '');
-    });
-    document.querySelectorAll('.sb-av').forEach(function(el) {
+    document.querySelectorAll('.sb-av').forEach(function(el){
       el.textContent = (user.display_name || user.username).charAt(0).toUpperCase();
     });
-
+    // ONE request replaces 7+ separate calls (saves 12-18s)
+    const boot = await api('getBoot');
+    APP.settings = boot.settings || {};
+    applySettings();
     if (user.role === 'admin') {
-      // Show admin view
       document.getElementById('anav').style.display = 'flex';
       document.getElementById('rnav').style.display = 'none';
       document.getElementById('v-admin').classList.add('on');
       document.getElementById('v-res').classList.remove('on');
-      document.querySelectorAll('.vt').forEach(function(b) { b.classList.remove('on'); });
-      document.querySelector('.vt[data-view="admin"]') &&
-        document.querySelector('.vt[data-view="admin"]').classList.add('on');
-      // Load dashboard
-      await loadAdminDashboard();
+      var vta = document.querySelector('.vt[data-view="admin"]');
+      if (vta) { document.querySelectorAll('.vt').forEach(function(b){ b.classList.remove('on'); }); vta.classList.add('on'); }
+      renderAdminDashboardFromBoot(boot);
     } else {
-      // Show resident view
       document.getElementById('anav').style.display = 'none';
       document.getElementById('rnav').style.display = 'flex';
       document.getElementById('v-res').classList.add('on');
       document.getElementById('v-admin').classList.remove('on');
-      document.querySelectorAll('.vt').forEach(function(b) { b.classList.remove('on'); });
-      document.querySelector('.vt[data-view="res"]') &&
-        document.querySelector('.vt[data-view="res"]').classList.add('on');
-      // Load resident house
-      await loadResidentHome();
+      var vtr = document.querySelector('.vt[data-view="res"]');
+      if (vtr) { document.querySelectorAll('.vt').forEach(function(b){ b.classList.remove('on'); }); vtr.classList.add('on'); }
+      renderResidentHomeFromBoot(boot);
     }
     hideLoader();
+    if (user.role === 'admin') _notifDataFromBoot(boot);
   } catch (err) {
     hideLoader();
-    Swal.fire({ icon: 'error', title: '\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e34\u0e14\u0e1e\u0e25\u0e32\u0e14', text: err.message });
+    Swal.fire({ icon: 'error', title: '\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14', text: err.message });
   }
 }
 
+function renderAdminDashboardFromBoot(boot) {
+  var dash = boot.dashboard || {};
+  APP.dashboard = dash;
+  var now = new Date();
+  var thM = ['\u0e21\u0e01\u0e23\u0e32\u0e04\u0e21','\u0e01\u0e38\u0e21\u0e20\u0e32\u0e1e\u0e31\u0e19\u0e18\u0e4c','\u0e21\u0e35\u0e19\u0e32\u0e04\u0e21','\u0e40\u0e21\u0e29\u0e32\u0e22\u0e19','\u0e1e\u0e24\u0e29\u0e20\u0e32\u0e04\u0e21','\u0e21\u0e34\u0e16\u0e38\u0e19\u0e32\u0e22\u0e19','\u0e01\u0e23\u0e01\u0e0e\u0e32\u0e04\u0e21','\u0e2a\u0e34\u0e07\u0e2b\u0e32\u0e04\u0e21','\u0e01\u0e31\u0e19\u0e22\u0e32\u0e22\u0e19','\u0e15\u0e38\u0e25\u0e32\u0e04\u0e21','\u0e1e\u0e24\u0e28\u0e08\u0e34\u0e01\u0e32\u0e22\u0e19','\u0e18\u0e31\u0e19\u0e27\u0e32\u0e04\u0e21'];
+  _setEl('dash-date-sub', now.getDate()+' '+thM[now.getMonth()]+' '+(now.getFullYear()+543));
+  _setEl('dash-hdr-houses', dash.houses_total || '\u2014');
+  var amt = Number(dash.fees_overdue_amount||0);
+  _setEl('dash-hdr-collect', amt > 0 ? '\u0e3f'+amt.toLocaleString() : '\u0e3f0');
+  _setEl('stat-houses', dash.houses_total || '\u2014');
+  var susp=Number(dash.houses_suspended||0), leg=Number(dash.houses_legal||0);
+  _setEl('stat-houses-sub', [susp>0?susp+' \u0e23\u0e30\u0e07\u0e31\u0e1a':'',leg>0?leg+' \u0e1f\u0e49\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e07':''].filter(Boolean).join(' \u00b7 ') || '\u0e17\u0e38\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e1b\u0e01\u0e15\u0e34');
+  _setEl('stat-overdue', dash.fees_pending_count || 0);
+  _setEl('stat-overdue-amt', amt>0?'\u0e22\u0e2d\u0e14\u0e23\u0e27\u0e21 \u0e3f'+amt.toLocaleString():'\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e2d\u0e14\u0e04\u0e49\u0e32\u0e07');
+  _setEl('stat-slip',   dash.slips_pending || 0);
+  _setEl('stat-fees-pending', Number(dash.fees_pending_count||0)>0 ? Number(dash.fees_pending_count)+'\u0e43\u0e1a\u0e23\u0e2d' : '\u0e17\u0e38\u0e01\u0e43\u0e1a\u0e0a\u0e33\u0e23\u0e30\u0e41\u0e25\u0e49\u0e27');
+  _setEl('stat-issues', dash.issues_pending || 0);
+  _setEl('stat-issues-sub', Number(dash.issues_inprogress||0)>0 ? Number(dash.issues_inprogress)+'\u0e01\u0e33\u0e25\u0e31\u0e07\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19' : '');
+  _setEl('stat-vio',        dash.violations_pending  || 0);
+  _setEl('stat-req',        dash.change_req_pending  || 0);
+  _setEl('stat-market',     dash.market_pending      || 0);
+  _setEl('stat-contractor', dash.contractor_pending  || 0);
+  _setEl('badge-fees',    dash.slips_pending      > 0 ? dash.slips_pending      : '');
+  _setEl('badge-issues',  dash.issues_pending     > 0 ? dash.issues_pending     : '');
+  _setEl('badge-vio',     dash.violations_pending > 0 ? dash.violations_pending : '');
+  _setEl('badge-req',     dash.change_req_pending > 0 ? dash.change_req_pending : '');
+  _setEl('badge-market',  dash.market_pending     > 0 ? dash.market_pending     : '');
+  _renderDashSlips(boot.slips || []);
+  _renderDashReqs(boot.reqs || []);
+  _renderDashIssues(boot.issues || []);
+  _renderDashViolations(boot.violations || []);
+  _renderDashAnn(boot.anns || []);
+  _pageCache['admin-dash'] = { ts: Date.now() };
+}
+
+function _notifDataFromBoot(boot) {
+  _notifData = [];
+  (boot.slips||[]).forEach(function(f){
+    _notifData.push({id:'slip-'+f.fee_id,type:'slip',icon:'\ud83e\uddfe',color:'var(--prl)',
+      title:'\u0e2a\u0e25\u0e34\u0e1b\u0e23\u0e2d Approve \u2014 \u0e1a\u0e49\u0e32\u0e19 '+f.house_id,
+      desc:'\u0e3f'+Number(f.total||0).toLocaleString()+' \u00b7 \u0e07\u0e27\u0e14 '+f.period+'/'+f.year,
+      ts:f.slip_submitted_at||f.issued_at,
+      action:function(){closeM_notif();go('admin','fees',null);}});
+  });
+  (boot.reqs||[]).forEach(function(r){
+    var t={house:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',vehicle:'\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30',user:'\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1c\u0e39\u0e49\u0e43\u0e0a\u0e49'}[r.target_type]||r.target_type;
+    _notifData.push({id:'req-'+r.req_id,type:'req',icon:'\ud83d\udcdd',color:'var(--acl)',
+      title:'\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02 \u2014 \u0e1a\u0e49\u0e32\u0e19 '+r.house_id,desc:t,ts:r.created_at,
+      action:function(){closeM_notif();go('admin','req',null);}});
+  });
+  (boot.issues||[]).forEach(function(i){
+    _notifData.push({id:'iss-'+i.issue_id,type:'issue',icon:'\ud83d\udd27',color:'#fff3e0',
+      title:'\u0e1b\u0e31\u0e0d\u0e2b\u0e32 \u2014 '+i.title,
+      desc:'\u0e1a\u0e49\u0e32\u0e19 '+(i.house_id||'')+' \u00b7 '+(i.category||''),ts:i.created_at,
+      action:function(){closeM_notif();go('admin','issues',null);}});
+  });
+  (boot.violations||[]).forEach(function(v){
+    _notifData.push({id:'vio-'+v.vio_id,type:'vio',icon:'\u26a0',color:'var(--wnl)',
+      title:'\u0e01\u0e23\u0e30\u0e17\u0e33\u0e1c\u0e34\u0e14 \u2014 '+v.title,
+      desc:'\u0e1a\u0e49\u0e32\u0e19 '+(v.house_id||'')+(Number(v.penalty_amount)>0?' \u00b7 \u0e3f'+Number(v.penalty_amount).toLocaleString():''),
+      ts:v.created_at,action:function(){closeM_notif();go('admin','vio',null);}});
+  });
+  (boot.market_pending||[]).forEach(function(m){
+    _notifData.push({id:'mkt-'+m.item_id,type:'market',icon:'\ud83d\uded2',color:'#e8f5e9',
+      title:'\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e23\u0e2d Approve \u2014 '+m.title,
+      desc:'\u0e1a\u0e49\u0e32\u0e19 '+(m.house_id||''),ts:m.created_at,
+      action:function(){closeM_notif();go('admin','market',null);}});
+  });
+  (boot.anns||[]).slice(0,3).forEach(function(a){
+    _notifData.push({id:'ann-'+a.ann_id,type:'ann',icon:'\ud83d\udce2',color:'var(--bg2)',
+      title:a.title,desc:(a.content||'').substring(0,60),ts:a.created_at,
+      action:function(){closeM_notif();go('admin','ann',null);}});
+  });
+  _notifData.sort(function(a,b){return new Date(b.ts||0)-new Date(a.ts||0);});
+  updateBellBadge();
+}
+
+function renderResidentHomeFromBoot(boot) {
+  APP.house = boot.house;
+  var h = boot.house;
+  if (h) {
+    var hno = _safeHouseNo(h.house_no);
+    var sbItems = document.querySelectorAll('.sb-urole');
+    sbItems.forEach(function(el){ if(el.textContent.indexOf('\u0e1a\u0e49\u0e32\u0e19')===0) el.textContent = '\u0e1a\u0e49\u0e32\u0e19 '+hno; });
+    _setEl('res-h-houseno', hno);
+    var rhsub = document.getElementById('res-house-sub');
+    if (rhsub) rhsub.textContent = _cfg('village_name','The Greenfield');
+  }
+  var unpaid = (boot.fees||[]).filter(function(f){ return f.status==='pending'||f.status==='overdue'; });
+  var top = unpaid[0];
+  _setEl('res-fee-amount', top ? '\u0e3f'+Number(top.total||0).toLocaleString() : '\u0e3f0');
+  _setEl('res-fee-period',  top ? top.period+'/'+top.year : '\u0e0a\u0e33\u0e23\u0e30\u0e04\u0e23\u0e1a\u0e41\u0e25\u0e49\u0e27');
+  _setEl('res-stat-issues', (boot.issues||[]).filter(function(i){return i.status==='pending'||i.status==='in_progress';}).length || 0);
+  _setEl('res-stat-notif',  (boot.violations||[]).filter(function(v){return v.status==='pending';}).length || 0);
+  window._bootFees   = boot.fees   || [];
+  window._bootIssues = boot.issues || [];
+  window._bootAnns   = boot.anns   || [];
+  _pageCache['res-dash'] = { ts: Date.now() };
+}
 // ============================================================
 // ADMIN — DASHBOARD
 // ============================================================
 async function loadAdminDashboard() {
   try {
-    const dash = await api('getDashboard');
+    // ── Date header ──────────────────────────────────────
+    var now = new Date();
+    var thM = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+               'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    _setEl('dash-date-sub', now.getDate() + ' ' + thM[now.getMonth()] + ' ' + (now.getFullYear()+543));
+
+    // ── Fetch all data in parallel ────────────────────────
+    const [dash, fees, issues, violations, reqs, anns] = await Promise.all([
+      api('getDashboard'),
+      api('getFees'),
+      api('getIssues'),
+      api('getViolations'),
+      api('getChangeRequests'),
+      api('getAnnouncements'),
+    ]);
     APP.dashboard = dash;
-    // Stat cards
-    var _nm=new Date();
-    var _thM=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-    _setEl('dash-date-sub',_nm.getDate()+' '+_thM[_nm.getMonth()]+' '+(_nm.getFullYear()+543));
-    _setEl('dash-hdr-houses',dash.houses_total||'—');
-    var _nm=new Date();var _thM=['\u0e21\u0e01\u0e23\u0e32\u0e04\u0e21','\u0e01\u0e38\u0e21\u0e20\u0e32\u0e1e\u0e31\u0e19\u0e18\u0e4c','\u0e21\u0e35\u0e19\u0e32\u0e04\u0e21','\u0e40\u0e21\u0e29\u0e32\u0e22\u0e19','\u0e1e\u0e24\u0e29\u0e20\u0e32\u0e04\u0e21','\u0e21\u0e34\u0e16\u0e38\u0e19\u0e32\u0e22\u0e19','\u0e01\u0e23\u0e01\u0e0e\u0e32\u0e04\u0e21','\u0e2a\u0e34\u0e07\u0e2b\u0e32\u0e04\u0e21','\u0e01\u0e31\u0e19\u0e22\u0e32\u0e22\u0e19','\u0e15\u0e38\u0e25\u0e32\u0e04\u0e21','\u0e1e\u0e24\u0e28\u0e08\u0e34\u0e01\u0e32\u0e22\u0e19','\u0e18\u0e31\u0e19\u0e27\u0e32\u0e04\u0e21'];
-    _setEl('dash-date-sub',_nm.getDate()+' '+_thM[_nm.getMonth()]+' '+(_nm.getFullYear()+543));
-    _setEl('dash-hdr-houses',dash.houses_total||'\u2014');
-    _setEl('stat-houses',   dash.houses_total);
-    _setEl('stat-overdue',  dash.houses_overdue);
-    _setEl('stat-slip',     dash.slips_pending);
-    _setEl('stat-issues',   dash.issues_pending);
-    // Sidebar badges
-    _setEl('badge-fees',    dash.slips_pending > 0 ? dash.slips_pending : '');
-    _setEl('badge-issues',  dash.issues_pending > 0 ? dash.issues_pending : '');
+
+    // ── Header stats ──────────────────────────────────────
+    _setEl('dash-hdr-houses',  dash.houses_total || '—');
+    var overdueAmt = Number(dash.fees_overdue_amount || 0);
+    _setEl('dash-hdr-collect', overdueAmt > 0 ? '฿' + overdueAmt.toLocaleString() : '฿0');
+
+    // ── Stat cards row 1 ──────────────────────────────────
+    var suspended = Number(dash.houses_suspended || 0);
+    var legal     = Number(dash.houses_legal     || 0);
+    _setEl('stat-houses', dash.houses_total || '—');
+    _setEl('stat-houses-sub',
+      [suspended > 0 ? suspended + ' ระงับ' : '',
+       legal     > 0 ? legal     + ' ฟ้องร้อง' : '']
+      .filter(Boolean).join(' · ') || 'ทุกบ้านปกติ');
+
+    var unpaidFees = fees.filter(function(f){ return f.status === 'pending' || f.status === 'overdue'; });
+    var unpaidCount = unpaidFees.length;
+    var unpaidAmt = unpaidFees.reduce(function(s,f){ return s + Number(f.total||0); }, 0);
+    _setEl('stat-overdue', unpaidCount);
+    _setEl('stat-overdue-amt',
+      unpaidAmt > 0 ? 'ยอดรวม ฿' + unpaidAmt.toLocaleString() : 'ไม่มียอดค้าง');
+    // Also update header collect to show unpaid total
+    _setEl('dash-hdr-collect', unpaidAmt > 0 ? '฿' + unpaidAmt.toLocaleString() : '฿0');
+
+    _setEl('stat-slip', dash.slips_pending || 0);
+    _setEl('stat-fees-pending',
+      Number(dash.fees_pending_count || 0) > 0
+        ? Number(dash.fees_pending_count) + ' ใบรอชำระ' : 'ทุกใบชำระแล้ว');
+
+    _setEl('stat-issues', dash.issues_pending || 0);
+    _setEl('stat-issues-sub',
+      Number(dash.issues_inprogress || 0) > 0
+        ? Number(dash.issues_inprogress) + ' กำลังดำเนินการ' : '');
+
+    // ── Stat cards row 2 ──────────────────────────────────
+    _setEl('stat-vio',        dash.violations_pending  || 0);
+    _setEl('stat-req',        dash.change_req_pending  || 0);
+    _setEl('stat-market',     dash.market_pending      || 0);
+    _setEl('stat-contractor', dash.contractor_pending  || 0);
+
+    // ── Sidebar badges ────────────────────────────────────
+    _setEl('badge-fees',    dash.slips_pending      > 0 ? dash.slips_pending      : '');
+    _setEl('badge-issues',  dash.issues_pending     > 0 ? dash.issues_pending     : '');
     _setEl('badge-vio',     dash.violations_pending > 0 ? dash.violations_pending : '');
     _setEl('badge-req',     dash.change_req_pending > 0 ? dash.change_req_pending : '');
-    _setEl('badge-market',  dash.market_pending > 0 ? dash.market_pending : '');
-    // Load dash mini-lists
-    _loadDashSlips();
-    _loadDashReqs();
-    _loadDashIssues();
-    _loadDashAnn();
-  } catch(err) { console.warn('Dashboard load error:', err.message); }
+    _setEl('badge-market',  dash.market_pending     > 0 ? dash.market_pending     : '');
+
+    // ── Mini-lists: render from already-fetched data ──────
+    _renderDashSlips(fees.filter(function(f){ return f.status === 'slip_submitted'; }));
+    _renderDashReqs(reqs.filter(function(r){ return r.status === 'pending'; }));
+    _renderDashIssues(issues.filter(function(i){ return i.status === 'pending' || i.status === 'in_progress'; }));
+    _renderDashViolations(violations.filter(function(v){ return v.status === 'pending'; }));
+    _renderDashAnn(anns.filter(function(a){
+      return a.is_active === true || a.is_active === 'TRUE' || a.is_active === 1;
+    }));
+
+  } catch(err) {
+    console.warn('Dashboard load error:', err.message);
+  }
 }
 
-async function _loadDashSlips() {
-  try {
-    const fees = await api('getFees', { status: 'slip_submitted' });
-    const el = document.getElementById('tbl-slips-dash');
-    if (!el) return;
-    if (!fees.length) { el.innerHTML = '<tr><td colspan="4" class="text-mu" style="text-align:center;padding:16px">ไม่มีสลิปรอ</td></tr>'; return; }
-    el.innerHTML = fees.slice(0,5).map(function(f) {
-      return '<tr><td><strong>' + f.house_id + '</strong></td>' +
-        '<td class="text-pr fw-7">฿' + Number(f.total||0).toLocaleString() + '</td>' +
-        '<td><span class="bd b-pr">' + f.period + '/' + f.year + '</span></td>' +
-        '<td><button class="btn btn-xs btn-a" onclick="doApproveSlip(\'' + f.fee_id + '\')">✓</button></td></tr>';
-    }).join('');
-  } catch(e) {}
+function _renderDashSlips(fees) {
+  var el = document.getElementById('tbl-slips-dash');
+  if (!el) return;
+  if (!fees.length) {
+    el.innerHTML = '<tr><td colspan="4" class="text-mu" style="text-align:center;padding:16px">ไม่มีสลิปรอ</td></tr>';
+    return;
+  }
+  el.innerHTML = fees.slice(0, 5).map(function(f) {
+    return '<tr>' +
+      '<td><strong>' + _safeHouseNo(f.house_id) + '</strong></td>' +
+      '<td class="text-pr fw-7">฿' + Number(f.total||0).toLocaleString() + '</td>' +
+      '<td><span class="bd b-pr">' + f.period + '/' + f.year + '</span></td>' +
+      '<td><button class="btn btn-xs btn-a" data-fid="' + f.fee_id + '" onclick="doApproveSlip(this.dataset.fid)">✓</button></td>' +
+      '</tr>';
+  }).join('');
 }
 
-async function _loadDashReqs() {
-  try {
-    const reqs = await api('getChangeRequests', { status: 'pending' });
-    const el = document.getElementById('dash-req-list');
-    if (!el) return;
-    if (!reqs.length) { el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีคำขอ</p>'; return; }
-    el.innerHTML = reqs.slice(0,3).map(function(r) {
-      return '<div class="ann"><div class="ann-dot ad-evt"></div>' +
-        '<div><div class="ann-t">บ้าน ' + r.house_id + ' — ' + r.target_type + '</div>' +
-        '<div class="ann-d">' + _fmtDate(r.created_at) + '</div></div>' +
-        '<span class="bd b-wn" style="flex-shrink:0;align-self:flex-start">รอ</span></div>';
-    }).join('');
-  } catch(e) {}
+function _renderDashReqs(reqs) {
+  var el = document.getElementById('dash-req-list');
+  if (!el) return;
+  if (!reqs.length) {
+    el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีคำขอรออนุมัติ</p>';
+    return;
+  }
+  el.innerHTML = reqs.slice(0, 4).map(function(r) {
+    var typeLabel = {house:'ข้อมูลบ้าน', vehicle:'ยานพาหนะ', user:'ข้อมูลผู้ใช้'}[r.target_type] || r.target_type;
+    return '<div class="ann">' +
+      '<div class="ann-dot ad-evt"></div>' +
+      '<div style="flex:1">' +
+        '<div class="ann-t">บ้าน ' + r.house_id + ' — ' + typeLabel + '</div>' +
+        '<div class="ann-d">' + _fmtDate(r.created_at) + ' · โดย ' + (r.requested_by||'—') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:5px">' +
+        '<button class="btn btn-xs btn-g" data-rid="' + r.req_id + '" onclick="doRejectReq(this.dataset.rid)">✗</button>' +
+        '<button class="btn btn-xs btn-a" data-rid="' + r.req_id + '" onclick="doApproveReq(this.dataset.rid,[])" >✓</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 
-async function _loadDashIssues() {
-  try {
-    const issues = await api('getIssues', { status: 'pending' });
-    const el = document.getElementById('dash-iss-list');
-    if (!el) return;
-    if (!issues.length) { el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีปัญหา</p>'; return; }
-    el.innerHTML = issues.slice(0,3).map(function(i) {
-      return '<div class="iss mb-8"><div class="iss-h"><span class="iss-t">บ้าน ' + i.house_id + ' — ' + i.title + '</span>' +
-        '<span class="bd b-dg">รอ</span></div>' +
-        '<div class="iss-m">' + _fmtDate(i.created_at) + '</div></div>';
-    }).join('');
-  } catch(e) {}
+function _renderDashIssues(issues) {
+  var el = document.getElementById('dash-iss-list');
+  if (!el) return;
+  if (!issues.length) {
+    el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีปัญหารอดำเนินการ</p>';
+    return;
+  }
+  var statusBadge = {
+    pending:     '<span class="bd b-dg">รอ</span>',
+    in_progress: '<span class="bd b-wn">กำลังดำเนิน</span>',
+  };
+  el.innerHTML = issues.slice(0, 4).map(function(i) {
+    return '<div class="iss mb-8">' +
+      '<div class="iss-h">' +
+        '<span class="iss-t">บ้าน ' + (i.house_id||'') + ' — ' + i.title + '</span>' +
+        (statusBadge[i.status]||'') +
+      '</div>' +
+      '<div class="iss-m">' + _fmtDate(i.created_at) + ' · ' + (i.category||'') + '</div>' +
+    '</div>';
+  }).join('');
 }
 
-async function _loadDashAnn() {
-  try {
-    const anns = await api('getAnnouncements');
-    const el = document.getElementById('dash-ann-list');
-    if (!el) return;
-    if (!anns.length) { el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีประกาศ</p>'; return; }
-    el.innerHTML = anns.slice(0,3).map(function(a) {
-      return '<div class="ann"><div class="ann-dot ' + ({urgent:'ad-urg',general:'ad-gen',event:'ad-evt'}[a.category]||'ad-gen') + '"></div>' +
-        '<div><div class="ann-t">' + a.title + '</div>' +
-        '<div class="ann-b">' + (a.content||'').substring(0,60) + (a.content&&a.content.length>60?'...':'') + '</div>' +
-        '<div class="ann-d">' + _fmtDate(a.created_at) + '</div></div></div>';
-    }).join('');
-  } catch(e) {}
+function _renderDashViolations(viols) {
+  var el = document.getElementById('dash-vio-list');
+  if (!el) return;
+  if (!viols.length) {
+    el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีการแจ้งกระทำผิดที่รอ</p>';
+    return;
+  }
+  el.innerHTML = viols.slice(0, 4).map(function(v) {
+    var haspenalty = Number(v.penalty_amount) > 0;
+    return '<div class="iss mb-8">' +
+      '<div class="iss-h">' +
+        '<span class="iss-t">บ้าน ' + (v.house_id||'') + ' — ' + v.title + '</span>' +
+        '<span class="bd b-wn">รอรับทราบ</span>' +
+      '</div>' +
+      '<div class="iss-m">' + _fmtDate(v.created_at) +
+        (haspenalty ? ' · ค่าปรับ ฿' + Number(v.penalty_amount).toLocaleString() : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 
-// ============================================================
-// RESIDENT — HOME
-// ============================================================
+function _renderDashAnn(anns) {
+  var el = document.getElementById('dash-ann-list');
+  if (!el) return;
+  if (!anns.length) {
+    el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีประกาศที่เปิดอยู่</p>';
+    return;
+  }
+  var dotClass = {urgent:'ad-urg', general:'ad-gen', event:'ad-evt'};
+  el.innerHTML = anns.slice(0, 4).map(function(a) {
+    return '<div class="ann">' +
+      '<div class="ann-dot ' + (dotClass[a.category]||'ad-gen') + '"></div>' +
+      '<div>' +
+        '<div class="ann-t">' + a.title + '</div>' +
+        '<div class="ann-b">' + (a.content||'').substring(0,60) + '</div>' +
+        '<div class="ann-d">' + _fmtDate(a.created_at) + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// keep old names for backward compat
+async function _loadDashSlips() { /* replaced by _renderDashSlips */ }
+async function _loadDashReqs()  { /* replaced by _renderDashReqs  */ }
+async function _loadDashIssues(){ /* replaced by _renderDashIssues */ }
+async function _loadDashAnn()   { /* replaced by _renderDashAnn   */ }
+
+
 async function loadResidentHome() {
   try {
     if (!APP.user.house_id) return;
@@ -2836,6 +3049,7 @@ async function loadPageData(view, page) {
     if (key === 'admin-market')     await loadMarketAdminPage();
     if (key === 'admin-usr')        await loadUsersPage();
     if (key === 'admin-log')        await loadLogsPage();
+    if (key === 'admin-settings')    await loadSettingsPage();
     if (key === 'res-house')        await loadResHousePage();
     if (key === 'res-fee')          await loadResFeePage();
     if (key === 'res-issue')        await loadResIssuePage();
@@ -2901,18 +3115,23 @@ async function loadFeesPage() {
       }[f.status] || '<span class="bd b-mu">' + f.status + '</span>';
       const approve_btn = f.status === 'slip_submitted'
         ? '<button class="btn btn-xs btn-a" onclick="doApproveSlip(\'' + f.fee_id + '\')">\u2713 Approve</button>' : '';
+      var other_col = Number(f.other_fee||0) > 0
+        ? '\u0e3f' + Number(f.other_fee).toLocaleString() + (f.other_fee_note ? '<br><span style="font-size:10px;color:var(--mu)">' + f.other_fee_note + '</span>' : '')
+        : '\u2014';
       return '<tr>' +
-        '<td><strong>' + (f.house_id||'') + '</strong></td>' +
+        '<td><strong>' + _safeHouseNo(f.house_id||'') + '</strong></td>' +
         '<td>' + f.period + '/' + f.year + '</td>' +
         '<td>\u0e3f' + Number(f.fee_amount||0).toLocaleString() + '</td>' +
         '<td>\u0e3f' + Number(f.parking_fee||0).toLocaleString() + '</td>' +
         '<td>\u0e3f' + Number(f.trash_fee||0).toLocaleString() + '</td>' +
+        '<td>' + other_col + '</td>' +
         '<td class="text-dg">' + (Number(f.penalty_fee||0) > 0 ? '\u0e3f' + Number(f.penalty_fee).toLocaleString() : '\u2014') + '</td>' +
         '<td class="fw-7">\u0e3f' + Number(f.total||0).toLocaleString() + '</td>' +
         '<td>' + badge + '</td>' +
-        '<td style="display:flex;gap:5px">' + approve_btn +
-          '<button class="btn btn-xs btn-o" onclick="openFeeDetail(\'' + f.fee_id + '\')">\u0e23\u0e32\u0e22\u0e25\u0e30\u0e40\u0e2d\u0e35\u0e22\u0e14</button></td>' +
-        '</tr>';
+        '<td style="display:flex;gap:4px;flex-wrap:wrap">' + approve_btn +
+          '<button class="btn btn-xs btn-o" data-fid="' + f.fee_id + '" onclick="openEditFeeModal(this.dataset.fid)">\u270f\ufe0f</button>' +
+          '<button class="btn btn-xs btn-g" data-fid="' + f.fee_id + '" onclick="openFeeDetail(this.dataset.fid)">\u0e14\u0e39</button>' +
+        '</td></tr>';
     }).join('');
   } finally { hideLoader(); }
 }
@@ -3639,6 +3858,7 @@ var PT = {
   'admin-market':      '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e02\u0e32\u0e22',
   'admin-usr':         '\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01',
   'admin-log':         'Login Logs',
+  'admin-settings':    'ตั้งค่าระบบ',
   'res-dash':          '\u0e2b\u0e19\u0e49\u0e32\u0e41\u0e23\u0e01',
   'res-house':         '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',
   'res-fee':           '\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07',
@@ -3651,20 +3871,37 @@ var PT = {
   'res-profile':       '\u0e42\u0e1b\u0e23\u0e44\u0e1f\u0e25\u0e4c'
 };
 
+// Page data cache: key → {ts, loaded}
+var _pageCache = {};
+var _PAGE_TTL  = 60000; // 60s — force refresh after this
+
 function go(view, page, el) {
   var key = view + '-' + page;
   document.querySelectorAll('#v-' + view + ' .pane').forEach(function(p) { p.classList.remove('on'); });
   var target = document.getElementById('p-' + key);
-  if (target) { target.classList.add('on'); }
+  if (target) target.classList.add('on');
   var navId = view === 'admin' ? 'anav' : 'rnav';
   document.querySelectorAll('#' + navId + ' .sb-item').forEach(function(i) { i.classList.remove('act'); });
-  if (el) { el.classList.add('act'); }
+  if (el) el.classList.add('act');
   var ttEl = document.getElementById('tt');
-  if (ttEl && PT[key]) { ttEl.innerHTML = PT[key]; }
+  if (ttEl && PT[key]) ttEl.innerHTML = PT[key];
   closeSB();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // Load data for this page
+
+  // Skip reload if cached within TTL (except dashboard — always fresh)
+  var now = Date.now();
+  var cached = _pageCache[key];
+  if (key !== 'admin-dash' && key !== 'res-dash' && cached && (now - cached.ts) < _PAGE_TTL) {
+    return; // use cached DOM
+  }
+  _pageCache[key] = { ts: now };
   loadPageData(view, page);
+}
+
+// Call after mutations so next go() reloads fresh
+function invalidatePageCache(key) {
+  if (key) { delete _pageCache[key]; }
+  else { _pageCache = {}; }
 }
 
 function stab(grp, tab, btn) {
@@ -3747,17 +3984,13 @@ function sw(t) {
 // STARTUP
 // ============================================================
 (function() {
-
-  // Step 1: Apply cached settings immediately (instant branding)
+  // Apply cached settings instantly (no wait)
   try {
     var cached = localStorage.getItem('vms5-settings');
-    if (cached) {
-      APP.settings = JSON.parse(cached);
-      applySettings();
-    }
+    if (cached) { APP.settings = JSON.parse(cached); applySettings(); }
   } catch(e) {}
 
-  // Step 2: Fetch fresh settings from GAS (public, no token needed)
+  // Fetch fresh settings (public, no token)
   (async function() {
     try {
       var params = new URLSearchParams({ payload: JSON.stringify({ action: 'getSettings' }) });
@@ -3768,10 +4001,10 @@ function sw(t) {
         localStorage.setItem('vms5-settings', JSON.stringify(json.data));
         applySettings();
       }
-    } catch(e) { /* network error — use cache or defaults */ }
+    } catch(e) {}
   })();
 
-  // Step 3: Check for saved session
+  // Check for saved session
   var savedToken = sessionStorage.getItem('vms_token');
   var savedUser  = sessionStorage.getItem('vms_user');
   if (savedToken && savedUser) {
@@ -3779,287 +4012,880 @@ function sw(t) {
     APP.user  = JSON.parse(savedUser);
     initApp();
   }
-
-  // Step 4: Enter key on login
+  // Enter on login
   document.getElementById('inp-password') &&
     document.getElementById('inp-password').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') doLogin();
     });
 })();
 
-// ============================================================
-// VEHICLE DROPDOWN DATA
-// ============================================================
-var VD = {
-  types: ['รถยนต์','รถจักรยานยนต์','รถตู้','รถกระบะ','รถอื่นๆ'],
-
-  brands: [
-    'Toyota','Honda','Isuzu','Mitsubishi','Ford','Mazda','Nissan',
-    'Suzuki','Mercedes-Benz','BMW','Hyundai','Kia','MG','GWM Haval',
-    'BYD','NETA','Aion','Volvo','Volkswagen','Chevrolet','Jeep',
-    'Land Rover','Lexus','Subaru','Yamaha','Kawasaki','Royal Enfield',
-    'Ducati','Harley-Davidson','อื่นๆ (เพิ่มเอง)'
-  ],
-
-  colors: [
-    'ขาว','ดำ','เงิน','เทา','แดง','น้ำเงิน','น้ำตาล','ทอง','ส้ม',
-    'เขียว','ม่วง','เหลือง','ชมพู','ฟ้า','ครีม','อื่นๆ (เพิ่มเอง)'
-  ],
-
-  provinces: [
-    'กรุงเทพมหานคร','กระบี่','กาญจนบุรี','กาฬสินธุ์','กำแพงเพชร',
-    'ขอนแก่น','จันทบุรี','ฉะเชิงเทรา','ชลบุรี','ชัยนาท',
-    'ชัยภูมิ','ชุมพร','เชียงราย','เชียงใหม่','ตรัง',
-    'ตราด','ตาก','นครนายก','นครปฐม','นครพนม',
-    'นครราชสีมา','นครศรีธรรมราช','นครสวรรค์','นนทบุรี','นราธิวาส',
-    'น่าน','บึงกาฬ','บุรีรัมย์','ปทุมธานี','ประจวบคีรีขันธ์',
-    'ปราจีนบุรี','ปัตตานี','พระนครศรีอยุธยา','พะเยา','พังงา',
-    'พัทลุง','พิจิตร','พิษณุโลก','เพชรบุรี','เพชรบูรณ์',
-    'แพร่','ภูเก็ต','มหาสารคาม','มุกดาหาร','แม่ฮ่องสอน',
-    'ยโสธร','ยะลา','ร้อยเอ็ด','ระนอง','ระยอง',
-    'ราชบุรี','ลพบุรี','ลำปาง','ลำพูน','เลย',
-    'ศรีสะเกษ','สกลนคร','สงขลา','สตูล','สมุทรปราการ',
-    'สมุทรสงคราม','สมุทรสาคร','สระแก้ว','สระบุรี','สิงห์บุรี',
-    'สุโขทัย','สุพรรณบุรี','สุราษฎร์ธานี','สุรินทร์','หนองคาย',
-    'หนองบัวลำภู','อ่างทอง','อำนาจเจริญ','อุดรธานี','อุตรดิตถ์',
-    'อุทัยธานี','อุบลราชธานี','เบตง'
-  ],
-
-  parking: ['ในบ้าน','หน้าบ้าน','ส่วนกลาง'],
-
-  statuses: [
-    {v:'active',   l:'ใช้งานปกติ'},
-    {v:'inactive', l:'ไม่ได้ใช้งาน'}
-  ]
-};
-
-// Build <option> list for a simple array
-function _vdOpts(arr, selected, allowCustom) {
-  var opts = arr.map(function(v) {
-    return '<option value="' + v + '"' + (v === selected ? ' selected' : '') + '>' + v + '</option>';
-  }).join('');
-  return opts;
-}
-
-// Build <option> list for status objects {v, l}
-function _vdStatusOpts(arr, selected) {
-  return arr.map(function(s) {
-    return '<option value="' + s.v + '"' + (s.v === selected ? ' selected' : '') + '>' + s.l + '</option>';
-  }).join('');
-}
-
-// Populate a <select> and handle "อื่นๆ (เพิ่มเอง)" → show text input
-function _vdFill(selectId, inputId, arr, selected) {
-  var sel = document.getElementById(selectId);
-  var inp = document.getElementById(inputId);
-  if (!sel) return;
-  sel.innerHTML = '<option value="">-- เลือก --</option>' + _vdOpts(arr, selected);
-  // Check if selected value is custom (not in list)
-  if (selected && !arr.includes(selected)) {
-    // Add custom option
-    var customOpt = '<option value="__custom__">อื่นๆ (เพิ่มเอง)</option>';
-    sel.innerHTML += customOpt;
-    // Add the actual custom value
-    var existingCustom = '<option value="' + selected + '" selected>' + selected + '</option>';
-    sel.innerHTML += existingCustom;
-    sel.value = selected;
-    if (inp) { inp.value = selected; inp.style.display = 'block'; }
-  }
-  sel.onchange = function() {
-    if (sel.value === '__custom__' || sel.value === 'อื่นๆ (เพิ่มเอง)') {
-      if (inp) { inp.style.display = 'block'; inp.focus(); }
-    } else {
-      if (inp) { inp.style.display = 'none'; inp.value = ''; }
-    }
-  };
-}
-
-// Get final value from select + optional custom input
-function _vdGet(selectId, inputId) {
-  var sel = document.getElementById(selectId);
-  var inp = document.getElementById(inputId);
-  if (!sel) return '';
-  if (sel.value === '__custom__' || sel.value === 'อื่นๆ (เพิ่มเอง)') {
-    return inp ? inp.value.trim() : '';
-  }
-  return sel.value;
-}
 
 // ============================================================
-// VEHICLE DROPDOWN HELPERS
+// HOUSES CRUD
 // ============================================================
 
-function _initVehicleDropdowns(prefix) {
-  // Populate brands
-  var bSel = document.getElementById(prefix + 'brand-sel');
-  if (bSel) {
-    bSel.innerHTML = '<option value="">-- เลือกยี่ห้อ --</option>' +
-      VD.brands.map(function(b) { return '<option value="' + b + '">' + b + '</option>'; }).join('');
-  }
-  // Populate colors
-  var cSel = document.getElementById(prefix + 'color-sel');
-  if (cSel) {
-    cSel.innerHTML = '<option value="">-- เลือกสี --</option>' +
-      VD.colors.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
-  }
-  // Populate provinces
-  var pSel = document.getElementById(prefix + 'prov');
-  if (pSel) {
-    pSel.innerHTML = '<option value="">-- เลือกจังหวัด --</option>' +
-      VD.provinces.map(function(p) { return '<option value="' + p + '">' + p + '</option>'; }).join('');
-  }
-}
+var _housesAllCache = [];  // full unfiltered list for client-side filter
 
-function _setSelectOrCustom(selId, inpId, value) {
-  var sel = document.getElementById(selId);
-  var inp = document.getElementById(inpId);
-  if (!sel || !value) return;
-  // Check if value exists in options
-  var found = Array.from(sel.options).some(function(o) { return o.value === value; });
-  if (found) {
-    sel.value = value;
-    if (inp) inp.style.display = 'none';
-  } else {
-    // Value is custom — add it temporarily and select it
-    var opt = document.createElement('option');
-    opt.value = value; opt.textContent = value;
-    sel.appendChild(opt);
-    sel.value = value;
-    if (inp) { inp.value = value; inp.style.display = 'none'; }
-  }
-}
-
-function _vdBrandChange(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'brand-sel');
-  var inp = document.getElementById(pre + 'brand');
-  if (!sel || !inp) return;
-  var isCustom = sel.value === 'อื่นๆ (เพิ่มเอง)';
-  inp.style.display = isCustom ? 'block' : 'none';
-  if (isCustom) { inp.value = ''; inp.focus(); }
-}
-
-function _vdColorChange(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'color-sel');
-  var inp = document.getElementById(pre + 'color');
-  if (!sel || !inp) return;
-  var isCustom = sel.value === 'อื่นๆ (เพิ่มเอง)';
-  inp.style.display = isCustom ? 'block' : 'none';
-  if (isCustom) { inp.value = ''; inp.focus(); }
-}
-
-function _vdGetBrand(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'brand-sel');
-  var inp = document.getElementById(pre + 'brand');
-  if (!sel) return '';
-  return (sel.value === 'อื่นๆ (เพิ่มเอง)' && inp) ? inp.value.trim() : sel.value;
-}
-
-function _vdGetColor(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'color-sel');
-  var inp = document.getElementById(pre + 'color');
-  if (!sel) return '';
-  return (sel.value === 'อื่นๆ (เพิ่มเอง)' && inp) ? inp.value.trim() : sel.value;
-}
-
-// Open add car modal
-function openAddCarModal() {
-  _initVehicleDropdowns('car-');
-  var typeEl = document.getElementById('car-type');
-  var plateEl = document.getElementById('car-plate');
-  var modelEl = document.getElementById('car-model');
-  if (typeEl)  typeEl.value  = '';
-  if (plateEl) plateEl.value = '';
-  if (modelEl) modelEl.value = '';
-  var parkEl = document.getElementById('car-park');   if (parkEl)   parkEl.value  = 'ในบ้าน';
-  var statEl = document.getElementById('car-status');  if (statEl)   statEl.value  = 'active';
-  var brandInp = document.getElementById('car-brand');  if (brandInp) brandInp.style.display = 'none';
-  var colorInp = document.getElementById('car-color');  if (colorInp) colorInp.style.display = 'none';
-  openM('m-addcar');
-}
-
-// Open edit car modal with existing data
-function openEditCarModal(vehicle) {
-  _initVehicleDropdowns('editcar-');
-  document.getElementById('editcar-id').value     = vehicle.vehicle_id || '';
-  document.getElementById('editcar-plate').value  = vehicle.plate_number || '';
-  document.getElementById('editcar-model').value  = vehicle.model || '';
-  var typeEl = document.getElementById('editcar-type');
-  if (typeEl) typeEl.value = vehicle.type || 'รถยนต์';
-  _setSelectOrCustom('editcar-brand-sel', 'editcar-brand', vehicle.brand || '');
-  _setSelectOrCustom('editcar-color-sel', 'editcar-color', vehicle.color || '');
-  // Province
-  var provEl = document.getElementById('editcar-prov');
-  if (provEl) provEl.value = vehicle.province || '';
-  // Parking
-  var parkEl = document.getElementById('editcar-park');
-  if (parkEl) parkEl.value = vehicle.parking_location || 'ในบ้าน';
-  // Status
-  var statEl = document.getElementById('editcar-status');
-  if (statEl) statEl.value = vehicle.status === 'inactive' ? 'inactive' : 'active';
-  // Sub title
-  _setEl('editcar-sub', (vehicle.plate_number || '') + ' · ' + (vehicle.brand || '') + ' ' + (vehicle.model || ''));
-  openM('m-editcar');
-}
-
-// Submit add car
-async function doSubmitAddCar() {
-  var type   = (document.getElementById('car-type')  || {}).value || '';
-  var plate  = ((document.getElementById('car-plate') || {}).value || '').trim();
-  var brand  = _vdGetBrand('add');
-  var model  = ((document.getElementById('car-model') || {}).value || '').trim();
-  var color  = _vdGetColor('add');
-  var prov   = (document.getElementById('car-prov')   || {}).value || '';
-  var park   = (document.getElementById('car-park')   || {}).value || 'ในบ้าน';
-  var stat   = (document.getElementById('car-status') || {}).value || 'active';
-
-  if (!type)  { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30' }); return; }
-  if (!plate) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16' }); return; }
-  if (!brand) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e22\u0e35\u0e48\u0e2b\u0e49\u0e2d' }); return; }
-  if (!prov)  { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e08\u0e31\u0e07\u0e2b\u0e27\u0e31\u0e14' }); return; }
-
-  showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30...');
+async function loadHousesPage() {
+  showLoader('โหลดข้อมูลบ้าน...');
   try {
-    await api('createVehicle', {
-      type, plate_number: plate, brand, model, color, province: prov,
-      parking_location: park, status: stat
-    });
-    closeM('m-addcar');
-    Swal.fire({ icon:'success', title:'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1800, showConfirmButton:false });
-    loadResHousePage();
-  } catch(e) {
-    Swal.fire({ icon:'error', title:'Error', text: e.message });
+    const houses = await api('getHouses');
+    _housesCache = houses;
+    _housesAllCache = houses;
+    renderHousesTable(houses);
+    _pageCache['admin-houses'] = { ts: Date.now() };
+    // Update header count
+    _setEl('dash-hdr-houses', houses.length);
+    var phSub = document.querySelector('#p-admin-houses .ph-sub');
+    if (phSub) phSub.innerHTML = '<span id="dash-hdr-houses">' + houses.length + '</span> หน่วย · The Greenfield';
   } finally { hideLoader(); }
 }
 
-// Submit edit car
-async function doSubmitEditCar() {
-  var vid    = (document.getElementById('editcar-id')    || {}).value || '';
-  var type   = (document.getElementById('editcar-type')  || {}).value || '';
-  var plate  = ((document.getElementById('editcar-plate')|| {}).value || '').trim();
-  var brand  = _vdGetBrand('edit');
-  var model  = ((document.getElementById('editcar-model')|| {}).value || '').trim();
-  var color  = _vdGetColor('edit');
-  var prov   = (document.getElementById('editcar-prov')  || {}).value || '';
-  var park   = (document.getElementById('editcar-park')  || {}).value || 'ในบ้าน';
-  var stat   = (document.getElementById('editcar-status')|| {}).value || 'active';
+function renderHousesTable(houses) {
+  var tbody = document.getElementById('tbl-houses');
+  if (!tbody) return;
+  if (!houses.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-mu" style="text-align:center;padding:30px">ไม่พบรายการ</td></tr>';
+    return;
+  }
+  var statusBadge = {
+    normal:    '<span class="bd b-ok">● ปกติ</span>',
+    overdue:   '<span class="bd b-wn">● ค้างชำระ</span>',
+    suspended: '<span class="bd b-dg">● ระงับ</span>',
+    legal:     '<span class="bd b-pur">⚖️ ฟ้องร้อง</span>',
+  };
+  tbody.innerHTML = houses.map(function(h) {
+    var dn = _safeHouseNo(h.house_no);
+    var badge = statusBadge[h.status] || '<span class="bd b-mu">' + h.status + '</span>';
+    return '<tr>' +
+      '<td><strong>' + dn + '</strong>' + (h.soi ? ' <span class="tag">' + h.soi + '</span>' : '') + '</td>' +
+      '<td>' + (h.owner_name||'—') + (h.renter_name ? '<div style="font-size:11px;color:var(--mu)">เช่า: ' + h.renter_name + '</div>' : '') + '</td>' +
+      '<td>' + (h.phone||'—') + '</td>' +
+      '<td class="text-pr fw-7">฿' + Number(h.fee_per_year||0).toLocaleString() + '</td>' +
+      '<td>' + badge + (h.status_note ? '<div style="font-size:10px;color:var(--mu);margin-top:2px">' + h.status_note + '</div>' : '') + '</td>' +
+      '<td style="display:flex;gap:5px">' +
+        '<button class="btn btn-xs btn-o" data-hid="' + h.house_id + '" onclick="openEditHouseModal(this.dataset.hid)">✏️</button>' +
+        '<button class="btn btn-xs btn-g" data-hid="' + h.house_id + '" onclick="viewHouseDetail(this.dataset.hid)">ดู</button>' +
+        '<button class="btn btn-xs" style="background:var(--acl);color:var(--ac);border:1px solid var(--ac)" data-hid="' + h.house_id + '" title="คำนวณค่าส่วนกลาง" onclick="calcHouseFee(this.dataset.hid)">฿</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
 
-  if (!plate) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16' }); return; }
+function filterHousesTable() {
+  var status = (document.getElementById('house-filter-status')||{}).value || '';
+  var search = ((document.getElementById('house-search')||{}).value || '').toLowerCase().trim();
+  var houses = _housesAllCache.filter(function(h) {
+    var matchStatus = !status || h.status === status;
+    var dn = _safeHouseNo(h.house_no).toLowerCase();
+    var matchSearch = !search ||
+      dn.includes(search) ||
+      (h.owner_name||'').toLowerCase().includes(search) ||
+      (h.renter_name||'').toLowerCase().includes(search) ||
+      (h.phone||'').toLowerCase().includes(search) ||
+      (h.soi||'').toLowerCase().includes(search);
+    return matchStatus && matchSearch;
+  });
+  renderHousesTable(houses);
+}
+
+function openAddHouseModal() {
+  // Clear all fields
+  ['addhouse-no','addhouse-soi','addhouse-area','addhouse-address',
+   'addhouse-owner','addhouse-renter','addhouse-phone','addhouse-email',
+   'addhouse-fee','addhouse-parking','addhouse-trash'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  var u = document.getElementById('addhouse-usage'); if (u) u.value = 'owner';
+  var t = document.getElementById('addhouse-type');  if (t) t.value = 'single_house';
+  openM('m-addhouse');
+}
+
+async function doCreateHouse() {
+  var house_no   = (document.getElementById('addhouse-no')||{}).value||'';
+  var owner_name = (document.getElementById('addhouse-owner')||{}).value||'';
+  house_no   = house_no.trim();
+  owner_name = owner_name.trim();
+
+  if (!house_no) { Swal.fire({ icon:'warning', title:'กรุณาระบุบ้านเลขที่' }); return; }
+  if (!owner_name) { Swal.fire({ icon:'warning', title:'กรุณาระบุชื่อเจ้าของ' }); return; }
+
+  showLoader('บันทึกข้อมูลบ้าน...');
+  try {
+    await api('createHouse', {
+      house_no:          house_no,
+      soi:               (document.getElementById('addhouse-soi')||{}).value||'',
+      address:           (document.getElementById('addhouse-address')||{}).value||'',
+      area_sqm:          Number((document.getElementById('addhouse-area')||{}).value)||0,
+      owner_name:        owner_name,
+      renter_name:       (document.getElementById('addhouse-renter')||{}).value||'',
+      phone:             (document.getElementById('addhouse-phone')||{}).value||'',
+      email:             (document.getElementById('addhouse-email')||{}).value||'',
+      fee_per_year:      Number((document.getElementById('addhouse-fee')||{}).value)||0,
+      parking_fee_year:  Number((document.getElementById('addhouse-parking')||{}).value)||0,
+      trash_fee_period:  Number((document.getElementById('addhouse-trash')||{}).value)||0,
+      usage_type:        (document.getElementById('addhouse-usage')||{}).value||'owner',
+      house_type:        (document.getElementById('addhouse-type')||{}).value||'single_house',
+    });
+    closeM('m-addhouse');
+    await loadHousesPage();
+    Swal.fire({
+      icon: 'success',
+      title: 'เพิ่มบ้านสำเร็จ',
+      text: 'บ้าน ' + house_no + ' ถูกบันทึกเรียบร้อย',
+      timer: 2000, showConfirmButton: false
+    });
+  } catch(err) {
+    Swal.fire({ icon:'error', title:'เกิดข้อผิดพลาด', text: err.message });
+  } finally { hideLoader(); }
+}
+
+function viewHouseDetail(houseId) {
+  var h = _housesCache.find(function(x){ return x.house_id === houseId; });
+  if (!h) return;
+  var usageLabel = {owner:'อยู่เอง',rent:'ให้เช่า',vacant:'ว่าง'}[h.usage_type]||h.usage_type||'—';
+  Swal.fire({
+    title: 'บ้าน ' + _safeHouseNo(h.house_no) + (h.soi?' '+h.soi:''),
+    html: '<div style="text-align:left;font-size:13px;line-height:1.8">' +
+      '<b>เจ้าของ:</b> ' + (h.owner_name||'—') + '<br>' +
+      (h.renter_name ? '<b>ผู้เช่า:</b> ' + h.renter_name + '<br>' : '') +
+      '<b>เบอร์โทร:</b> ' + (h.phone||'—') + '<br>' +
+      '<b>อีเมล:</b> ' + (h.email||'—') + '<br>' +
+      '<b>พื้นที่:</b> ' + (h.area_sqm||'0') + ' ตร.ว.<br>' +
+      '<b>การใช้:</b> ' + usageLabel + '<br>' +
+      '<hr style="margin:8px 0;border:1px solid var(--bo)">' +
+      '<b>ค่าส่วนกลาง/ปี:</b> ฿' + Number(h.fee_per_year||0).toLocaleString() + '<br>' +
+      '<b>ค่าจอดรถ/ปี:</b> ฿' + Number(h.parking_fee_year||0).toLocaleString() + '<br>' +
+      '<b>ค่าขยะ/งวด:</b> ฿' + Number(h.trash_fee_period||0).toLocaleString() + '<br>' +
+      (h.status_note ? '<b>หมายเหตุ:</b> ' + h.status_note : '') +
+    '</div>',
+    showCancelButton: true,
+    confirmButtonText: '✏️ แก้ไข',
+    cancelButtonText: 'ปิด',
+    customClass: { confirmButton:'btn btn-p', cancelButton:'btn btn-g' },
+    buttonsStyling: false
+  }).then(function(r) {
+    if (r.isConfirmed) openEditHouseModal(houseId);
+  });
+}
+
+// ============================================================
+// NOTIFICATION PANEL
+// ============================================================
+var _notifData    = [];
+var _notifRead    = JSON.parse(localStorage.getItem('vms5-read') || '[]');
+var _notifTab     = 'all';
+var _notifOpen    = false;
+
+function toggleNotifPanel() {
+  _notifOpen = !_notifOpen;
+  var panel    = document.getElementById('notif-panel');
+  var backdrop = document.getElementById('notif-backdrop');
+  if (!panel) return;
+  if (_notifOpen) {
+    panel.style.display    = 'flex';
+    backdrop.style.display = 'block';
+    loadNotifPanel();
+  } else {
+    panel.style.display    = 'none';
+    backdrop.style.display = 'none';
+  }
+}
+
+async function loadNotifPanel() {
+  var listEl = document.getElementById('notif-panel-list');
+  if (!listEl) return;
+
+  // If boot already pre-warmed notif data, render immediately (no API call)
+  if (_notifData && _notifData.length > 0) {
+    renderNotifPanel();
+    return;
+  }
+
+  // Fallback: fetch if bell opened before boot data is ready
+  try {
+    listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">\u0e01\u0e33\u0e25\u0e31\u0e07\u0e42\u0e2b\u0e25\u0e14...</p>';
+    var [slips, reqs, issues, viols, anns, market] = await Promise.all([
+      api('getFees'), api('getChangeRequests'), api('getIssues'),
+      api('getViolations'), api('getAnnouncements'), api('getMarketplace'),
+    ]);
+    _notifData = [];
+    slips.filter(function(f){ return f.status === 'slip_submitted'; }).forEach(function(f) {
+      _notifData.push({id:'slip-'+f.fee_id,type:'slip',icon:'\ud83e\uddfe',color:'var(--prl)',
+        title:'\u0e2a\u0e25\u0e34\u0e1b\u0e23\u0e2d Approve \u2014 \u0e1a\u0e49\u0e32\u0e19 '+f.house_id,
+        desc:'\u0e3f'+Number(f.total||0).toLocaleString(),ts:f.slip_submitted_at,
+        action:function(){closeM_notif();go('admin','fees',null);}});
+    });
+    reqs.filter(function(r){ return r.status==='pending'; }).forEach(function(r) {
+      _notifData.push({id:'req-'+r.req_id,type:'req',icon:'\ud83d\udcdd',color:'var(--acl)',
+        title:'\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02 \u2014 \u0e1a\u0e49\u0e32\u0e19 '+r.house_id,
+        desc:r.target_type,ts:r.created_at,action:function(){closeM_notif();go('admin','req',null);}});
+    });
+    issues.filter(function(i){ return i.status==='pending'; }).forEach(function(i) {
+      _notifData.push({id:'iss-'+i.issue_id,type:'issue',icon:'\ud83d\udd27',color:'#fff3e0',
+        title:'\u0e1b\u0e31\u0e0d\u0e2b\u0e32 \u2014 '+i.title,desc:i.category||'',ts:i.created_at,
+        action:function(){closeM_notif();go('admin','issues',null);}});
+    });
+    viols.filter(function(v){ return v.status==='pending'; }).forEach(function(v) {
+      _notifData.push({id:'vio-'+v.vio_id,type:'vio',icon:'\u26a0',color:'var(--wnl)',
+        title:'\u0e01\u0e23\u0e30\u0e17\u0e33\u0e1c\u0e34\u0e14 \u2014 '+v.title,desc:v.house_id,ts:v.created_at,
+        action:function(){closeM_notif();go('admin','vio',null);}});
+    });
+    market.filter(function(m){ return m.status==='pending'; }).forEach(function(m) {
+      _notifData.push({id:'mkt-'+m.item_id,type:'market',icon:'\ud83d\uded2',color:'#e8f5e9',
+        title:'\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e23\u0e2d Approve \u2014 '+m.title,desc:m.house_id,ts:m.created_at,
+        action:function(){closeM_notif();go('admin','market',null);}});
+    });
+    anns.filter(function(a){ return a.is_active===true||a.is_active==='TRUE'; }).slice(0,3).forEach(function(a) {
+      _notifData.push({id:'ann-'+a.ann_id,type:'ann',icon:'\ud83d\udce2',color:'var(--bg2)',
+        title:a.title,desc:(a.content||'').substring(0,60),ts:a.created_at,
+        action:function(){closeM_notif();go('admin','ann',null);}});
+    });
+    _notifData.sort(function(a,b){ return new Date(b.ts||0)-new Date(a.ts||0); });
+    renderNotifPanel();
+    updateBellBadge();
+  } catch(err) {
+    if (listEl) listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14: ' + err.message + '</p>';
+  }
+}
+
+function closeM_notif() {
+  _notifOpen = false;
+  var p = document.getElementById('notif-panel'); if(p) p.style.display='none';
+  var b = document.getElementById('notif-backdrop'); if(b) b.style.display='none';
+}
+
+function renderNotifPanel() {
+  var listEl = document.getElementById('notif-panel-list');
+  if (!listEl) return;
+
+  var unread = _notifData.filter(function(n){ return !_notifRead.includes(n.id); });
+  var slips  = _notifData.filter(function(n){ return n.type === 'slip'; });
+
+  // Update tab counts
+  _setEl('nt-cnt-all',    _notifData.length || '');
+  _setEl('nt-cnt-unread', unread.length || '');
+  _setEl('nt-cnt-slip',   slips.length  || '');
+
+  var list = _notifTab === 'unread' ? unread
+           : _notifTab === 'slip'   ? slips
+           : _notifData;
+
+  if (!list.length) {
+    listEl.innerHTML = '<p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">' +
+      (_notifTab === 'unread' ? '\u2705 \u0e2d\u0e48\u0e32\u0e19\u0e04\u0e23\u0e1a\u0e17\u0e38\u0e01\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e41\u0e25\u0e49\u0e27' :
+       _notifTab === 'slip'   ? '\u0e44\u0e21\u0e48\u0e21\u0e35\u0e2a\u0e25\u0e34\u0e1b\u0e23\u0e2d' :
+       '\u0e44\u0e21\u0e48\u0e21\u0e35\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e40\u0e15\u0e37\u0e2d\u0e19') + '</p>';
+    return;
+  }
+
+  listEl.innerHTML = list.map(function(n, idx) {
+    var isUnread = !_notifRead.includes(n.id);
+    return '<div class="notif-item' + (isUnread ? ' unread' : '') + '" data-nidx="' + idx + '" onclick="handleNotifClick(' + idx + ',\'' + _notifTab + '\')">' +
+      '<div class="notif-icon" style="background:' + n.color + '">' + n.icon + '</div>' +
+      '<div class="notif-body">' +
+        '<div class="notif-title">' + n.title + '</div>' +
+        '<div class="notif-desc">' + n.desc + '</div>' +
+        '<div class="notif-time">' + _fmtDate(n.ts, false) + '</div>' +
+      '</div>' +
+      (isUnread ? '<div style="width:8px;height:8px;border-radius:50%;background:var(--pr);flex-shrink:0;margin-top:4px"></div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function handleNotifClick(idx, tab) {
+  var list = tab === 'unread' ? _notifData.filter(function(n){ return !_notifRead.includes(n.id); })
+           : tab === 'slip'   ? _notifData.filter(function(n){ return n.type==='slip'; })
+           : _notifData;
+  var n = list[idx];
+  if (!n) return;
+  // Mark as read
+  if (!_notifRead.includes(n.id)) {
+    _notifRead.push(n.id);
+    localStorage.setItem('vms5-read', JSON.stringify(_notifRead));
+  }
+  updateBellBadge();
+  if (n.action) n.action();
+}
+
+function markAllNotifsRead() {
+  _notifData.forEach(function(n){ if (!_notifRead.includes(n.id)) _notifRead.push(n.id); });
+  localStorage.setItem('vms5-read', JSON.stringify(_notifRead));
+  updateBellBadge();
+  renderNotifPanel();
+}
+
+function switchNotifTab(tab, btn) {
+  _notifTab = tab;
+  document.querySelectorAll('.notif-tab').forEach(function(b) {
+    var isOn = b === btn;
+    b.classList.toggle('on', isOn);
+    b.style.borderBottomColor = isOn ? 'var(--pr)' : 'transparent';
+    b.style.color = isOn ? 'var(--pr)' : 'var(--mu)';
+  });
+  renderNotifPanel();
+}
+
+function updateBellBadge() {
+  var unreadCount = _notifData.filter(function(n){ return !_notifRead.includes(n.id); }).length;
+  var dot = document.getElementById('bell-dot');
+  if (dot) dot.style.display = unreadCount > 0 ? 'block' : 'none';
+  var btn = document.getElementById('btn-bell');
+  if (btn) {
+    var existing = btn.querySelector('.bell-count');
+    if (unreadCount > 0) {
+      if (!existing) {
+        var span = document.createElement('span');
+        span.className = 'bell-count';
+        span.style.cssText = 'position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--dg);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none';
+        btn.style.position = 'relative';
+        btn.appendChild(span);
+        existing = span;
+      }
+      existing.textContent = unreadCount > 99 ? '99+' : unreadCount;
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+// Helper: get a setting value with fallback
+function _cfg(key, fallback) {
+  if (!APP.settings) return fallback || '';
+  var s = APP.settings[key];
+  if (!s) return fallback || '';
+  // Handle both {value: 'x'} format and plain string format
+  var v = (typeof s === 'object' && s !== null) ? s.value : s;
+  return (v !== undefined && v !== null && String(v) !== '') ? String(v) : (fallback || '');
+}
+
+// Apply all settings to the DOM after load
+function applySettings() {
+  var vName = _cfg('village_name',     'The Greenfield');
+  var vSub  = _cfg('village_subtitle', 'Village Management System v5.0');
+  var vLogo = _cfg('village_logo',     '🏘️');
+  if (!vName) vName = 'The Greenfield';
+  if (!vSub)  vSub  = 'Village Management System v5.0';
+  if (!vLogo) vLogo = '🏘️';
+
+  // Page title
+  document.title = vName + ' — Village Management';
+
+  // Login screen
+  var el;
+  el = document.getElementById('login-logo');
+  if (el) {
+    if (vLogo.startsWith('http')) {
+      el.innerHTML = '<img src="' + vLogo + '" style="width:56px;height:56px;object-fit:contain;border-radius:12px">';
+    } else { el.textContent = vLogo; }
+  }
+  // Use textContent for login elements (avoid XSS + no '—' fallback)
+  var ltEl = document.getElementById('login-title');
+  if (ltEl) ltEl.textContent = vName;
+  var lsEl = document.getElementById('login-sub');
+  if (lsEl) lsEl.textContent = vSub;
+
+  // Sidebar
+  var logoIco = document.getElementById('sb-logo-ico');
+  if (logoIco) {
+    if (vLogo.startsWith('http')) {
+      logoIco.innerHTML = '<img src="' + vLogo + '" style="width:32px;height:32px;object-fit:contain;border-radius:8px">';
+    } else { logoIco.textContent = vLogo; }
+  }
+  var snEl = document.getElementById('sb-logo-name');
+  if (snEl) snEl.textContent = vName;
+  var svEl = document.getElementById('sb-logo-ver');
+  if (svEl) svEl.textContent = vSub;
+
+  // Dashboard sub
+  document.querySelectorAll('[id^="cfg-village-name"]').forEach(function(el) {
+    el.textContent = vName;
+  });
+  // Resident house ph-sub
+  var rhsub = document.getElementById('res-house-sub');
+  if (rhsub) rhsub.textContent = vName;
+
+  // Update m-pay modal if settings available
+  _applyPaymentSettings();
+}
+
+function _applyPaymentSettings() {
+  var bankName = _cfg('bank_name');
+  var bankNo   = _cfg('bank_account_no');
+  var bankAcc  = _cfg('bank_account_name');
+  var qrUrl    = _cfg('payment_qr_url');
+
+  // These IDs are inside m-pay — set them if they exist
+  _setElIfExists('pay-bank-name',  bankName  || '—');
+  _setElIfExists('pay-bank-no',    bankNo    || '—');
+  _setElIfExists('pay-bank-acc',   bankAcc   || '—');
+  var qrEl = document.getElementById('pay-qr-img');
+  if (qrEl) {
+    qrEl.src = qrUrl || '';
+    qrEl.style.display = qrUrl ? 'block' : 'none';
+  }
+}
+
+function _setElIfExists(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// Load settings from API
+async function loadSettingsPage() {
+  showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e01\u0e32\u0e23\u0e15\u0e31\u0e49\u0e07\u0e04\u0e48\u0e32...');
+  try {
+    // Always fetch fresh from sheet to get latest values
+    var data = await api('getSettings');
+    if (!data || typeof data !== 'object') throw new Error('\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e44\u0e14\u0e49');
+    APP.settings = data;
+    // Populate form fields
+    Object.keys(data).forEach(function(key) {
+      var inp = document.getElementById('cfg-inp-' + key);
+      if (inp) {
+        if (inp.tagName === 'SELECT') {
+          inp.value = data[key].value || '';
+        } else {
+          inp.value = data[key].value || '';
+        }
+      }
+    });
+    // Logo preview
+    var logoInp = document.getElementById('cfg-inp-village_logo');
+    if (logoInp) updateLogoPreview(logoInp.value);
+    // QR preview
+    var qrInp = document.getElementById('cfg-inp-payment_qr_url');
+    if (qrInp) updateQrPreview(qrInp.value);
+    // Period preview
+    updatePeriodPreview();
+    // Apply to UI
+    applySettings();
+    hideLoader();
+  } catch(err) {
+    hideLoader();
+    Swal.fire({ icon:'error', title:'\u0e42\u0e2b\u0e25\u0e14 Settings \u0e44\u0e21\u0e48\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', text: err.message });
+  }
+}
+
+async function doSaveSettings() {
+  // Collect all cfg-inp-* fields
+  var updates = {};
+  document.querySelectorAll('[id^="cfg-inp-"]').forEach(function(inp) {
+    var key = inp.id.replace('cfg-inp-', '');
+    updates[key] = inp.value.trim();
+  });
+  showLoader('บันทึกการตั้งค่า...');
+  try {
+    await api('saveSettings', { settings: updates });
+    // Update local cache
+    Object.keys(updates).forEach(function(k) {
+      if (!APP.settings[k]) APP.settings[k] = {};
+      APP.settings[k].value = updates[k];
+    });
+    applySettings();
+    hideLoader();
+    Swal.fire({ icon:'success', title:'บันทึกสำเร็จ', text:'การตั้งค่าถูกอัปเดตแล้ว', timer:1800, showConfirmButton:false });
+  } catch(err) {
+    hideLoader();
+    Swal.fire({ icon:'error', title:'บันทึกไม่สำเร็จ', text: err.message });
+  }
+}
+
+function updateLogoPreview(val) {
+  var el = document.getElementById('cfg-logo-preview');
+  if (!el) return;
+  if (val && val.startsWith('http')) {
+    el.innerHTML = '<img src="' + val + '" style="width:40px;height:40px;object-fit:contain;border-radius:8px;border:1px solid var(--bo)">';
+  } else {
+    el.textContent = val || '🏘️';
+  }
+}
+
+function updateQrPreview(val) {
+  var wrap = document.getElementById('cfg-qr-preview-wrap');
+  var img  = document.getElementById('cfg-qr-preview');
+  if (!wrap || !img) return;
+  if (val && val.startsWith('http')) {
+    img.src = val;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+// ============================================================
+// GEAR MENU (theme + settings shortcut)
+// ============================================================
+var _gearOpen = false;
+
+function toggleGearMenu() {
+  _gearOpen = !_gearOpen;
+  var menu = document.getElementById('gear-menu');
+  if (menu) menu.style.display = _gearOpen ? 'block' : 'none';
+}
+
+function closeGearMenu() {
+  _gearOpen = false;
+  var menu = document.getElementById('gear-menu');
+  if (menu) menu.style.display = 'none';
+}
+
+// Close gear menu on outside click
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('gear-wrap');
+  if (wrap && !wrap.contains(e.target)) closeGearMenu();
+}, true);
+
+// Override setTheme to also update sw-dot active state
+var _origSetTheme = typeof setTheme === 'function' ? setTheme : null;
+function setTheme(t) {
+  document.body.setAttribute('data-theme', t);
+  document.querySelectorAll('.sw-dot').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+  document.querySelectorAll('.th-dot').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+  document.querySelectorAll('.th-txt-btn').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+  localStorage.setItem('vms5-t', t);
+}
+
+// ============================================================
+// FEE PERIOD SETTINGS HELPER
+// ============================================================
+function updatePeriodPreview() {
+  var label = (document.getElementById('cfg-inp-fee_period_label')||{}).value || 'H';
+  var due   = (document.getElementById('cfg-inp-fee_due_day')||{}).value || '31';
+  var p1r   = (document.getElementById('cfg-inp-fee_p1_range')||{}).value || '';
+  var p1d   = (document.getElementById('cfg-inp-fee_p1_due')||{}).value || '';
+  var p1l   = (document.getElementById('cfg-inp-fee_p1_label')||{}).value || '';
+  var p2r   = (document.getElementById('cfg-inp-fee_p2_range')||{}).value || '';
+  var p2d   = (document.getElementById('cfg-inp-fee_p2_due')||{}).value || '';
+  var p2l   = (document.getElementById('cfg-inp-fee_p2_label')||{}).value || '';
+  var el    = document.getElementById('cfg-period-table');
+  if (!el) return;
+
+  var rows = '';
+  if (label === 'H') {
+    var d1 = p1d || '31/1',  r1 = p1r || '1/1 - 30/6',  l1 = p1l || 'H1';
+    var d2 = p2d || '31/7',  r2 = p2r || '1/7 - 31/12', l2 = p2l || 'H2';
+    rows = '<table style="width:100%;font-size:12px;border-collapse:collapse">' +
+      '<tr style="background:var(--bg3)"><th style="padding:5px 8px;text-align:left">งวด</th><th style="padding:5px 8px;text-align:left">ช่วงเวลา</th><th style="padding:5px 8px;text-align:left">ชำระไม่เกิน</th></tr>' +
+      '<tr><td style="padding:5px 8px"><strong>'+l1+'</strong></td><td style="padding:5px 8px">'+r1+'</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">'+d1+'</td></tr>' +
+      '<tr style="background:var(--bg2)"><td style="padding:5px 8px"><strong>'+l2+'</strong></td><td style="padding:5px 8px">'+r2+'</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">'+d2+'</td></tr>' +
+      '</table>';
+  } else if (label === 'Q') {
+    rows = '<table style="width:100%;font-size:12px;border-collapse:collapse">' +
+      '<tr style="background:var(--bg3)"><th style="padding:5px 8px;text-align:left">งวด</th><th style="padding:5px 8px;text-align:left">ช่วงเวลา</th><th style="padding:5px 8px;text-align:left">ชำระไม่เกิน</th></tr>' +
+      '<tr><td style="padding:5px 8px"><strong>Q1</strong></td><td style="padding:5px 8px">1/1 - 31/3</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">31/1</td></tr>' +
+      '<tr style="background:var(--bg2)"><td style="padding:5px 8px"><strong>Q2</strong></td><td style="padding:5px 8px">1/4 - 30/6</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">30/4</td></tr>' +
+      '<tr><td style="padding:5px 8px"><strong>Q3</strong></td><td style="padding:5px 8px">1/7 - 30/9</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">31/7</td></tr>' +
+      '<tr style="background:var(--bg2)"><td style="padding:5px 8px"><strong>Q4</strong></td><td style="padding:5px 8px">1/10 - 31/12</td><td style="padding:5px 8px;color:var(--dg);font-weight:600">31/10</td></tr>' +
+      '</table>';
+  } else {
+    rows = '<div style="color:var(--mu)">รายเดือน: ชำระไม่เกินวันที่ '+due+' ของทุกเดือน</div>';
+  }
+  el.innerHTML = rows;
+}
+
+// Wire period preview changes
+document.addEventListener('change', function(e) {
+  if (e.target && (e.target.id === 'cfg-inp-fee_period_label' || e.target.id === 'cfg-inp-fee_due_day')) {
+    updatePeriodPreview();
+  }
+});
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id && e.target.id.startsWith('cfg-inp-fee_p')) {
+    updatePeriodPreview();
+  }
+});
+
+// ============================================================
+// FORGOT PASSWORD
+// ============================================================
+var _forgotUserId = null;
+
+function openForgotModal() {
+  _forgotUserId = null;
+  ['forgot-house-no','forgot-phone','forgot-email','forgot-newpw','forgot-confirmpw'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  var s1=document.getElementById('forgot-step1'), s2=document.getElementById('forgot-step2');
+  var bv=document.getElementById('forgot-btn-verify'), bs=document.getElementById('forgot-btn-save');
+  if(s1) s1.style.display='block'; if(s2) s2.style.display='none';
+  if(bv){ bv.style.display='inline-flex'; bv.disabled=false; bv.textContent='\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e15\u0e31\u0e27\u0e15\u0e19'; }
+  if(bs) bs.style.display='none';
+  var e1=document.getElementById('forgot-err'); if(e1) e1.style.display='none';
+  var e2=document.getElementById('forgot-pw-err'); if(e2) e2.style.display='none';
+  openM('m-forgot');
+}
+
+function closeForgotModal() { closeM('m-forgot'); }
+
+async function doForgotVerify() {
+  var houseNo=(document.getElementById('forgot-house-no')||{}).value||'';
+  var phone=(document.getElementById('forgot-phone')||{}).value||'';
+  var email=(document.getElementById('forgot-email')||{}).value||'';
+  var errEl=document.getElementById('forgot-err');
+  houseNo=houseNo.trim(); phone=phone.trim(); email=email.trim();
+  if(!houseNo||!phone||!email){
+    if(errEl){errEl.textContent='\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e43\u0e2b\u0e49\u0e04\u0e23\u0e1a';errEl.style.display='block';}
+    return;
+  }
+  var btn=document.getElementById('forgot-btn-verify');
+  if(btn){btn.textContent='\u0e01\u0e33\u0e25\u0e31\u0e07\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a...';btn.disabled=true;}
+  try {
+    var result=await api('verifyResetIdentity',{house_no:houseNo,phone:phone,email:email});
+    _forgotUserId=result.user_id;
+    document.getElementById('forgot-step1').style.display='none';
+    document.getElementById('forgot-step2').style.display='block';
+    if(btn) btn.style.display='none';
+    document.getElementById('forgot-btn-save').style.display='inline-flex';
+    if(errEl) errEl.style.display='none';
+  } catch(err) {
+    if(errEl){errEl.textContent=err.message||'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25 \u0e01\u0e23\u0e38\u0e13\u0e32\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e2d\u0e35\u0e01\u0e04\u0e23\u0e31\u0e49\u0e07';errEl.style.display='block';}
+    if(btn){btn.textContent='\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e15\u0e31\u0e27\u0e15\u0e19';btn.disabled=false;}
+  }
+}
+
+async function doForgotSave() {
+  var newpw=(document.getElementById('forgot-newpw')||{}).value||'';
+  var confpw=(document.getElementById('forgot-confirmpw')||{}).value||'';
+  var errEl=document.getElementById('forgot-pw-err');
+  if(newpw.length<5){
+    if(errEl){errEl.textContent='\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e19\u0e49\u0e2d\u0e22 5 \u0e15\u0e31\u0e27';errEl.style.display='block';}
+    return;
+  }
+  if(newpw!==confpw){
+    if(errEl){errEl.textContent='\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e44\u0e21\u0e48\u0e15\u0e23\u0e07\u0e01\u0e31\u0e19';errEl.style.display='block';}
+    return;
+  }
+  if(!_forgotUserId){closeForgotModal();return;}
+  var btn=document.getElementById('forgot-btn-save');
+  if(btn){btn.textContent='\u0e01\u0e33\u0e25\u0e31\u0e07\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...';btn.disabled=true;}
+  try {
+    await api('resetPasswordById',{user_id:_forgotUserId,new_password:newpw});
+    closeForgotModal();
+    Swal.fire({icon:'success',title:'\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',
+      text:'\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e40\u0e02\u0e49\u0e32\u0e2a\u0e39\u0e48\u0e23\u0e30\u0e1a\u0e1a\u0e14\u0e49\u0e27\u0e22\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48\u0e44\u0e14\u0e49\u0e40\u0e25\u0e22',timer:2500,showConfirmButton:false});
+  } catch(err) {
+    if(errEl){errEl.textContent=err.message||'Error';errEl.style.display='block';}
+    if(btn){btn.textContent='\u{1F4BE} \u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e23\u0e2b\u0e31\u0e2a\u0e1c\u0e48\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48';btn.disabled=false;}
+  }
+}
+
+
+// ============================================================
+// EDIT FEE
+// ============================================================
+function _calcFeeTotal(feeAmt, parking, trash, other, penalty, discount) {
+  return Math.max(0, Number(feeAmt||0) + Number(parking||0) + Number(trash||0) +
+    Number(other||0) + Number(penalty||0) - Number(discount||0));
+}
+
+function _updateFeePreview() {
+  var t = _calcFeeTotal(
+    (document.getElementById('ef-fee-amount')||{}).value,
+    (document.getElementById('ef-parking-fee')||{}).value,
+    (document.getElementById('ef-trash-fee')||{}).value,
+    (document.getElementById('ef-other-fee')||{}).value,
+    (document.getElementById('ef-penalty-fee')||{}).value,
+    (document.getElementById('ef-discount')||{}).value
+  );
+  var el = document.getElementById('ef-total-preview');
+  if (el) el.textContent = '\u0e3f' + t.toLocaleString();
+}
+
+// Wire live preview
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.id && e.target.id.startsWith('ef-') && e.target.id !== 'ef-sub') {
+    _updateFeePreview();
+  }
+});
+
+async function openEditFeeModal(feeId) {
+  var f = (window._feesAll||[]).find(function(x){ return x.fee_id === feeId; });
+  if (!f) {
+    showLoader('\u0e42\u0e2b\u0e25\u0e14...');
+    try { var fees = await api('getFees'); window._feesAll = fees; f = fees.find(function(x){ return x.fee_id === feeId; }); }
+    catch(e) {}
+    finally { hideLoader(); }
+  }
+  if (!f) { Swal.fire({ icon:'error', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25' }); return; }
+
+  document.getElementById('ef-fee-id').value     = f.fee_id;
+  _setEl('ef-sub', '\u0e1a\u0e49\u0e32\u0e19 ' + (f.house_id||'') + ' \u00b7 \u0e07\u0e27\u0e14 ' + f.period + '/' + f.year);
+  document.getElementById('ef-fee-amount').value  = f.fee_amount   || 0;
+  document.getElementById('ef-parking-fee').value = f.parking_fee  || 0;
+  document.getElementById('ef-trash-fee').value   = f.trash_fee    || 0;
+  document.getElementById('ef-other-fee').value   = f.other_fee    || 0;
+  document.getElementById('ef-other-fee-note').value = f.other_fee_note || '';
+  document.getElementById('ef-penalty-fee').value = f.penalty_fee  || 0;
+  document.getElementById('ef-penalty-note').value = f.penalty_fee_note || '';
+  document.getElementById('ef-discount').value    = f.discount     || 0;
+  var st = document.getElementById('ef-status');
+  if (st) st.value = f.status || 'pending';
+  _updateFeePreview();
+  openM('m-edit-fee');
+}
+
+async function doSaveFee() {
+  var feeId = (document.getElementById('ef-fee-id')||{}).value;
+  if (!feeId) return;
+  var feeAmt   = Number((document.getElementById('ef-fee-amount')||{}).value)  || 0;
+  var parking  = Number((document.getElementById('ef-parking-fee')||{}).value) || 0;
+  var trash    = Number((document.getElementById('ef-trash-fee')||{}).value)   || 0;
+  var other    = Number((document.getElementById('ef-other-fee')||{}).value)   || 0;
+  var otherNote = (document.getElementById('ef-other-fee-note')||{}).value || '';
+  var penalty  = Number((document.getElementById('ef-penalty-fee')||{}).value) || 0;
+  var penNote  = (document.getElementById('ef-penalty-note')||{}).value || '';
+  var discount = Number((document.getElementById('ef-discount')||{}).value)    || 0;
+  var status   = (document.getElementById('ef-status')||{}).value || 'pending';
+  var total    = _calcFeeTotal(feeAmt, parking, trash, other, penalty, discount);
 
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
   try {
-    await api('updateVehicle', {
-      vehicle_id: vid, type, plate_number: plate, brand, model, color,
-      province: prov, parking_location: park, status: stat
+    await api('updateFee', {
+      fee_id:          feeId,
+      fee_amount:      feeAmt,
+      parking_fee:     parking,
+      trash_fee:       trash,
+      other_fee:       other,
+      other_fee_note:  otherNote,
+      penalty_fee:     penalty,
+      penalty_fee_note: penNote,
+      discount:        discount,
+      total:           total,
+      status:          status,
     });
-    closeM('m-editcar');
-    Swal.fire({ icon:'success', title:'\u0e41\u0e01\u0e49\u0e44\u0e02\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
-    loadResHousePage();
-  } catch(e) {
-    Swal.fire({ icon:'error', title:'Error', text: e.message });
+    closeM('m-edit-fee');
+    // Invalidate cache and reload
+    invalidatePageCache('admin-fees');
+    window._feesAll = null;
+    await loadFeesPage();
+    Swal.fire({ icon:'success', title:'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
+  } catch(err) {
+    Swal.fire({ icon:'error', title:'\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14', text: err.message });
+  } finally { hideLoader(); }
+}
+
+
+// ============================================================
+// FEE CALCULATION from Settings
+// ============================================================
+
+// Calculate annual fee for one house from settings
+function _calcHouseFeeFromSettings(areaSqw) {
+  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw', '40')) || 40;
+  var annual     = parseFloat((ratePerSqw * Number(areaSqw||0) * 12).toFixed(2));
+  return annual;
+}
+
+// Per-row: show calculated fee and confirm update
+async function calcHouseFee(houseId) {
+  var h = (_housesCache || []).find(function(x){ return x.house_id === houseId; });
+  if (!h) return;
+  var areaSqw     = parseFloat(h.area_sqm || 0);
+  var ratePerSqw  = parseFloat(_cfg('fee_rate_per_sqw',    '40'))  || 40;
+  var trashYear   = parseFloat(_cfg('fee_trash_per_year',  '600')) || 600;
+  var parkPerCar  = parseFloat(_cfg('fee_parking_per_car', '1200'))|| 1200;
+  var discPct     = parseFloat(_cfg('fee_discount_pct',    '5'))   || 5;
+  var feeYear     = parseFloat((ratePerSqw * areaSqw * 12).toFixed(2));
+
+  var r = await Swal.fire({
+    title: '\u0e04\u0e33\u0e19\u0e27\u0e13\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07 — \u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no),
+    html: '<div style="text-align:left;font-size:13px;line-height:2">' +
+      '<b>\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48:</b> ' + areaSqw.toFixed(2) + ' \u0e15\u0e23.\u0e27.<br>' +
+      '<b>\u0e2d\u0e31\u0e15\u0e23\u0e32:</b> \u0e3f' + ratePerSqw.toFixed(2) + '/\u0e15\u0e23.\u0e27./\u0e40\u0e14\u0e37\u0e2d\u0e19<br>' +
+      '<hr style="margin:6px 0">' +
+      '<b>\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07/\u0e1b\u0e35:</b> <span style="color:var(--pr);font-weight:700">\u0e3f' + feeYear.toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</span><br>' +
+      '<b>\u0e04\u0e48\u0e32\u0e02\u0e22\u0e30/\u0e1b\u0e35:</b> \u0e3f' + trashYear.toLocaleString() + '<br>' +
+      '<b>\u0e04\u0e48\u0e32\u0e08\u0e2d\u0e14\u0e23\u0e16/\u0e04\u0e31\u0e19/\u0e1b\u0e35:</b> \u0e3f' + parkPerCar.toLocaleString() + '<br>' +
+      '<b>\u0e2a\u0e48\u0e27\u0e19\u0e25\u0e14\u0e0a\u0e33\u0e23\u0e30\u0e40\u0e15\u0e47\u0e21\u0e1b\u0e35:</b> ' + discPct + '%' +
+      '</div>',
+    showCancelButton: true,
+    confirmButtonText: '\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07/\u0e1b\u0e35',
+    cancelButtonText: '\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
+    customClass: { confirmButton:'btn btn-p', cancelButton:'btn btn-g' },
+    buttonsStyling: false
+  });
+  if (!r.isConfirmed) return;
+  showLoader('\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15...');
+  try {
+    await api('updateHouse', { house_id: houseId, fee_per_year: feeYear, trash_fee_period: parseFloat((trashYear/2).toFixed(2)) });
+    invalidatePageCache('admin-houses');
+    await loadHousesPage();
+    Swal.fire({ icon:'success', title:'\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
+  } catch(err) {
+    Swal.fire({ icon:'error', title:'\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14', text: err.message });
+  } finally { hideLoader(); }
+}
+
+// Bulk update: preview all houses
+async function openBulkFeeModal() {
+  if (!APP.settings || Object.keys(APP.settings).length === 0) {
+    try { APP.settings = await api('getSettings'); applySettings(); } catch(e){}
+  }
+  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw', '40')) || 40;
+  var trashYear  = parseFloat(_cfg('fee_trash_per_year', '600')) || 600;
+  var parkPerCar = parseFloat(_cfg('fee_parking_per_car', '1200')) || 1200;
+  var discPct    = parseFloat(_cfg('fee_discount_pct', '5')) || 5;
+  var houses = _housesAllCache || [];
+  if (!houses.length) {
+    showLoader('\u0e42\u0e2b\u0e25\u0e14...');
+    houses = await api('getHouses');
+    _housesAllCache = houses;
+    hideLoader();
+  }
+
+  var rows = houses.filter(function(h){ return Number(h.area_sqm||0) > 0; }).map(function(h) {
+    var area   = parseFloat(h.area_sqm || 0);
+    var feeYr  = parseFloat((ratePerSqw * area * 12).toFixed(2));
+    return '<tr><td><strong>' + _safeHouseNo(h.house_no) + '</strong></td>' +
+      '<td>' + area.toFixed(2) + '</td>' +
+      '<td style="color:var(--pr);font-weight:700">' + feeYr.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}) + '</td>' +
+      '<td>' + parseFloat((trashYear/2).toFixed(2)).toLocaleString() + '/\u0e07\u0e27\u0e14</td></tr>';
+  }).join('');
+
+  var r = await Swal.fire({
+    title: '\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07\u0e17\u0e38\u0e01\u0e1a\u0e49\u0e32\u0e19',
+    html: '<div style="font-size:13px;margin-bottom:10px;text-align:left">' +
+      '\u0e2d\u0e31\u0e15\u0e23\u0e32 \u0e3f' + ratePerSqw + '/\u0e15\u0e23.\u0e27./\u0e40\u0e14\u0e37\u0e2d\u0e19 · \u0e04\u0e48\u0e32\u0e02\u0e22\u0e30 \u0e3f' + trashYear + '/\u0e1b\u0e35</div>' +
+      '<div style="max-height:300px;overflow-y:auto"><table style="width:100%;font-size:12px;border-collapse:collapse">' +
+      '<tr style="background:var(--bg3)"><th style="padding:5px 8px;text-align:left">\u0e1a\u0e49\u0e32\u0e19</th>' +
+      '<th style="padding:5px 8px">\u0e15\u0e23.\u0e27.</th><th style="padding:5px 8px">\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07/\u0e1b\u0e35 (\u0e3f)</th>' +
+      '<th style="padding:5px 8px">\u0e04\u0e48\u0e32\u0e02\u0e22\u0e30/\u0e07\u0e27\u0e14</th></tr>' +
+      rows + '</table></div>',
+    width: '600px',
+    showCancelButton: true,
+    confirmButtonText: '\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e17\u0e38\u0e01\u0e1a\u0e49\u0e32\u0e19',
+    cancelButtonText: '\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
+    customClass: { confirmButton:'btn btn-p', cancelButton:'btn btn-g' },
+    buttonsStyling: false
+  });
+  if (!r.isConfirmed) return;
+
+  showLoader('\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e17\u0e38\u0e01\u0e1a\u0e49\u0e32\u0e19...');
+  try {
+    var toUpdate = houses.filter(function(h){ return Number(h.area_sqm||0) > 0; });
+    for (var i=0; i<toUpdate.length; i++) {
+      var h = toUpdate[i];
+      var area  = parseFloat(h.area_sqm || 0);
+      var feeYr = parseFloat((ratePerSqw * area * 12).toFixed(2));
+      await api('updateHouse', { house_id: h.house_id, fee_per_year: feeYr, trash_fee_period: parseFloat((trashYear/2).toFixed(2)) });
+    }
+    invalidatePageCache('admin-houses');
+    await loadHousesPage();
+    Swal.fire({ icon:'success', title:'\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08 ' + toUpdate.length + ' \u0e2b\u0e19\u0e48\u0e27\u0e22', timer:2000, showConfirmButton:false });
+  } catch(err) {
+    Swal.fire({ icon:'error', title:'\u0e40\u0e01\u0e34\u0e14\u0e02\u0e49\u0e2d\u0e1c\u0e14', text: err.message });
   } finally { hideLoader(); }
 }
 
@@ -4343,9 +5169,10 @@ async function doSubmitEditCar() {
 </script>
 
 <!-- MODAL: เพิ่มสมาชิก -->
-<div class="mo" id="m-adduser" onclick="omOut(event,'m-adduser')">
+<div class="mo" id="m-adduser">
 <div class="md"><div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">👤</div><div><div class="md-title">เพิ่มสมาชิกใหม่</div><div class="md-sub">สร้างบัญชีผู้ใช้งาน</div></div><button class="md-x" onclick="closeM('m-adduser')">✕</button></div>
+  <div class="md-hd"><div class="md-hd-ico">👤</div><div><div class="md-title">เพิ่มสมาชิกใหม่</div><div class="md-sub">สร้างบัญชีผู้ใช้งาน</div></div>
+</div>
   <div class="md-bd">
     <div class="fr2"><div class="fg"><label class="fl">Username</label><input class="fi" id="adduser-username" placeholder="ชื่อผู้ใช้"></div><div class="fg"><label class="fl">รหัสผ่าน</label><input class="fi" id="adduser-password" type="password" placeholder="อย่างน้อย 6 ตัว"></div></div>
     <div class="fr2"><div class="fg"><label class="fl">ชื่อที่แสดง</label><input class="fi" id="adduser-display" placeholder="ชื่อ-นามสกุล"></div><div class="fg"><label class="fl">house_id</label><input class="fi" id="adduser-houseid" placeholder="HSE-xxxxx"></div></div>
@@ -4360,7 +5187,7 @@ var _housesCache=[];
 async function loadHousesPage(){showLoader('\u0e42\u0e2b\u0e25\u0e14...');try{const h=await api('getHouses');_housesCache=h;const tb=document.getElementById('tbl-houses');if(!tb)return;tb.innerHTML=h.map(function(x){var b={normal:'<span class="bd b-ok">\u25cf \u0e1b\u0e01\u0e15\u0e34</span>',overdue:'<span class="bd b-wn">\u25cf \u0e04\u0e49\u0e32\u0e07</span>',suspended:'<span class="bd b-dg">\u25cf \u0e23\u0e30\u0e07\u0e31\u0e1a</span>',legal:'<span class="bd b-pur">\u2696 \u0e1f\u0e49\u0e2d\u0e07</span>'}[x.status]||'<span class="bd b-mu">'+x.status+'</span>';var dn=_safeHouseNo(x.house_no);return'<tr><td><strong>'+dn+'</strong> <span class="tag">'+(x.soi||'')+'</span></td><td>'+(x.owner_name||'')+'</td><td>'+(x.phone||'')+'</td><td class="text-pr fw-7">\u0e3f'+Number(x.fee_per_year||0).toLocaleString()+'</td><td>'+b+'</td><td><button class="btn btn-xs btn-o" onclick="openEditHouseModal(\''+x.house_id+'\')">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button></td></tr>';}).join('');}finally{hideLoader();}}
 async function openEditHouseModal(id){var h=_housesCache.find(function(x){return x.house_id===id;});if(!h){try{h=await api('getHouseById',{house_id:id});}catch(e){}}if(!h){Swal.fire({icon:'error',title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a'});return;}document.getElementById('edithouse-id').value=h.house_id;document.getElementById('edithouse-no').value=_safeHouseNo(h.house_no);document.getElementById('edithouse-soi').value=h.soi||'';document.getElementById('edithouse-area').value=h.area_sqm||'';document.getElementById('edithouse-owner').value=h.owner_name||'';document.getElementById('edithouse-renter').value=h.renter_name||'';document.getElementById('edithouse-phone').value=h.phone||'';document.getElementById('edithouse-email').value=h.email||'';document.getElementById('edithouse-fee').value=h.fee_per_year||'';document.getElementById('edithouse-parking').value=h.parking_fee_year||'';document.getElementById('edithouse-trash').value=h.trash_fee_period||'';document.getElementById('edithouse-statusnote').value=h.status_note||'';var u=document.getElementById('edithouse-usage');if(u)u.value=h.usage_type||'owner';var s=document.getElementById('edithouse-status');if(s)s.value=h.status||'normal';_setEl('edithouse-sub','\u0e1a\u0e49\u0e32\u0e19 '+_safeHouseNo(h.house_no)+' \u00b7 Admin Mode');openM('m-admin-edithouse');}
 async function doSaveEditHouse(){var id=document.getElementById('edithouse-id').value;if(!id)return;var hn=document.getElementById('edithouse-no').value.trim(),own=document.getElementById('edithouse-owner').value.trim();if(!hn||!own){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25'});return;}showLoader('...');try{await api('updateHouse',{house_id:id,house_no:hn,soi:document.getElementById('edithouse-soi').value.trim(),area_sqm:Number(document.getElementById('edithouse-area').value)||0,owner_name:own,renter_name:document.getElementById('edithouse-renter').value.trim(),phone:document.getElementById('edithouse-phone').value.trim(),email:document.getElementById('edithouse-email').value.trim(),fee_per_year:Number(document.getElementById('edithouse-fee').value)||0,parking_fee_year:Number(document.getElementById('edithouse-parking').value)||0,trash_fee_period:Number(document.getElementById('edithouse-trash').value)||0,usage_type:document.getElementById('edithouse-usage').value,status:document.getElementById('edithouse-status').value,status_note:(document.getElementById('edithouse-statusnote')||{}).value||''});closeM('m-admin-edithouse');await loadHousesPage();Swal.fire({icon:'success',title:'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-function filterFeesTable(){var v=(document.getElementById('fee-filter-status')||{}).value||'';var fees=(window._feesAll||[]).filter(function(f){return!v||f.status===v;});var tb=document.getElementById('tbl-fees');if(!tb)return;if(!fees.length){tb.innerHTML='<tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</td></tr>';return;}tb.innerHTML=fees.map(function(f){var b={pending:'<span class="bd b-wn">\u0e23\u0e2d</span>',slip_submitted:'<span class="bd b-pr">\u0e2a\u0e25\u0e34\u0e1b</span>',paid:'<span class="bd b-ok">\u0e0a\u0e33\u0e23\u0e30</span>',overdue:'<span class="bd b-dg">\u0e04\u0e49\u0e32\u0e07</span>'}[f.status]||'<span class="bd b-mu">'+f.status+'</span>';var ab=f.status==='slip_submitted'?'<button class="btn btn-xs btn-a" onclick="doApproveSlip(\''+f.fee_id+'\')">\u2713 Approve</button>':'';return'<tr><td><strong>'+(f.house_id||'')+'</strong></td><td>'+f.period+'/'+f.year+'</td><td>\u0e3f'+Number(f.fee_amount||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.parking_fee||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.trash_fee||0).toLocaleString()+'</td><td class="text-dg">'+(Number(f.penalty_fee||0)>0?'\u0e3f'+Number(f.penalty_fee).toLocaleString():'\u2014')+'</td><td class="fw-7">\u0e3f'+Number(f.total||0).toLocaleString()+'</td><td>'+b+'</td><td style="display:flex;gap:5px">'+ab+'<button class="btn btn-xs btn-o" onclick="openFeeDetail(\''+f.fee_id+'\')">\u0e23\u0e32\u0e22\u0e25\u0e30\u0e40\u0e2d\u0e35\u0e22\u0e14</button></td></tr>';}).join('');}
+function filterFeesTable(){var v=(document.getElementById('fee-filter-status')||{}).value||'';var fees=(window._feesAll||[]).filter(function(f){return!v||f.status===v;});var tb=document.getElementById('tbl-fees');if(!tb)return;if(!fees.length){tb.innerHTML='<tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</td></tr>';return;}tb.innerHTML=fees.map(function(f){var b={pending:'<span class="bd b-wn">\u0e23\u0e2d</span>',slip_submitted:'<span class="bd b-pr">\u0e2a\u0e25\u0e34\u0e1b</span>',paid:'<span class="bd b-ok">\u0e0a\u0e33\u0e23\u0e30</span>',overdue:'<span class="bd b-dg">\u0e04\u0e49\u0e32\u0e07</span>'}[f.status]||'<span class="bd b-mu">'+f.status+'</span>';var ab=f.status==='slip_submitted'?'<button class="btn btn-xs btn-a" data-fid="'+f.fee_id+'" onclick="doApproveSlip(this.dataset.fid)">\u2713 Approve</button>':'';return'<tr><td><strong>'+(f.house_id||'')+'</strong></td><td>'+f.period+'/'+f.year+'</td><td>\u0e3f'+Number(f.fee_amount||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.parking_fee||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.trash_fee||0).toLocaleString()+'</td><td class="text-dg">'+(Number(f.penalty_fee||0)>0?'\u0e3f'+Number(f.penalty_fee).toLocaleString():'\u2014')+'</td><td class="fw-7">\u0e3f'+Number(f.total||0).toLocaleString()+'</td><td>'+b+'</td><td style="display:flex;gap:5px">'+ab+'<button class="btn btn-xs btn-o" data-fid="'+f.fee_id+'" onclick="openEditFeeModal(this.dataset.fid)">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button>'+'<button class="btn btn-xs btn-g" data-fid="'+f.fee_id+'" onclick="openFeeDetail(this.dataset.fid)">\u0e14\u0e39</button></td></tr>';}).join('');}
 var _curFee=null;
 async function openFeeDetail(id){_curFee=id;var f=(window._feesAll||[]).find(function(x){return x.fee_id===id;});if(!f){try{var fs=await api('getFees');window._feesAll=fs;f=fs.find(function(x){return x.fee_id===id;});}catch(e){}}if(!f){Swal.fire({icon:'error',title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a'});return;}_setEl('fd-sub','\u0e1a\u0e49\u0e32\u0e19 '+(f.house_id||'')+' \u00b7 '+(f.period||'')+'/'+(f.year||''));_setEl('fd-fee-amount','\u0e3f'+Number(f.fee_amount||0).toLocaleString());_setEl('fd-parking','\u0e3f'+Number(f.parking_fee||0).toLocaleString());_setEl('fd-trash','\u0e3f'+Number(f.trash_fee||0).toLocaleString());_setEl('fd-carry','\u0e3f'+Number(f.overdue_carry||0).toLocaleString());_setEl('fd-penalty10','\u0e3f'+Number(f.penalty_10pct||0).toLocaleString());_setEl('fd-collection','\u0e3f'+Number(f.collection_fee||0).toLocaleString());_setEl('fd-penalty','\u0e3f'+Number(f.penalty_fee||0).toLocaleString());_setEl('fd-discount','-\u0e3f'+Number(f.discount||0).toLocaleString());_setEl('fd-total','\u0e3f'+Number(f.total||0).toLocaleString());var ss=document.getElementById('fd-slip-section');if(ss)ss.style.display=f.slip_url?'block':'none';var sl=document.getElementById('fd-slip-link');if(sl&&f.slip_url)sl.href=f.slip_url;var ab=document.getElementById('btn-fee-approve');if(ab)ab.style.display=f.status==='slip_submitted'?'inline-flex':'none';openM('m-fee-detail');}
 async function doApproveSlipFromModal(){if(!_curFee)return;showLoader('...');try{await api('approveSlip',{fee_id:_curFee});closeM('m-fee-detail');await loadFeesPage();loadAdminDashboard();Swal.fire({icon:'success',title:'Approve \u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1200,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
@@ -4371,5 +5198,197 @@ async function doSaveResProfile(){var ph=(document.getElementById('res-prof-phon
 async function doCreateContractor(){var nm=(document.getElementById('newcon-name')||{}).value||'',ph=(document.getElementById('newcon-phone')||{}).value||'',ar=(document.getElementById('newcon-area')||{}).value||'',bi=(document.getElementById('newcon-bio')||{}).value||'';var sc=document.getElementById('newcon-skills-container');var sk=sc?Array.from(sc.querySelectorAll('input[type=checkbox]:checked')).map(function(x){return x.parentElement.textContent.trim();}).join(', '):'';if(!nm.trim()||!ph.trim()){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e0a\u0e37\u0e48\u0e2d\u0e41\u0e25\u0e30\u0e40\u0e1a\u0e2d\u0e23\u0e4c\u0e42\u0e17\u0e23'});return;}showLoader('...');try{await api('createContractor',{name:nm.trim(),phone:ph.trim(),area:ar,bio:bi,skills:sk,status:'approved'});closeM('m-newcon');await loadContractorsPage();Swal.fire({icon:'success',title:'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
 function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return x.contractor_id===cid;});if(!c)return;var sk=[];try{sk=JSON.parse(c.skills||'[]');}catch(e){sk=c.skills?c.skills.split(','):[];}  _setEl('cd-name',c.name||'\u2014');_setEl('cd-rating',Number(c.rating_avg)>0?'&#11088;'+Number(c.rating_avg).toFixed(1)+' \u00b7 '+(c.rating_count||0)+' \u0e23\u0e35\u0e27\u0e34\u0e27':'\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e35\u0e27\u0e34\u0e27');_setEl('cd-phone','&#128222; '+(c.phone||'\u2014'));_setEl('cd-line',c.line_id||'\u2014');_setEl('cd-area','&#128205; '+(c.area||'\u2014'));_setEl('cd-status',c.status==='approved'?'\u2713 \u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34':'\u23f3 \u0e23\u0e2d');var se=document.getElementById('cd-skills');if(se)se.innerHTML=sk.map(function(s){return'<span class="con-tag">'+s.trim()+'</span>';}).join('')||'\u2014';_setEl('cd-bio',c.bio||'\u2014');var tl=document.getElementById('cd-tel-link');if(tl)tl.href=c.phone?'tel:'+c.phone.replace(/-/g,''):'#';openM('m-condetail');}
 </script>
+
+<!-- MODAL: เพิ่มบ้านใหม่ -->
+<div class="mo" id="m-addhouse">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">🏠</div>
+    <div><div class="md-title">เพิ่มบ้านใหม่</div><div class="md-sub">กรอกข้อมูลบ้านและเจ้าของ</div></div>
+  </div>
+  <div class="md-bd">
+    <div class="sl">📍 ที่อยู่</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label><input class="fi" id="addhouse-no" placeholder="เช่น 10/1"></div>
+      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="addhouse-soi" placeholder="เช่น ซอย 3"></div>
+      <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="addhouse-area" type="number" placeholder="0"></div>
+    </div>
+    <div class="fg"><label class="fl">ที่อยู่เพิ่มเติม</label><input class="fi" id="addhouse-address" placeholder="ที่อยู่เต็ม (ถ้ามี)"></div>
+    <div class="sl">👤 เจ้าของ</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์ <span style="color:var(--dg)">*</span></label><input class="fi" id="addhouse-owner" placeholder="ชื่อ-นามสกุล"></div>
+      <div class="fg"><label class="fl">ผู้เช่า</label><input class="fi" id="addhouse-renter" placeholder="(ถ้ามี)"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">เบอร์โทรติดต่อ</label><input class="fi" id="addhouse-phone" placeholder="0xx-xxx-xxxx" type="tel"></div>
+      <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="addhouse-email" placeholder="email@example.com" type="email"></div>
+    </div>
+    <div class="sl">💰 ค่าธรรมเนียม (บาท/ปี หรือ งวด)</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="addhouse-fee" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ/ปี</label><input class="fi" id="addhouse-parking" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">ค่าขยะ/งวด</label><input class="fi" id="addhouse-trash" type="number" placeholder="0" min="0"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">ประเภทการใช้</label>
+        <select class="fs" id="addhouse-usage">
+          <option value="owner">อยู่เอง</option>
+          <option value="rent">ให้เช่า</option>
+          <option value="vacant">ว่าง</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">ประเภทบ้าน</label>
+        <select class="fs" id="addhouse-type">
+          <option value="single_house">บ้านเดี่ยว</option>
+          <option value="townhouse">ทาวน์เฮ้าส์</option>
+          <option value="condo">คอนโด</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-addhouse')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doCreateHouse()">🏠 บันทึกบ้านใหม่</button>
+  </div>
+</div></div>
+
+<!-- Notification Panel (slides in from top-right) -->
+<div id="notif-panel" style="
+  position:fixed;top:58px;right:0;width:340px;max-width:96vw;
+  background:var(--card);border:1.5px solid var(--bo);
+  border-radius:0 0 16px 16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.13);
+  z-index:999;
+  display:none;
+  max-height:calc(100vh - 80px);
+  overflow:hidden;
+  flex-direction:column;
+">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--bo)">
+    <div style="font-weight:800;font-size:14px;color:var(--tx)">🔔 การแจ้งเตือน</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="markAllNotifsRead()" style="font-size:11px;color:var(--pr);background:none;border:none;cursor:pointer;font-weight:600">อ่านทั้งหมด</button>
+      <button onclick="toggleNotifPanel()" style="width:26px;height:26px;border-radius:6px;background:var(--bg2);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+    </div>
+  </div>
+  <div id="notif-panel-tabs" style="display:flex;gap:0;border-bottom:1px solid var(--bo)">
+    <button class="notif-tab on" data-tab="all"    onclick="switchNotifTab('all',this)"    style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid var(--pr);color:var(--pr)">ทั้งหมด <span id="nt-cnt-all"  class="nb"></span></button>
+    <button class="notif-tab"    data-tab="unread" onclick="switchNotifTab('unread',this)" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid transparent;color:var(--mu)">ยังไม่อ่าน <span id="nt-cnt-unread" class="nb"></span></button>
+    <button class="notif-tab"    data-tab="slip"   onclick="switchNotifTab('slip',this)"   style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid transparent;color:var(--mu)">สลิป <span id="nt-cnt-slip" class="nb"></span></button>
+  </div>
+  <div id="notif-panel-list" style="overflow-y:auto;flex:1;padding:8px 0">
+    <p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">กำลังโหลด...</p>
+  </div>
+</div>
+<!-- Notif backdrop -->
+<div id="notif-backdrop" onclick="toggleNotifPanel()" style="position:fixed;inset:0;z-index:998;display:none;background:transparent"></div>
+
+<!-- MODAL: ลืมรหัสผ่าน / Reset Password -->
+<div class="mo" id="m-forgot">
+<div class="md">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">🔐</div>
+    <div>
+      <div class="md-title">ตั้งรหัสผ่านใหม่</div>
+      <div class="md-sub">ยืนยันตัวตนด้วยข้อมูลบ้าน</div>
+    </div>
+  </div>
+  <div class="md-bd" id="forgot-step1">
+    <div style="font-size:13px;color:var(--mu);margin-bottom:14px;line-height:1.6">
+      กรุณากรอกข้อมูลที่ลงทะเบียนไว้ในระบบ เพื่อยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน
+    </div>
+    <div class="fg">
+      <label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-house-no" placeholder="เช่น 10/1">
+    </div>
+    <div class="fg">
+      <label class="fl">เบอร์โทรติดต่อ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-phone" placeholder="0xx-xxx-xxxx" type="tel">
+    </div>
+    <div class="fg">
+      <label class="fl">อีเมล <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-email" placeholder="email@example.com" type="email">
+    </div>
+    <div id="forgot-err" style="display:none;background:var(--dgl);color:var(--dg);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px"></div>
+  </div>
+  <div class="md-bd" id="forgot-step2" style="display:none">
+    <div style="font-size:13px;color:var(--ac);margin-bottom:14px;background:var(--acl);padding:10px 14px;border-radius:8px">
+      ✅ ยืนยันตัวตนสำเร็จ — กรุณาตั้งรหัสผ่านใหม่
+    </div>
+    <div class="fg">
+      <label class="fl">รหัสผ่านใหม่ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-newpw" type="password" placeholder="อย่างน้อย 5 ตัวอักษร">
+    </div>
+    <div class="fg">
+      <label class="fl">ยืนยันรหัสผ่านใหม่ <span style="color:var(--dg)">*</span></label>
+      <input class="fi" id="forgot-confirmpw" type="password" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
+    </div>
+    <div id="forgot-pw-err" style="display:none;background:var(--dgl);color:var(--dg);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px"></div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeForgotModal()">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" id="forgot-btn-verify" onclick="doForgotVerify()">ยืนยันตัวตน</button>
+    <button class="btn btn-p btn-sm" id="forgot-btn-save" style="display:none" onclick="doForgotSave()">💾 บันทึกรหัสผ่านใหม่</button>
+  </div>
+</div></div>
+
+<!-- MODAL: แก้ไขค่าส่วนกลาง -->
+<div class="mo" id="m-edit-fee">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">💰</div>
+    <div><div class="md-title">แก้ไขค่าส่วนกลาง</div><div class="md-sub" id="ef-sub">—</div></div>
+  </div>
+  <input type="hidden" id="ef-fee-id">
+  <div class="md-bd">
+    <div class="sl">💰 ค่าธรรมเนียมหลัก</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ค่าส่วนกลาง (฿)</label>
+        <input class="fi" id="ef-fee-amount" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ (฿)</label>
+        <input class="fi" id="ef-parking-fee" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">ค่าขยะ (฿)</label>
+        <input class="fi" id="ef-trash-fee" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="sl">📎 ค่าอื่นๆ</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">ค่าอื่นๆ (฿)</label>
+        <input class="fi" id="ef-other-fee" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">รายละเอียดค่าอื่นๆ</label>
+        <input class="fi" id="ef-other-fee-note" placeholder="เช่น ค่าดูแลสระว่ายน้ำ"></div>
+    </div>
+    <div class="sl">⚠️ ค่าปรับ / ส่วนลด</div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ค่าปรับ (฿)</label>
+        <input class="fi" id="ef-penalty-fee" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label class="fl">หมายเหตุค่าปรับ</label>
+        <input class="fi" id="ef-penalty-note" placeholder="เหตุผลค่าปรับ"></div>
+      <div class="fg"><label class="fl">ส่วนลด (฿)</label>
+        <input class="fi" id="ef-discount" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="sl">📋 สถานะ</div>
+    <div class="fg">
+      <label class="fl">สถานะการชำระ</label>
+      <select class="fs" id="ef-status">
+        <option value="pending">รอชำระ</option>
+        <option value="overdue">ค้างชำระ</option>
+        <option value="paid">ชำระแล้ว</option>
+        <option value="slip_submitted">ส่งสลิปแล้ว</option>
+      </select>
+    </div>
+    <!-- Live total preview -->
+    <div style="margin-top:14px;padding:12px 16px;background:var(--prl);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--tx2);font-weight:600">ยอดรวมโดยประมาณ</span>
+      <span style="font-size:18px;font-weight:800;color:var(--pr)" id="ef-total-preview">฿0</span>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-edit-fee')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doSaveFee()">💾 บันทึก</button>
+  </div>
+</div></div>
 </body>
 </html>
