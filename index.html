@@ -1546,7 +1546,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         </div>
 
         <!-- ── 5: อัตราค่าส่วนกลาง ── -->
-        <div class="card" style="margin-bottom:24px">
+        <div class="card">
           <div class="ch"><div class="ch-ico">🧮</div><div class="ct">อัตราค่าส่วนกลาง &amp; การคำนวณ</div></div>
           <div style="padding:4px 16px 16px">
             <div class="fr2">
@@ -1565,6 +1565,29 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <strong>สูตรคำนวณ:</strong> ค่าส่วนกลาง/ปี = ค่า/ตร.ว. × พื้นที่ (ตร.ว.) × 12 เดือน<br>
               <span style="color:var(--mu);font-size:12px">ตัวอย่าง: 40 × 52 ตร.ว. × 12 = ฿24,960.00/ปี</span>
             </div>
+          </div>
+        </div>
+
+        <!-- ── 6: ข้อมูลใบแจ้งหนี้ ── -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="ch"><div class="ch-ico">🧾</div><div class="ct">ข้อมูลใบแจ้งหนี้ &amp; เงื่อนไขการชำระ</div></div>
+          <div style="padding:4px 16px 16px">
+            <div class="fr3">
+              <div class="fg"><label class="fl">Prefix เลขที่ใบแจ้ง</label>
+                <input class="fi" id="cfg-inp-bill_prefix" placeholder="เช่น A"></div>
+              <div class="fg"><label class="fl">สาขาธนาคาร</label>
+                <input class="fi" id="cfg-inp-bank_branch" placeholder="เช่น สาขาบิ๊กซีบางปะกอก"></div>
+              <div class="fg"><label class="fl">Line Official ID</label>
+                <input class="fi" id="cfg-inp-line_id" placeholder="@gusto.ssw26"></div>
+            </div>
+            <div class="fg"><label class="fl">หมายเหตุการชำระเงิน</label>
+              <input class="fi" id="cfg-inp-payment_note" placeholder="นิติบุคคลไม่รับชำระเป็นเงินสด"></div>
+            <div class="fg"><label class="fl">เงื่อนไขข้อ 1</label>
+              <input class="fi" id="cfg-inp-fee_condition_1" placeholder="กรุณาชำระภายใน..."></div>
+            <div class="fg"><label class="fl">เงื่อนไขข้อ 2</label>
+              <input class="fi" id="cfg-inp-fee_condition_2" placeholder="ส่วนลดชำระเต็มปี..."></div>
+            <div class="fg"><label class="fl">เงื่อนไขข้อ 3</label>
+              <input class="fi" id="cfg-inp-fee_condition_3" placeholder="ขอให้ส่งหลักฐานการชำระ..."></div>
           </div>
         </div>
 
@@ -2265,6 +2288,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-fee-detail')">ปิด</button>
+    <button class="btn btn-o btn-sm" onclick="printFeeInvoiceById(_curFee)">🖨️ พิมพ์ใบแจ้งหนี้</button>
     <button class="btn btn-p btn-sm" id="btn-fee-approve" style="display:none" onclick="doApproveSlipFromModal()">✓ Approve</button>
   </div>
 </div></div>
@@ -5669,6 +5693,328 @@ async function _uploadCarImages() {
     }
   }
   return urls;
+}
+
+
+// ============================================================
+// PRINT FEE INVOICE — ใบแจ้งค่าส่วนกลาง
+// ============================================================
+
+function _fmtMoney(v) {
+  return Number(v || 0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function _thaiNumberText(amount) {
+  // Simple Thai baht text conversion
+  var n = Math.round(amount * 100);
+  if (n === 0) return 'ศูนย์บาทถ้วน';
+  var units  = ['', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
+  var tens   = ['', 'สิบ', 'ยี่สิบ', 'สามสิบ', 'สี่สิบ', 'ห้าสิบ', 'หกสิบ', 'เจ็ดสิบ', 'แปดสิบ', 'เก้าสิบ'];
+  var places = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน'];
+  var satang = n % 100;
+  var baht   = Math.floor(n / 100);
+  function toText(num) {
+    if (num === 0) return '';
+    var s = '', d = String(num).split('').reverse();
+    for (var i = 0; i < d.length; i++) {
+      var digit = parseInt(d[i]);
+      if (digit === 0) continue;
+      if (i === 1 && digit === 1) s = 'สิบ' + s;
+      else if (i === 1 && digit === 2) s = 'ยี่สิบ' + s;
+      else s = units[digit] + places[i] + s;
+    }
+    return s;
+  }
+  var result = toText(baht) + 'บาท';
+  if (satang > 0) {
+    result += toText(satang) + 'สตางค์';
+  } else {
+    result += 'ถ้วน';
+  }
+  return result;
+}
+
+function _getBillNo(f) {
+  // Generate bill number: PREFIX + house_seq + '-' + year + '/' + seq
+  // Use fee_id last digits as sequence
+  var prefix = _cfg('bill_prefix', 'A');
+  var seq = f.fee_id ? f.fee_id.replace(/[^0-9]/g,'').slice(-2) : '01';
+  return prefix + '-' + f.year + '/' + (seq || '01');
+}
+
+function _getPeriodLabel(f) {
+  var period = f.period || 'H1';
+  if (period === 'H1') return 'ครึ่งปีแรก';
+  if (period === 'H2') return 'ครึ่งปีหลัง';
+  if (period === 'Y')  return 'เต็มปี';
+  return period;
+}
+
+function _getPeriodRange(f) {
+  var period = f.period || 'H1';
+  if (period === 'H1') return '01/01/' + f.year + ' - 30/06/' + f.year;
+  if (period === 'H2') return '01/07/' + f.year + ' - 31/12/' + f.year;
+  if (period === 'Y')  return '01/01/' + f.year + ' - 31/12/' + f.year;
+  return '';
+}
+
+function _formatThaiDate(isoOrStr) {
+  if (!isoOrStr) return '—';
+  try {
+    var d = new Date(isoOrStr);
+    if (isNaN(d)) return String(isoOrStr);
+    var day  = String(d.getDate()).padStart(2, '0');
+    var mon  = String(d.getMonth() + 1).padStart(2, '0');
+    var year = d.getFullYear() + 543;
+    return day + '/' + mon + '/' + year;
+  } catch(e) { return String(isoOrStr); }
+}
+
+function printFeeInvoice(feeId) {
+  var f = (window._feesAll || []).find(function(x) { return x.fee_id === feeId; });
+  if (!f) {
+    Swal.fire({ icon: 'warning', title: 'ไม่พบข้อมูลใบแจ้งหนี้' });
+    return;
+  }
+  _openInvoiceWindow(f, false);
+}
+
+async function printFeeInvoiceById(feeId) {
+  var f = (window._feesAll || []).find(function(x) { return x.fee_id === feeId; });
+  if (!f) {
+    // Fetch from server
+    showLoader('โหลดข้อมูล...');
+    try {
+      var fees = await api('getFees');
+      window._feesAll = fees;
+      f = fees.find(function(x) { return x.fee_id === feeId; });
+    } catch(e) {}
+    finally { hideLoader(); }
+  }
+  if (!f) { Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูล' }); return; }
+  _openInvoiceWindow(f, false);
+}
+
+async function printResInvoice(feeId) {
+  // For resident: load from getVehiclesByHouse or getFeesByHouse
+  var f = null;
+  showLoader('กำลังเตรียมใบแจ้งหนี้...');
+  try {
+    var fees = await api('getFeesByHouse');
+    f = fees.find(function(x) { return x.fee_id === feeId; });
+  } catch(e) {}
+  finally { hideLoader(); }
+  if (!f) { Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูล' }); return; }
+  _openInvoiceWindow(f, false);
+}
+
+function _openInvoiceWindow(f, isFullYear) {
+  var s = APP.settings || {};
+  function cfg(key, fallback) {
+    var v = s[key];
+    if (v && typeof v === 'object') v = v.value;
+    return (v !== undefined && v !== null && String(v) !== '') ? String(v) : (fallback || '');
+  }
+
+  // --- Data ---
+  var villageName    = cfg('village_name', 'หมู่บ้าน');
+  var villageAddr    = cfg('village_address', '');
+  var villagePhone   = cfg('village_phone', '');
+  var juristicName   = cfg('juristic_name', villageName);
+  var juristicId     = cfg('juristic_id', '');
+  var bankName       = cfg('bank_name', '');
+  var bankAccNo      = cfg('bank_account_no', '');
+  var bankAccName    = cfg('bank_account_name', '');
+  var bankBranch     = cfg('bank_branch', '');
+  var billPrefix     = cfg('bill_prefix', 'A');
+  var lineId         = cfg('line_id', '');
+  var paymentNote    = cfg('payment_note', '');
+  var cond1          = cfg('fee_condition_1', '');
+  var cond2          = cfg('fee_condition_2', '');
+  var cond3          = cfg('fee_condition_3', '');
+  var discPct        = parseFloat(cfg('fee_discount_pct', '0')) || 0;
+  var qrUrl          = cfg('payment_qr_url', '');
+  var logoVal        = cfg('village_logo', '');
+  var feeRate        = parseFloat(cfg('fee_rate_per_sqw', '0')) || 0;
+
+  // --- Fee Data ---
+  var houseNo    = f.house_no    || f.house_id || '';
+  var soi        = f.soi         || '';
+  var ownerName  = f.owner_name  || '';
+  var areaSqw    = parseFloat(f.area_sqm || 0);
+  var feeAmt     = parseFloat(f.fee_amount || 0);
+  var parkFee    = parseFloat(f.parking_fee || 0);
+  var trashFee   = parseFloat(f.trash_fee || 0);
+  var otherFee   = parseFloat(f.other_fee || 0);
+  var penFee     = parseFloat(f.penalty_fee || 0);
+  var carryFee   = parseFloat(f.overdue_carry || 0);
+  var pen10      = parseFloat(f.penalty_10pct || 0);
+  var colFee     = parseFloat(f.collection_fee || 0);
+  var disc       = parseFloat(f.discount || 0);
+  var total      = parseFloat(f.total || 0);
+  var periodLabel = _getPeriodLabel(f);
+  var periodRange = _getPeriodRange(f);
+  var dueDate    = f.due_date ? _formatThaiDate(f.due_date) : '—';
+  var issuedAt   = f.issued_at ? _formatThaiDate(f.issued_at) : _formatThaiDate(new Date().toISOString());
+  var billNo     = billPrefix + (f.house_id||'').replace(/[^0-9]/g,'').slice(-2) + '-' + f.year + '/' +
+                   (f.fee_id||'').replace(/[^0-9]/g,'').slice(-2).padStart(2,'0');
+
+  // Full year section
+  var feeFullYear  = parseFloat(f.fee_per_year || feeAmt * 2);
+  var parkFullYear = parseFloat(f.parking_fee_year || parkFee * 2);
+  var discAmt      = parseFloat((feeFullYear * discPct / 100).toFixed(2));
+  var feeNetDisc   = parseFloat((feeFullYear - discAmt).toFixed(2));
+  var carTotalFull = parkFullYear;
+  var totalFullYear = parseFloat((feeNetDisc + carTotalFull + carryFee).toFixed(2));
+
+  // Row counter
+  var rowNum = 0;
+  function row(label, amount, bold) {
+    rowNum++;
+    return '<tr style="border-bottom:1px solid #e5e5e5">' +
+      '<td style="padding:6px 10px;text-align:center;width:36px;font-size:13px">' + rowNum + '</td>' +
+      '<td style="padding:6px 10px;font-size:13px' + (bold ? ';font-weight:700' : '') + '">' + label + '</td>' +
+      '<td style="padding:6px 10px;text-align:right;font-size:13px;white-space:nowrap' + (bold ? ';font-weight:700' : '') + '">' + _fmtMoney(amount) + '</td>' +
+    '</tr>';
+  }
+
+  var logoHtml = logoVal.startsWith('http')
+    ? '<img src="' + logoVal + '" style="width:60px;height:60px;object-fit:contain;border-radius:8px">'
+    : '<div style="font-size:48px;line-height:1">' + logoVal + '</div>';
+
+  var html = '<!DOCTYPE html><html lang="th"><head>' +
+    '<meta charset="UTF-8">' +
+    '<title>ใบแจ้งค่าส่วนกลาง ' + billNo + '</title>' +
+    '<style>' +
+      'body{font-family:"Sarabun","Noto Sans Thai",sans-serif;margin:0;padding:24px;background:#fff;color:#1a1a1a;font-size:14px}' +
+      'table{border-collapse:collapse;width:100%}' +
+      '.header-table td{vertical-align:top;padding:4px 8px}' +
+      '.invoice-title{background:#1a5c3a;color:#fff;padding:12px 20px;text-align:center;font-size:18px;font-weight:700;border-radius:6px;margin:14px 0 10px}' +
+      '.info-grid{display:grid;grid-template-columns:120px 1fr 120px 1fr;gap:4px 8px;font-size:13px;margin-bottom:12px}' +
+      '.lbl{font-weight:700;color:#444}' +
+      '.fee-table thead tr{background:#1a5c3a;color:#fff}' +
+      '.fee-table thead td{padding:8px 10px;font-weight:700;font-size:13px}' +
+      '.fee-table .total-row td{background:#f0f7f3;font-weight:700;font-size:14px;border-top:2px solid #1a5c3a}' +
+      '.full-year-section{background:#f8fdf9;border:1.5px solid #1a5c3a;border-radius:8px;padding:12px 16px;margin-top:14px;font-size:13px}' +
+      '.full-year-section h4{margin:0 0 8px;color:#1a5c3a;font-size:14px}' +
+      '.full-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px}' +
+      '.conditions{margin-top:14px;font-size:12px;color:#444;border-top:1px solid #ddd;padding-top:10px}' +
+      '.conditions ol{margin:4px 0;padding-left:18px}' +
+      '.conditions li{margin-bottom:3px}' +
+      '.payment-note{background:#fff3cd;border:1px solid #f0a500;border-radius:6px;padding:8px 14px;font-weight:700;text-align:center;margin-top:10px;font-size:13px}' +
+      '.footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;font-size:12px;color:#666}' +
+      '@media print{body{padding:12px} @page{margin:10mm}}' +
+    '</style></head><body>' +
+
+    // === HEADER ===
+    '<table class="header-table"><tr>' +
+      '<td style="width:70px">' + logoHtml + '</td>' +
+      '<td>' +
+        '<div style="font-size:18px;font-weight:800;color:#1a5c3a">' + juristicName + '</div>' +
+        (villageAddr ? '<div style="font-size:11.5px;color:#555;margin-top:2px">' + villageAddr + '</div>' : '') +
+        '<div style="font-size:11.5px;color:#555;margin-top:1px">' +
+          (villagePhone ? 'โทรศัพท์: ' + villagePhone : '') +
+          (juristicId ? (villagePhone ? ' &nbsp;|&nbsp; ' : '') + 'เลขประจำตัวผู้เสียภาษี: ' + juristicId : '') +
+        '</div>' +
+      '</td>' +
+      '<td style="text-align:right;white-space:nowrap">' +
+        '<div style="font-size:12px;color:#666">เลขที่ใบแจ้ง</div>' +
+        '<div style="font-size:16px;font-weight:700;color:#1a5c3a">' + billNo + '</div>' +
+      '</td>' +
+    '</tr></table>' +
+
+    // === TITLE ===
+    '<div class="invoice-title">ใบแจ้งค่าส่วนกลางประจำปี ' + f.year + ' ' + periodLabel + ' &nbsp;|&nbsp; ต้นฉบับ</div>' +
+
+    // === INFO GRID ===
+    '<div class="info-grid">' +
+      '<span class="lbl">เจ้าของบ้านเลขที่</span><span><strong>' + houseNo + '</strong> ซอย ' + (soi||'—') + '</span>' +
+      '<span class="lbl">วันที่แจ้ง</span><span>' + issuedAt + '</span>' +
+      '<span class="lbl">ชื่อ-สกุล</span><span>' + (ownerName||'—') + '</span>' +
+      '<span class="lbl">พื้นที่</span><span><strong>' + _fmtMoney(areaSqw) + '</strong> ตารางวา</span>' +
+      '<span></span><span></span>' +
+      '<span class="lbl">อัตรา</span><span>' + _fmtMoney(feeRate) + ' บาท/ตร.ว.</span>' +
+    '</div>' +
+
+    // === FEE TABLE ===
+    '<table class="fee-table" style="margin-top:8px">' +
+    '<thead><tr>' +
+      '<td style="width:36px;text-align:center">ที่</td>' +
+      '<td>รายการ</td>' +
+      '<td style="text-align:right;white-space:nowrap">จำนวนเงิน (บาท)</td>' +
+    '</tr></thead><tbody>' +
+    row('ค่าส่วนกลาง ' + periodLabel + ' ประจำปี ' + f.year + ' (' + periodRange + ')', feeAmt) +
+    row('ค่าเช่าที่จอดรถพื้นที่ส่วนกลาง ' + periodLabel + ' ประจำปี ' + f.year + ' (' + periodRange + ')', parkFee) +
+    row('ค่าเก็บขยะ (' + periodLabel + ')', trashFee) +
+    (otherFee !== 0 ? row('ค่าอื่นๆ' + (f.other_fee_note ? ' — ' + f.other_fee_note : ''), otherFee) : row('ค่าอื่นๆ', 0)) +
+    (carryFee > 0 ? row('ค่าส่วนกลางค้างชำระ (ยอดสะสม)', carryFee) : row('ค่าส่วนกลางค้างชำระ', 0)) +
+    (pen10 > 0 ? row('เบี้ยปรับค้างชำระ (10%)', pen10) : row('เบี้ยปรับค้างชำระ', 0)) +
+    (colFee > 0 ? row('ค่าธรรมเนียมในการติดตามทวงถาม', colFee) : row('ค่าธรรมเนียมติดตามทวงถาม', 0)) +
+    (penFee > 0 ? row('ค่าปรับอื่นๆ', penFee) : '') +
+    (disc > 0 ? row('ส่วนลด', -disc) : '') +
+    '</tbody>' +
+    '<tfoot><tr class="total-row">' +
+      '<td colspan="2" style="padding:8px 10px;font-size:14px;font-weight:700">จำนวนเงินเรียกเก็บ &nbsp;&nbsp; ' +
+        '<span style="font-size:12px;font-weight:400">' + _thaiNumberText(total) + '</span></td>' +
+      '<td style="padding:8px 10px;text-align:right;font-size:16px;font-weight:800;color:#1a5c3a">' + _fmtMoney(total) + '</td>' +
+    '</tr></tfoot>' +
+    '</table>' +
+
+    // === FULL YEAR SECTION ===
+    '<div class="full-year-section">' +
+      '<h4>รายละเอียดการชำระเต็มปี: โดยมียอดค่าส่วนกลาง ส่วนลดค่าส่วนกลาง ค่าจอดรถ และยอดเงินค้างชำระ ดังนี้</h4>' +
+      '<div style="font-weight:700;margin-bottom:8px">ค่าส่วนกลางและค่ารถเต็มปี &nbsp; ' + _fmtMoney(totalFullYear) + ' บาท</div>' +
+      '<div class="full-grid">' +
+        '<span>ค่าส่วนกลาง</span><span style="text-align:right"><strong>' + _fmtMoney(feeFullYear) + '</strong> บาท</span>' +
+        '<span>ส่วนลด (' + discPct + '%)</span><span style="text-align:right"><strong>' + _fmtMoney(discAmt) + '</strong> บาท</span>' +
+        '<span>ค่าจอดรถ</span><span style="text-align:right"><strong>' + _fmtMoney(parkFullYear) + '</strong> บาท</span>' +
+        '<span>ยอดส่วนกลางสุทธิ</span><span style="text-align:right"><strong>' + _fmtMoney(feeNetDisc) + '</strong> บาท</span>' +
+        '<span>จำนวน (คัน)</span><span style="text-align:right"><strong>—</strong></span>' +
+        '<span>ยอดค้างชำระรวม</span><span style="text-align:right"><strong>' + _fmtMoney(carryFee) + '</strong> บาท</span>' +
+      '</div>' +
+    '</div>' +
+
+    // === PAYMENT INFO ===
+    '<table style="margin-top:12px;font-size:13px"><tr>' +
+      '<td style="vertical-align:top;padding-right:16px;width:60%">' +
+        '<div style="font-weight:700;margin-bottom:4px">วิธีการชำระเงิน</div>' +
+        '<div>โอนเงินเข้าบัญชี ' + bankName + (bankBranch ? ' ' + bankBranch : '') + '</div>' +
+        '<div style="font-size:16px;font-weight:700;margin:4px 0">เลขที่บัญชี ' + (bankAccNo||'—') + '</div>' +
+        (bankAccName ? '<div>' + bankAccName + '</div>' : '') +
+        (paymentNote ? '<div class="payment-note">! ' + paymentNote + ' !</div>' : '') +
+      '</td>' +
+      (qrUrl ? '<td style="text-align:center;vertical-align:top">' +
+        '<img src="' + qrUrl + '" style="width:100px;height:100px;object-fit:contain;border:1px solid #ddd;border-radius:6px"><br>' +
+        '<div style="font-size:10px;color:#666;margin-top:4px">สแกน QR Code<br>' + (lineId ? 'Line: ' + lineId : '') + '</div>' +
+      '</td>' : '') +
+    '</tr></table>' +
+
+    // === CONDITIONS ===
+    '<div class="conditions">' +
+      '<strong>เงื่อนไขการชำระค่าส่วนกลาง</strong>' +
+      '<ol>' +
+        (cond1 ? '<li>' + cond1 + '</li>' : '') +
+        (cond2 ? '<li>' + cond2 + '</li>' : '') +
+        (cond3 ? '<li>' + cond3 + (lineId ? ' Line Official ID : ' + lineId : '') + '</li>' : '') +
+      '</ol>' +
+    '</div>' +
+
+    // === FOOTER ===
+    '<div class="footer">' +
+      '<span>' + juristicName + '</span>' +
+      '<span>วัน/เวลาที่พิมพ์ ' + new Date().toLocaleString('th-TH') + '</span>' +
+    '</div>' +
+
+    '<scr' + 'ipt>window.onload = function(){ window.print(); }<\/scr' + 'ipt>' +
+    '</body></html>';
+
+  var w = window.open('', '_blank', 'width=900,height=700');
+  if (w) {
+    w.document.write(html);
+    w.document.close();
+  } else {
+    Swal.fire({ icon: 'warning', title: 'Popup ถูกบล็อก', text: 'กรุณาอนุญาต Popup ในเบราว์เซอร์' });
+  }
 }
 
 </script>

@@ -9,7 +9,21 @@ var Fees = (function() {
     let rows = sheetToObjects('FEES');
     if (body.status) rows = rows.filter(r => r.status === body.status);
     if (body.year)   rows = rows.filter(r => String(r.year) === String(body.year));
-    return rows;
+    // Join house data for invoice display
+    const houses = sheetToObjects('HOUSES');
+    const houseMap = {};
+    houses.forEach(h => { houseMap[h.house_id] = h; });
+    return rows.map(r => {
+      const h = houseMap[r.house_id] || {};
+      return Object.assign({}, r, {
+        house_no:    h.house_no    || r.house_id,
+        soi:         h.soi         || '',
+        owner_name:  h.owner_name  || '',
+        area_sqm:    h.area_sqm    || 0,
+        fee_per_year: h.fee_per_year || 0,
+        parking_fee_year: h.parking_fee_year || 0,
+      });
+    });
   }
 
   function getByHouse(body, user) {
@@ -18,6 +32,17 @@ var Fees = (function() {
       throw new Error('ไม่มีสิทธิ์');
     let rows = sheetToObjects('FEES').filter(r => r.house_id === hid);
     if (body.year) rows = rows.filter(r => String(r.year) === String(body.year));
+    // Join house data
+    const houses = sheetToObjects('HOUSES');
+    const h = houses.find(h => h.house_id === hid) || {};
+    rows = rows.map(r => Object.assign({}, r, {
+      house_no:    h.house_no    || r.house_id,
+      soi:         h.soi         || '',
+      owner_name:  h.owner_name  || '',
+      area_sqm:    h.area_sqm    || 0,
+      fee_per_year: h.fee_per_year || 0,
+      parking_fee_year: h.parking_fee_year || 0,
+    }));
     return rows.sort((a, b) => {
       if (a.year !== b.year) return b.year - a.year;
       return a.period === 'H2' ? 1 : -1;

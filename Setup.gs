@@ -185,6 +185,14 @@ function _seedSettings(ss) {
     ['fee_trash_per_year',  '600',                         'ค่าขยะต่อปี (บาท)',            'fee_calc'],
     ['fee_parking_per_car', '1200',                        'ค่าจอดรถต่อคัน/ปี (บาท)',      'fee_calc'],
     ['fee_discount_pct',    '5',                           '% ส่วนลดชำระเต็มปี',           'fee_calc'],
+    // group: invoice
+    ['bill_prefix',         'A',                           'Prefix เลขที่ใบแจ้ง (เช่น A)',  'invoice'],
+    ['bank_branch',         '',                            'สาขาธนาคาร',                    'invoice'],
+    ['line_id',             '',                            'Line Official ID',               'invoice'],
+    ['payment_note',        'นิติบุคคลไม่รับชำระเป็นเงินสดทุกกรณี', 'หมายเหตุการชำระ', 'invoice'],
+    ['fee_condition_1',     'กรุณาชำระเงินภายในวันที่ที่กำหนด หากชำระล่าช้าจะมีค่าปรับตามข้อบังคับนิติบุคคล', 'เงื่อนไขข้อ 1', 'invoice'],
+    ['fee_condition_2',     'ส่วนลดชำระเต็มปี ให้สิทธิ์แค่ค่าส่วนกลาง ไม่รวมค่ารถและหมดเขตตามที่กำหนด', 'เงื่อนไขข้อ 2', 'invoice'],
+    ['fee_condition_3',     'ขอให้ท่านส่งหลักฐานการชำระเงินเข้ามาที่ Line Official', 'เงื่อนไขข้อ 3', 'invoice'],
   ];
   const ts = new Date().toISOString();
   var added = 0;
