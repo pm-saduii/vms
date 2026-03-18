@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>The Greenfield — Village Management v5.0</title>
+<title id="page-title">The Greenfield — Village Management v5.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
@@ -963,6 +963,13 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 .notif-title{font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .notif-desc{font-size:11.5px;color:var(--mu);margin-top:2px;line-height:1.4}
 .notif-time{font-size:10.5px;color:var(--mu);margin-top:3px}
+
+/* Gear menu */
+.sw-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;flex-shrink:0;border:2px solid transparent;transition:transform .15s,border-color .15s}
+.sw-dot:hover{transform:scale(1.18)}
+.sw-dot.on{border-color:#fff;box-shadow:0 0 0 2px var(--pr)}
+.gear-item{padding:7px 10px;border-radius:8px;font-size:13px;color:var(--tx);cursor:pointer;transition:background .12s;font-weight:500}
+.gear-item:hover{background:var(--bg2)}
 </style>
 </head>
 <body data-theme="normal">
@@ -981,9 +988,9 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 <div id="login-screen">
   <div class="login-box">
     <div class="login-header">
-      <div class="login-logo">🏘️</div>
-      <div class="login-title">The Greenfield</div>
-      <div class="login-sub">Village Management System v5.0</div>
+      <div class="login-logo" id="login-logo">🏘️</div>
+      <div class="login-title" id="login-title">The Greenfield</div>
+      <div class="login-sub" id="login-sub">Village Management System v5.0</div>
     </div>
     <div class="login-body">
       <div class="login-err" id="login-err"></div>
@@ -1009,10 +1016,10 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 ═══════════════════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
   <div class="sb-logo">
-    <div class="sb-logo-ico">🏘️</div>
+    <div class="sb-logo-ico" id="sb-logo-ico">🏘️</div>
     <div>
-      <div class="sb-logo-name">The Greenfield</div>
-      <div class="sb-logo-ver">Village Management v5.0</div>
+      <div class="sb-logo-name" id="sb-logo-name">The Greenfield</div>
+      <div class="sb-logo-ver" id="sb-logo-ver">Village Management v5.0</div>
     </div>
   </div>
 
@@ -1042,8 +1049,9 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="sb-sec">ระบบ</div>
       <div class="sb-item" onclick="go('admin','usr',this)"><span class="sb-ico">👥</span>สมาชิก</div>
       <div class="sb-item" onclick="go('admin','log',this)"><span class="sb-ico">📋</span>Login Logs</div>
+      <div class="sb-item" onclick="go('admin','settings',this)"><span class="sb-ico">⚙️</span>ตั้งค่าระบบ</div>
     </nav>
-    <div class="sb-themes">
+    <div class="sb-themes" style="display:none">
       <div class="sb-themes-lbl" style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--sbm);text-transform:uppercase;padding:0 0 6px">ธีมสี</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px">
         <button class="th-txt-btn" data-t="normal"  onclick="setTheme('normal')">Navy</button>
@@ -1084,7 +1092,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="sb-sec">บัญชี</div>
       <div class="sb-item" onclick="go('res','profile',this)"><span class="sb-ico">👤</span>โปรไฟล์</div>
     </nav>
-    <div class="sb-themes">
+    <div class="sb-themes" style="display:none">
       <div class="sb-themes-lbl" style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--sbm);text-transform:uppercase;padding:0 0 6px">ธีมสี</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px">
         <button class="th-txt-btn" data-t="normal"  onclick="setTheme('normal')">Navy</button>
@@ -1115,6 +1123,29 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         <button class="vt" onclick="switchView('res',this)" data-view="res">🏡 ลูกบ้าน</button>
       </div>
       <div class="tb-ico" id="btn-bell" onclick="toggleNotifPanel()">🔔<span class="ndot" id="bell-dot" style="display:none"></span></div>
+      <!-- Gear / Setup dropdown -->
+      <div style="position:relative" id="gear-wrap">
+        <div class="tb-ico" id="btn-gear" onclick="toggleGearMenu()" title="ตั้งค่า">⚙️</div>
+        <div id="gear-menu" style="
+          display:none;position:absolute;top:44px;right:0;
+          background:var(--card);border:1.5px solid var(--bo);
+          border-radius:12px;padding:10px;min-width:200px;
+          box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:1000">
+          <!-- Theme swatches -->
+          <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">🎨 ธีมสี</div>
+          <div style="display:flex;gap:7px;margin-bottom:12px;align-items:center">
+            <div class="sw-dot" data-t="normal"  onclick="setTheme('normal')"  title="Navy"   style="background:#1B4F72"></div>
+            <div class="sw-dot" data-t="dark"    onclick="setTheme('dark')"    title="Dark"   style="background:#1a1d27"></div>
+            <div class="sw-dot" data-t="sage"    onclick="setTheme('sage')"    title="Sage"   style="background:#4a7c59"></div>
+            <div class="sw-dot" data-t="rose"    onclick="setTheme('rose')"    title="Rose"   style="background:#c2185b"></div>
+            <div class="sw-dot" data-t="sand"    onclick="setTheme('sand')"    title="Sand"   style="background:#a0522d"></div>
+            <div class="sw-dot" data-t="violet"  onclick="setTheme('violet')"  title="Violet" style="background:#6a1b9a"></div>
+          </div>
+          <div style="border-top:1px solid var(--bo);padding-top:8px">
+            <div class="gear-item" onclick="closeGearMenu();go('admin','settings',null)">⚙️ ตั้งค่าระบบ</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1133,7 +1164,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <div class="ph-ico">📊</div>
               <div>
                 <div class="ph-h1">Dashboard ภาพรวม</div>
-                <div class="ph-sub">The Greenfield · <span id="dash-date-sub">—</span></div>
+                <div class="ph-sub"><span id="cfg-village-name">The Greenfield</span> · <span id="dash-date-sub">—</span></div>
               </div>
             </div>
             <div class="ph-acts">
@@ -1268,7 +1299,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: HOUSES -->
       <div id="p-admin-houses" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · The Greenfield</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openAddHouseModal()">+ เพิ่มบ้าน</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · <span id="cfg-village-name2">The Greenfield</span></div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openAddHouseModal()">+ เพิ่มบ้าน</button></div></div></div>
         <div class="card">
           <div class="ch"><div class="ch-ico">🏠</div><div class="ct">รายการบ้านทั้งหมด</div>
             <select class="fs" id="house-filter-status" style="width:auto;padding:5px 10px;font-size:12px" onchange="filterHousesTable()">
@@ -1382,6 +1413,100 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           </tbody></table></div>
         </div>
       </div>
+
+      <!-- ADMIN: SETTINGS -->
+      <div id="p-admin-settings" class="pane">
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px">
+          <div class="ph-ico">⚙️</div>
+          <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
+        </div>
+        <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
+        </div></div>
+
+        <div class="tabs" id="settings-tabs">
+          <button class="tab on" onclick="stab('stab','village',this)">🏘️ ข้อมูลหมู่บ้าน</button>
+          <button class="tab" onclick="stab('stab','payment',this)">💳 การชำระเงิน</button>
+          <button class="tab" onclick="stab('stab','juristic',this)">🏢 นิติบุคคล</button>
+        </div>
+
+        <!-- TAB: village -->
+        <div id="stab-village" class="pane on">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🏘️</div><div class="ct">ข้อมูลหมู่บ้าน</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ชื่อหมู่บ้าน</label>
+                  <input class="fi" id="cfg-inp-village_name" placeholder="เช่น The Greenfield"></div>
+                <div class="fg"><label class="fl">คำบรรยาย (subtitle)</label>
+                  <input class="fi" id="cfg-inp-village_subtitle" placeholder="Village Management System"></div>
+              </div>
+              <div class="fg"><label class="fl">ที่อยู่หมู่บ้าน</label>
+                <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
+                  <input class="fi" id="cfg-inp-village_phone" placeholder="0x-xxxx-xxxx" type="tel"></div>
+                <div class="fg"><label class="fl">อีเมลนิติ</label>
+                  <input class="fi" id="cfg-inp-village_email" placeholder="admin@village.com" type="email"></div>
+              </div>
+              <div class="fg"><label class="fl">Logo (Emoji หรือ URL รูปภาพ)</label>
+                <input class="fi" id="cfg-inp-village_logo" placeholder="🏘️ หรือ https://...logo.png" oninput="updateLogoPreview(this.value)">
+                <div style="margin-top:6px;font-size:12px;color:var(--mu)">ตัวอย่าง: <span id="cfg-logo-preview" style="font-size:20px">🏘️</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: payment -->
+        <div id="stab-payment" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">💳</div><div class="ct">ข้อมูลการชำระเงิน</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr3">
+                <div class="fg"><label class="fl">ธนาคาร</label>
+                  <input class="fi" id="cfg-inp-bank_name" placeholder="เช่น กสิกรไทย"></div>
+                <div class="fg"><label class="fl">เลขบัญชี</label>
+                  <input class="fi" id="cfg-inp-bank_account_no" placeholder="xxx-x-xxxxx-x"></div>
+                <div class="fg"><label class="fl">ชื่อบัญชี</label>
+                  <input class="fi" id="cfg-inp-bank_account_name" placeholder="นิติบุคคลหมู่บ้าน..."></div>
+              </div>
+              <div class="fg"><label class="fl">URL QR Code พร้อมเพย์ / PromptPay</label>
+                <input class="fi" id="cfg-inp-payment_qr_url" placeholder="https://... (URL รูป QR Code)" oninput="updateQrPreview(this.value)"></div>
+              <div id="cfg-qr-preview-wrap" style="display:none;margin-top:8px">
+                <img id="cfg-qr-preview" src="" style="width:120px;height:120px;object-fit:contain;border:1px solid var(--bo);border-radius:8px">
+              </div>
+              <div class="fr2">
+                <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่ 1-31)</label>
+                  <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="15"></div>
+                <div class="fg"><label class="fl">ตัวย่องวด</label>
+                  <select class="fs" id="cfg-inp-fee_period_label">
+                    <option value="H">H — ครึ่งปี (2 งวด/ปี)</option>
+                    <option value="Q">Q — รายไตรมาส (4 งวด/ปี)</option>
+                    <option value="M">M — รายเดือน (12 งวด/ปี)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: juristic -->
+        <div id="stab-juristic" class="pane">
+          <div class="card" style="margin-top:14px">
+            <div class="ch"><div class="ch-ico">🏢</div><div class="ct">นิติบุคคล</div></div>
+            <div class="md-bd" style="padding:0 4px">
+              <div class="fr2">
+                <div class="fg"><label class="fl">ชื่อนิติบุคคล</label>
+                  <input class="fi" id="cfg-inp-juristic_name" placeholder="บริษัทนิติบุคคลหมู่บ้าน..."></div>
+                <div class="fg"><label class="fl">เลขทะเบียนนิติ</label>
+                  <input class="fi" id="cfg-inp-juristic_id" placeholder="0-xxxx-xxxxx-xx-x"></div>
+              </div>
+              <div class="fg"><label class="fl">ที่อยู่นิติบุคคล (สำหรับใบเสร็จ)</label>
+                <textarea class="ft" id="cfg-inp-juristic_address" rows="3" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end p-admin-settings -->
 
     </div><!-- end v-admin -->
 
@@ -1846,27 +1971,37 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">💳</div>
-    <div><div class="md-title">แจ้งชำระค่าส่วนกลาง</div><div class="md-sub">บ้าน 10/1 · H1/2568 · ฿2,750</div></div>
+    <div><div class="md-title">แจ้งชำระค่าส่วนกลาง</div><div class="md-sub" id="pay-modal-sub">—</div></div>
     <button class="md-x" onclick="closeM('m-pay')">✕</button>
   </div>
   <div class="md-bd">
-    <div class="card-soft" style="text-align:center;margin-bottom:16px">
-      <div style="font-size:28px;margin-bottom:6px">🏦</div>
-      <div style="font-size:12px;color:var(--mu);margin-bottom:3px">โอนเงินมาที่</div>
-      <div style="font-size:15px;font-weight:800">กสิกรไทย xxx-x-x1234-x</div>
-      <div style="font-size:13px;color:var(--mu)">นิติบุคคล เดอะ กรีนฟิลด์</div>
-      <div style="font-size:20px;font-weight:800;color:var(--pr);margin-top:8px">฿2,750</div>
+    <!-- Bank info (dynamic from settings) -->
+    <div class="card" style="margin-bottom:14px;background:var(--prl)">
+      <div class="cb" style="padding:12px">
+        <div class="fee-row"><div class="fee-lbl">ธนาคาร</div><div class="fee-val fw-7" id="pay-bank-name">—</div></div>
+        <div class="fee-row"><div class="fee-lbl">เลขบัญชี</div><div class="fee-val fw-7" id="pay-bank-no" style="font-size:15px;letter-spacing:.05em">—</div></div>
+        <div class="fee-row"><div class="fee-lbl">ชื่อบัญชี</div><div class="fee-val" id="pay-bank-acc">—</div></div>
+      </div>
     </div>
-    <div class="fg"><label class="fl">ยอดที่โอน</label><input class="fi" value="2750" type="number"></div>
-    <div class="fg"><label class="fl">วันที่โอน</label><input class="fi" type="date"></div>
-    <div class="fg"><label class="fl">URL ลิงก์รูปสลิป (Google Drive public link)</label><input class="fi" id="pay-slip-url" placeholder="https://drive.google.com/..."><div class="fg"><label class="fl">อัปโหลดสลิป</label>
-      <div class="upl"><div class="upl-ico">📱</div><div class="upl-txt"><strong>อัปโหลดสลิป</strong> รูปภาพ / Screenshot</div></div>
+    <!-- QR Code -->
+    <div id="pay-qr-wrap" style="text-align:center;margin-bottom:14px;display:none">
+      <img id="pay-qr-img" src="" style="width:160px;height:160px;object-fit:contain;border:1px solid var(--bo);border-radius:12px">
+      <div style="font-size:11px;color:var(--mu);margin-top:6px">สแกน QR Code เพื่อชำระเงิน</div>
     </div>
-    <div class="fg"><label class="fl">หมายเหตุ (ถ้ามี)</label><textarea class="ft" placeholder="เช่น โอนพร้อม... "></textarea></div>
+    <!-- Slip upload -->
+    <div class="sl">📎 แนบสลิปการโอน</div>
+    <div class="fg">
+      <label class="fl">อัปโหลดรูปสลิป (URL หรือ Base64)</label>
+      <input class="fi" id="pay-slip-url" placeholder="วาง URL รูปสลิปที่นี่...">
+    </div>
+    <div class="fg" style="margin-top:8px">
+      <label class="fl">หมายเหตุ (ถ้ามี)</label>
+      <input class="fi" id="pay-note" placeholder="เช่น โอนเมื่อ 15 มี.ค. เวลา 10:30 น.">
+    </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-pay')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSubmitSlip()">📤 ส่งหลักฐาน</button>
+    <button class="btn btn-p btn-sm" onclick="doSubmitSlip()">📤 ส่งสลิป</button>
   </div>
 </div></div>
 
@@ -2251,6 +2386,7 @@ let APP = {
   user:      null,
   house:     null,
   dashboard: null,
+  settings:  {},   // loaded from SETTINGS sheet on login
 };
 
 // ============================================================
@@ -2407,6 +2543,13 @@ async function initApp() {
     document.querySelectorAll('.sb-av').forEach(function(el) {
       el.textContent = (user.display_name || user.username).charAt(0).toUpperCase();
     });
+
+    // Load settings first (applies to whole UI)
+    try {
+      var settingsData = await api('getSettings');
+      APP.settings = settingsData;
+      applySettings();
+    } catch(e) { console.warn('Settings load failed:', e.message); }
 
     if (user.role === 'admin') {
       // Show admin view
@@ -2708,6 +2851,7 @@ async function loadPageData(view, page) {
     if (key === 'admin-market')     await loadMarketAdminPage();
     if (key === 'admin-usr')        await loadUsersPage();
     if (key === 'admin-log')        await loadLogsPage();
+    if (key === 'admin-settings')    await loadSettingsPage();
     if (key === 'res-house')        await loadResHousePage();
     if (key === 'res-fee')          await loadResFeePage();
     if (key === 'res-issue')        await loadResIssuePage();
@@ -3511,6 +3655,7 @@ var PT = {
   'admin-market':      '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e02\u0e32\u0e22',
   'admin-usr':         '\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01',
   'admin-log':         'Login Logs',
+  'admin-settings':    'ตั้งค่าระบบ',
   'res-dash':          '\u0e2b\u0e19\u0e49\u0e32\u0e41\u0e23\u0e01',
   'res-house':         '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',
   'res-fee':           '\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07',
@@ -4042,6 +4187,194 @@ function updateBellBadge() {
       existing.remove();
     }
   }
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+// Helper: get a setting value with fallback
+function _cfg(key, fallback) {
+  var s = APP.settings[key];
+  return (s && s.value !== undefined && s.value !== '') ? s.value : (fallback || '');
+}
+
+// Apply all settings to the DOM after load
+function applySettings() {
+  var vName    = _cfg('village_name',     'The Greenfield');
+  var vSub     = _cfg('village_subtitle', 'Village Management System');
+  var vLogo    = _cfg('village_logo',     '🏘️');
+
+  // Page title
+  document.title = vName + ' — Village Management';
+
+  // Login screen
+  var el;
+  el = document.getElementById('login-logo');
+  if (el) {
+    if (vLogo.startsWith('http')) {
+      el.innerHTML = '<img src="' + vLogo + '" style="width:56px;height:56px;object-fit:contain;border-radius:12px">';
+    } else { el.textContent = vLogo; }
+  }
+  _setEl('login-title', vName);
+  _setEl('login-sub',   vSub + ' v5.0');
+
+  // Sidebar
+  var logoIco = document.getElementById('sb-logo-ico');
+  if (logoIco) {
+    if (vLogo.startsWith('http')) {
+      logoIco.innerHTML = '<img src="' + vLogo + '" style="width:32px;height:32px;object-fit:contain;border-radius:8px">';
+    } else { logoIco.textContent = vLogo; }
+  }
+  _setEl('sb-logo-name', vName);
+  _setEl('sb-logo-ver',  vSub);
+
+  // Dashboard sub
+  document.querySelectorAll('[id^="cfg-village-name"]').forEach(function(el) {
+    el.textContent = vName;
+  });
+  // Resident house ph-sub
+  var rhsub = document.getElementById('res-house-sub');
+  if (rhsub) rhsub.textContent = vName;
+
+  // Update m-pay modal if settings available
+  _applyPaymentSettings();
+}
+
+function _applyPaymentSettings() {
+  var bankName = _cfg('bank_name');
+  var bankNo   = _cfg('bank_account_no');
+  var bankAcc  = _cfg('bank_account_name');
+  var qrUrl    = _cfg('payment_qr_url');
+
+  // These IDs are inside m-pay — set them if they exist
+  _setElIfExists('pay-bank-name',  bankName  || '—');
+  _setElIfExists('pay-bank-no',    bankNo    || '—');
+  _setElIfExists('pay-bank-acc',   bankAcc   || '—');
+  var qrEl = document.getElementById('pay-qr-img');
+  if (qrEl) {
+    qrEl.src = qrUrl || '';
+    qrEl.style.display = qrUrl ? 'block' : 'none';
+  }
+}
+
+function _setElIfExists(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// Load settings from API
+async function loadSettingsPage() {
+  try {
+    var data = await api('getSettings');
+    APP.settings = data;
+    // Populate form fields
+    Object.keys(data).forEach(function(key) {
+      var inp = document.getElementById('cfg-inp-' + key);
+      if (inp) {
+        if (inp.tagName === 'SELECT') {
+          inp.value = data[key].value || '';
+        } else {
+          inp.value = data[key].value || '';
+        }
+      }
+    });
+    // Logo preview
+    var logoInp = document.getElementById('cfg-inp-village_logo');
+    if (logoInp) updateLogoPreview(logoInp.value);
+    // QR preview
+    var qrInp = document.getElementById('cfg-inp-payment_qr_url');
+    if (qrInp) updateQrPreview(qrInp.value);
+    // Apply to UI
+    applySettings();
+  } catch(err) {
+    Swal.fire({ icon:'error', title:'โหลด Settings ไม่สำเร็จ', text: err.message });
+  }
+}
+
+async function doSaveSettings() {
+  // Collect all cfg-inp-* fields
+  var updates = {};
+  document.querySelectorAll('[id^="cfg-inp-"]').forEach(function(inp) {
+    var key = inp.id.replace('cfg-inp-', '');
+    updates[key] = inp.value.trim();
+  });
+  showLoader('บันทึกการตั้งค่า...');
+  try {
+    await api('saveSettings', { settings: updates });
+    // Update local cache
+    Object.keys(updates).forEach(function(k) {
+      if (!APP.settings[k]) APP.settings[k] = {};
+      APP.settings[k].value = updates[k];
+    });
+    applySettings();
+    hideLoader();
+    Swal.fire({ icon:'success', title:'บันทึกสำเร็จ', text:'การตั้งค่าถูกอัปเดตแล้ว', timer:1800, showConfirmButton:false });
+  } catch(err) {
+    hideLoader();
+    Swal.fire({ icon:'error', title:'บันทึกไม่สำเร็จ', text: err.message });
+  }
+}
+
+function updateLogoPreview(val) {
+  var el = document.getElementById('cfg-logo-preview');
+  if (!el) return;
+  if (val && val.startsWith('http')) {
+    el.innerHTML = '<img src="' + val + '" style="width:40px;height:40px;object-fit:contain;border-radius:8px;border:1px solid var(--bo)">';
+  } else {
+    el.textContent = val || '🏘️';
+  }
+}
+
+function updateQrPreview(val) {
+  var wrap = document.getElementById('cfg-qr-preview-wrap');
+  var img  = document.getElementById('cfg-qr-preview');
+  if (!wrap || !img) return;
+  if (val && val.startsWith('http')) {
+    img.src = val;
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+// ============================================================
+// GEAR MENU (theme + settings shortcut)
+// ============================================================
+var _gearOpen = false;
+
+function toggleGearMenu() {
+  _gearOpen = !_gearOpen;
+  var menu = document.getElementById('gear-menu');
+  if (menu) menu.style.display = _gearOpen ? 'block' : 'none';
+}
+
+function closeGearMenu() {
+  _gearOpen = false;
+  var menu = document.getElementById('gear-menu');
+  if (menu) menu.style.display = 'none';
+}
+
+// Close gear menu on outside click
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('gear-wrap');
+  if (wrap && !wrap.contains(e.target)) closeGearMenu();
+}, true);
+
+// Override setTheme to also update sw-dot active state
+var _origSetTheme = typeof setTheme === 'function' ? setTheme : null;
+function setTheme(t) {
+  document.body.setAttribute('data-theme', t);
+  document.querySelectorAll('.sw-dot').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+  document.querySelectorAll('.th-dot').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+  document.querySelectorAll('.th-txt-btn').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+  localStorage.setItem('vms5-t', t);
 }
 </script>
 
