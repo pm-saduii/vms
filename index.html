@@ -3382,14 +3382,13 @@ async function loadResHousePage() {
     if (vEl) {
       vEl.innerHTML = vehicles.filter(function(v){ return v.status!=='pending'; }).map(function(v) {
         return '<div class="vc">' +
-          '<div class="vc-ico">' + (v.type==='motorcycle'?'\ud83c\udfcd\ufe0f':'\ud83d\ude97') + '</div>' +
+          '<div class="vc-ico">' + _vehicleIcon(v.type) + '</div>' +
           '<div style="flex:1;min-width:0">' +
-            '<div class="vc-pl">' + v.plate_number + ' ' + v.province + '</div>' +
+            '<div class="vc-pl">' + v.plate_number + ' <span style="font-size:11px;color:var(--mu)">' + v.province + '</span></div>' +
             '<div class="vc-dt">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
-            '<div style="margin-top:6px"><span class="bd b-ok">\u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19</span>' +
-              (v.fee_required ? '<span class="bd b-wn" style="margin-left:5px">\u0e40\u0e2a\u0e35\u0e22\u0e04\u0e48\u0e32\u0e08\u0e2d\u0e14</span>' : '') +
-            '</div></div>' +
-          '<button class="btn btn-xs btn-o" onclick="openEditCarModal(\'' + v.vehicle_id + '\')">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button></div>';
+            '<div style="margin-top:6px"><span class="bd b-ok">\u2713 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19</span></div>' +
+          '</div>' +
+          '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openResEditCarModal(this.dataset.vid)">\u270f\ufe0f</button></div>';
       }).join('') || '<p class="text-mu" style="font-size:13px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30</p>';
     }
     // My change requests
@@ -3770,23 +3769,6 @@ async function doSubmitHouseEditReq() {
 }
 
 // ── Submit new vehicle request (resident) ─────────────────────
-async function doSubmitAddCar() {
-  const plate  = document.getElementById('car-plate').value.trim();
-  const brand  = document.getElementById('car-brand').value.trim();
-  const model  = document.getElementById('car-model').value.trim();
-  const color  = document.getElementById('car-color').value.trim();
-  const prov   = document.getElementById('car-prov').value.trim();
-  const type   = document.getElementById('car-type').value;
-  const park   = document.getElementById('car-park').value;
-  if (!plate) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16' }); return; }
-  showLoader('...');
-  try {
-    await api('createVehicle', { plate_number:plate, brand, model, color, province:prov, type, parking_location:park });
-    hideLoader(); closeM('m-addcar');
-    Swal.fire({ icon:'success', title:'\u0e2a\u0e48\u0e07\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e25\u0e49\u0e27', timer:2000, showConfirmButton:false });
-    loadResHousePage();
-  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
-}
 
 // ── Post marketplace listing (resident) ───────────────────────
 async function doPostListing() {
