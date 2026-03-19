@@ -2073,12 +2073,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">ยี่ห้อ *</label>
-        <select class="fs" id="car-brand-sel" onchange="_vdBrandChange('add')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <select class="fs" id="car-brand-sel" onchange="_vdBrandChange('car-')"><option value="">-- เลือกยี่ห้อ --</option></select>
         <input class="fi" id="car-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
         <input class="fi" id="car-model" placeholder="เช่น Camry"></div>
       <div class="fg"><label class="fl">สี *</label>
-        <select class="fs" id="car-color-sel" onchange="_vdColorChange('add')"><option value="">-- เลือกสี --</option></select>
+        <select class="fs" id="car-color-sel" onchange="_vdColorChange('car-')"><option value="">-- เลือกสี --</option></select>
         <input class="fi" id="car-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
     </div>
     <div class="fr3">
@@ -2136,12 +2136,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">ยี่ห้อ</label>
-        <select class="fs" id="editcar-brand-sel" onchange="_vdBrandChange('edit')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <select class="fs" id="editcar-brand-sel" onchange="_vdBrandChange('editcar-')"><option value="">-- เลือกยี่ห้อ --</option></select>
         <input class="fi" id="editcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
         <input class="fi" id="editcar-model" placeholder="เช่น Camry"></div>
       <div class="fg"><label class="fl">สี</label>
-        <select class="fs" id="editcar-color-sel" onchange="_vdColorChange('edit')"><option value="">-- เลือกสี --</option></select>
+        <select class="fs" id="editcar-color-sel" onchange="_vdColorChange('editcar-')"><option value="">-- เลือกสี --</option></select>
         <input class="fi" id="editcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
     </div>
     <div class="fr3">
@@ -3219,7 +3219,7 @@ async function _uploadCarImages() {
     var base64 = img.dataUrl.split(',')[1];
     var mimeType = img.dataUrl.split(';')[0].replace('data:','');
     try {
-      var res = await api('uploadImage', {filename: img.renamed, base64: base64, mimeType: mimeType});
+      var res = await api('uploadImage', {filename: img.renamed, base64data: base64, mime_type: mimeType});
       if (res && res.url) urls.push(res.url);
     } catch(e) { console.warn('Upload failed:', img.renamed, e.message); }
   }
@@ -3234,16 +3234,24 @@ function _resetCarImages(prefix) {
 }
 function _safeHouseNo(val) {
   if (val === null || val === undefined || val === '') return '';
-  // ALWAYS return as plain string — no date conversion
-  // Google Sheets may send Date objects but we display raw
+  // If GAS sends a Date object (when Sheets parses "9/4" as Sept 4 US format)
+  // Reconstruct as Thai day/month: Sept 4 → month=9, day=4 → "9/4"
   if (val instanceof Date) {
-    // Should not happen if GAS _STR_FIELDS is set correctly
-    // But if it does, just convert to string without reformatting
-    return String(val);
+    return String(val.getMonth() + 1) + '/' + String(val.getDate());
   }
-  return String(val).trim();
-}
-async function loadHousesPage() {
+  var s = String(val).trim();
+  // If GAS sends ISO date string e.g. "2024-09-04"
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    var d = new Date(s + 'T00:00:00');
+    return String(d.getMonth() + 1) + '/' + String(d.getDate());
+  }
+  // If GAS sends JS Date toString e.g. "Tue Sep 04 2024..."
+  if (/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(s)) {
+    var d2 = new Date(s);
+    if (!isNaN(d2)) return String(d2.getMonth() + 1) + '/' + String(d2.getDate());
+  }
+  return s;
+}async function loadHousesPage() {
   showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19...');
   try {
     var houses = await api('getHouses');
@@ -5458,38 +5466,34 @@ function _setSelectOrCustom(selId, inpId, value) {
   }
 }
 
-function _vdBrandChange(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'brand-sel');
-  var inp = document.getElementById(pre + 'brand');
+function _vdBrandChange(prefix) {
+  var sel = document.getElementById(prefix + 'brand-sel');
+  var inp = document.getElementById(prefix + 'brand');
   if (!sel || !inp) return;
   var isCustom = sel.value === 'อื่นๆ (เพิ่มเอง)';
   inp.style.display = isCustom ? 'block' : 'none';
   if (isCustom) { inp.value = ''; inp.focus(); }
 }
 
-function _vdColorChange(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'color-sel');
-  var inp = document.getElementById(pre + 'color');
+function _vdColorChange(prefix) {
+  var sel = document.getElementById(prefix + 'color-sel');
+  var inp = document.getElementById(prefix + 'color');
   if (!sel || !inp) return;
   var isCustom = sel.value === 'อื่นๆ (เพิ่มเอง)';
   inp.style.display = isCustom ? 'block' : 'none';
   if (isCustom) { inp.value = ''; inp.focus(); }
 }
 
-function _vdGetBrand(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'brand-sel');
-  var inp = document.getElementById(pre + 'brand');
+function _vdGetBrand(prefix) {
+  var sel = document.getElementById(prefix + 'brand-sel');
+  var inp = document.getElementById(prefix + 'brand');
   if (!sel) return '';
   return (sel.value === 'อื่นๆ (เพิ่มเอง)' && inp) ? inp.value.trim() : sel.value;
 }
 
-function _vdGetColor(mode) {
-  var pre = mode === 'add' ? 'car-' : 'editcar-';
-  var sel = document.getElementById(pre + 'color-sel');
-  var inp = document.getElementById(pre + 'color');
+function _vdGetColor(prefix) {
+  var sel = document.getElementById(prefix + 'color-sel');
+  var inp = document.getElementById(prefix + 'color');
   if (!sel) return '';
   return (sel.value === 'อื่นๆ (เพิ่มเอง)' && inp) ? inp.value.trim() : sel.value;
 }
@@ -5997,13 +6001,12 @@ function selectHouseForCar(houseId, label) {
 }
 
 async function doAdminAddCar() {
-  var houseId = (document.getElementById('acar-houseid')||{}).dataset?.houseId ||
-                (document.getElementById('acar-houseid')||{}).value||'';
+  var houseId = (document.getElementById('acar-houseid')||{}).value||'';
   var type    = (document.getElementById('acar-type')||{}).value||'';
   var plate   = ((document.getElementById('acar-plate')||{}).value||'').trim();
-  var brand   = _vdGetBrand('acar');
+  var brand   = _vdGetBrand('acar-');
   var model   = ((document.getElementById('acar-model')||{}).value||'').trim();
-  var color   = _vdGetColor('acar');
+  var color   = _vdGetColor('acar-');
   var prov    = (document.getElementById('acar-prov')||{}).value||'';
   var park    = (document.getElementById('acar-park')||{}).value||'\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
   var stat    = (document.getElementById('acar-status')||{}).value||'active';
@@ -6012,12 +6015,15 @@ async function doAdminAddCar() {
   if (!houseId) { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1a\u0e49\u0e32\u0e19'}); return; }
   if (!type)    { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17'}); return; }
   if (!plate)   { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19'}); return; }
-  if (!prov)    { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e08\u0e31\u0e07\u0e2b\u0e27\u0e31\u0e14'}); return; }
 
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
   try {
-    await api('createVehicle', { house_id:houseId, type, plate_number:plate, brand, model,
-      color, province:prov, parking_location:park, status:stat, fee_amount:fee });
+    var imgUrls = await _uploadCarImages();
+    var payload = { house_id:houseId, type, plate_number:plate, brand, model,
+      color, province:prov, parking_location:park, status:stat, fee_amount:fee };
+    if (imgUrls.length) payload.image_urls = JSON.stringify(imgUrls);
+    await api('createVehicle', payload);
+    _resetCarImages('acar-');
     closeM('m-admin-addcar');
     invalidatePageCache('admin-vehicle');
     await loadAdminVehiclePage();
@@ -6025,7 +6031,6 @@ async function doAdminAddCar() {
   } catch(e) { Swal.fire({icon:'error',title:'Error',text:e.message}); }
   finally { hideLoader(); }
 }
-
 // ── Admin Edit Car ──
 function openAdminEditCarModal(vehicleId) {
   var v = (_allVehiclesCache || []).find(function(x){ return x.vehicle_id === vehicleId; });
@@ -6066,9 +6071,9 @@ async function doAdminEditCar() {
   var vid    = (document.getElementById('aeditcar-id')||{}).value||'';
   var type   = (document.getElementById('aeditcar-type')||{}).value||'';
   var plate  = ((document.getElementById('aeditcar-plate')||{}).value||'').trim();
-  var brand  = _vdGetBrand('aeditcar');
+  var brand  = _vdGetBrand('aeditcar-');
   var model  = ((document.getElementById('aeditcar-model')||{}).value||'').trim();
-  var color  = _vdGetColor('aeditcar');
+  var color  = _vdGetColor('aeditcar-');
   var prov   = (document.getElementById('aeditcar-prov')||{}).value||'';
   var park   = (document.getElementById('aeditcar-park')||{}).value||'\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
   var stat   = (document.getElementById('aeditcar-status')||{}).value||'active';
@@ -6461,12 +6466,12 @@ function _openInvoiceWindow(f, isFullYear) {
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">ยี่ห้อ *</label>
-        <select class="fs" id="acar-brand-sel" onchange="_vdBrandChange('acar')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <select class="fs" id="acar-brand-sel" onchange="_vdBrandChange('acar-')"><option value="">-- เลือกยี่ห้อ --</option></select>
         <input class="fi" id="acar-brand" placeholder="พิมพ์ยี่ห้อ (อื่น×)" style="margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
         <input class="fi" id="acar-model" placeholder="เช่น Camry"></div>
       <div class="fg"><label class="fl">สี *</label>
-        <select class="fs" id="acar-color-sel" onchange="_vdColorChange('acar')"><option value="">-- เลือกสี --</option></select>
+        <select class="fs" id="acar-color-sel" onchange="_vdColorChange('acar-')"><option value="">-- เลือกสี --</option></select>
         <input class="fi" id="acar-color" placeholder="พิมพ์สี (อื่น×)" style="margin-top:6px"></div>
     </div>
     <div class="fr3">
@@ -6563,12 +6568,12 @@ function _openInvoiceWindow(f, isFullYear) {
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">ยี่ห้อ</label>
-        <select class="fs" id="aeditcar-brand-sel" onchange="_vdBrandChange('aeditcar')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <select class="fs" id="aeditcar-brand-sel" onchange="_vdBrandChange('aeditcar-')"><option value="">-- เลือกยี่ห้อ --</option></select>
         <input class="fi" id="aeditcar-brand" placeholder="พิมพ์ยี่ห้อ (อื่น×)" style="margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
         <input class="fi" id="aeditcar-model" placeholder="เช่น Camry"></div>
       <div class="fg"><label class="fl">สี</label>
-        <select class="fs" id="aeditcar-color-sel" onchange="_vdColorChange('aeditcar')"><option value="">-- เลือกสี --</option></select>
+        <select class="fs" id="aeditcar-color-sel" onchange="_vdColorChange('aeditcar-')"><option value="">-- เลือกสี --</option></select>
         <input class="fi" id="aeditcar-color" placeholder="พิมพ์สี (อื่น×)" style="margin-top:6px"></div>
     </div>
     <div class="fr3">

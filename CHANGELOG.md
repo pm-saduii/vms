@@ -562,3 +562,34 @@ function openAddHouseModal() {
 - `_safeHouseNo` ต้องเป็น `String(val).trim()` เท่านั้น — ห้ามมี Date logic
 - m-view-house modal IDs: vh-title, vh-sub, vh-owner, vh-phone, vh-email, vh-fee ฯลฯ
 - _carImages = [] global state — reset ทุกครั้งก่อน openM
+
+---
+
+## ✅ Fix รอบที่ 8 (Final) — house_no / upload / brand-color
+
+### ข้อ 1: house_no แสดงผิด (รอบที่ 8)
+- **Root cause จริง:** GAS ส่ง Date object แทน string (Sheets parse "9/4" เป็น Sept 4)
+  - `String(Date)` = "Tue Sep 04 2024..." → แสดงผิดทั้งหมด
+- **Fix:** `_safeHouseNo` จัดการ 3 cases:
+  1. `Date instanceof` → `(getMonth()+1) + '/' + getDate()` = "9/4" ✓
+  2. ISO string "2024-09-04" → new Date → same formula
+  3. JS Date.toString() "Tue Sep 04..." → parse → same formula
+- **Logic:** Sept 4 (US) = Thai 9/4 → `month+1=9`, `day=4` → "9/4" ✓
+
+### ข้อ 2: รูปภาพไม่บันทึก
+- **Root cause 1:** `doAdminAddCar` ไม่เรียก `_uploadCarImages()` เลย → รูปไม่ถูก upload
+- **Root cause 2:** ไม่ส่ง `image_urls` ลง GAS payload
+- **Fix:** เพิ่ม `var imgUrls = await _uploadCarImages()` + `payload.image_urls` + `_resetCarImages('acar-')`
+
+### ข้อ 3: ยี่ห้อ/สี อื่นๆ ไม่แสดง textbox (รอบที่ 4)
+- **Root cause:** `_vdBrandChange(mode)` ใช้ `mode === 'add' ? 'car-' : 'editcar-'`
+  - modal ส่ง `'acar'` → prefix ได้ `'editcar-'` → หา `editcar-brand-sel` แทน `acar-brand-sel` → ไม่เจอ → textbox ไม่แสดง
+- **Fix:** เปลี่ยน parameter จาก `mode` เป็น `prefix` ใช้ตรงๆ ไม่มี mapping
+  - `_vdBrandChange('acar-')`, `_vdBrandChange('aeditcar-')`, `_vdBrandChange('car-')`, `_vdBrandChange('editcar-')`
+- **แก้ทั้ง 4 functions:** `_vdBrandChange`, `_vdColorChange`, `_vdGetBrand`, `_vdGetColor`
+- **แก้ทุก call sites:** เปลี่ยน `'add'`→`'car-'`, `'edit'`→`'editcar-'`, `'acar'`→`'acar-'`, `'aeditcar'`→`'aeditcar-'`
+
+### DO NOT CHANGE
+- `_vdBrandChange(prefix)` ต้องรับ prefix ที่มี trailing `-` เสมอ เช่น `'acar-'`
+- `_uploadCarImages` ส่ง `base64data` (ไม่ใช่ `base64`) ตาม GAS spec
+- `doAdminAddCar` ต้อง await `_uploadCarImages()` ก่อน `api('createVehicle')`
