@@ -525,3 +525,40 @@ function openAddHouseModal() {
 - _STR_FIELDS ใน GAS มี 'house_no' แล้ว (Date→string conversion)
 - m-addcar (resident) modal ยังคงอยู่
 - openEditHouseModal ต้องใช้ _housesCache ก่อนเสมอ
+
+---
+
+## ✅ Fix ครั้งนี้ — Houses + Vehicle Cars
+
+### ข้อ 8: house_no แสดงผิด (แก้ถูกต้องแล้ว)
+- Root cause จริง: ต้องการ plain String ไม่แปลงอะไรทั้งสิ้น
+- Fix: `_safeHouseNo` = `String(val).trim()` ตรงๆ ไม่มี Date logic
+
+### ข้อ 2: viewHouseDetail — เปลี่ยนจาก Swal popup เป็น custom modal
+- Root cause: Swal.fire ใช้ default theme ทับ inline style → ดูไม่ถูก
+- Fix: สร้าง `m-view-house` modal ใหม่ มี gradient header, 2-col grid, fee bar
+- viewHouseDetail populate modal elements แล้ว openM('m-view-house')
+
+### รถ: m-admin-editcar ปรับปรุงใหม่
+- เพิ่ม fee_amount field (ค่าจอดรถ/ปี)
+- เพิ่ม image upload + preview ใหม่
+- แสดงรูปปัจจุบัน (existing images) จาก JSON
+- ยี่ห้อ/สี: dropdown + text input (อื่นๆ) แสดงพร้อมกัน
+- doAdminEditCar: async + upload images + fee_amount
+
+### รถ: m-admin-addcar ปรับปรุง
+- เพิ่ม fee_amount field
+- ยี่ห้อ/สี: text input (อื่นๆ) แสดงพร้อมกัน
+- doAdminAddCar: fee_amount ส่งไป GAS
+
+### Car Image Upload ใหม่ (onCarImageSelect)
+- ชื่อไฟล์: `CAR_YYYYMMDD_HHMMSS.jpg` เช่น `CAR_20260319_205343.jpg`
+- Resize: max 800px, quality 0.75 (~500KB)
+- Preview + ลบรูปได้
+- max 5 รูป
+- `_resetCarImages()` เพื่อ clear ตอน close modal
+
+### DO NOT CHANGE
+- `_safeHouseNo` ต้องเป็น `String(val).trim()` เท่านั้น — ห้ามมี Date logic
+- m-view-house modal IDs: vh-title, vh-sub, vh-owner, vh-phone, vh-email, vh-fee ฯลฯ
+- _carImages = [] global state — reset ทุกครั้งก่อน openM

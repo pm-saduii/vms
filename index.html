@@ -3147,22 +3147,102 @@ function _fmtPhone(v) {
   return d.slice(0,3) + '-' + d.slice(3,6) + '-' + d.slice(6,10);
 }
 
-function _safeHouseNo(val) {
-  if (!val && val !== 0) return '';
-  if (val instanceof Date) {
-    // Sheets stores "9/4" as Sept 4 (US format month/day)
-    // To reconstruct Thai "day/month": month=9, day=4 → "9/4"
-    return (val.getMonth() + 1) + '/' + val.getDate();
+
+// ============================================================
+// Car Image Upload — CAR_YYYYMMDD_HHMMSS.jpg, max 800px, ~500KB
+// ============================================================
+var _carImages = [];
+var _carImgPrefix = 'car-';
+
+function onCarImageSelect(input, prefix) {
+  _carImgPrefix = prefix || 'car-';
+  var files = Array.from(input.files || []);
+  var remaining = 5 - _carImages.length;
+  if (remaining <= 0) {
+    Swal.fire({icon:'warning',title:'\u0e41\u0e19\u0e1a\u0e23\u0e39\u0e1b\u0e44\u0e14\u0e49\u0e2a\u0e39\u0e07\u0e2a\u0e38\u0e14 5 \u0e23\u0e39\u0e1b',timer:1500,showConfirmButton:false});
+    return;
   }
-  var s = String(val).trim();
-  // Detect ISO date string like "2024-09-04" → Sept 4 → "9/4"
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
-    var d = new Date(s);
-    if (!isNaN(d)) return (d.getMonth() + 1) + '/' + d.getDate();
-  }
-  return s;
+  files = files.slice(0, remaining);
+  input.value = '';
+  files.forEach(function(file) {
+    var now = new Date();
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    var dtFmt = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) +
+                '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
+    var ext = (file.name.match(/\.(\w+)$/) || [,'jpg'])[1].toLowerCase();
+    var renamed = 'CAR_' + dtFmt + '.' + ext;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var MAX = 800;
+        var w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        _carImages.push({dataUrl: dataUrl, renamed: renamed});
+        _renderCarImagePreviews(_carImgPrefix);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
+function _renderCarImagePreviews(prefix) {
+  var wrap = document.getElementById(prefix + 'img-previews');
+  if (!wrap) return;
+  wrap.innerHTML = _carImages.map(function(img, idx) {
+    return '<div style="position:relative;display:inline-block">' +
+      '<img src="' + img.dataUrl + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
+      '<button onclick="_removeCarImage(' + idx + ',\'' + prefix + '\')" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;text-align:center;padding:0">&times;</button>' +
+      '<div style="font-size:9px;color:var(--mu);text-align:center;max-width:72px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">' + img.renamed + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function _removeCarImage(idx, prefix) {
+  _carImages.splice(idx, 1);
+  _renderCarImagePreviews(prefix);
+}
+
+async function _uploadCarImages() {
+  if (!_carImages.length) return [];
+  var urls = [];
+  for (var i = 0; i < _carImages.length; i++) {
+    var img = _carImages[i];
+    var base64 = img.dataUrl.split(',')[1];
+    var mimeType = img.dataUrl.split(';')[0].replace('data:','');
+    try {
+      var res = await api('uploadImage', {filename: img.renamed, base64: base64, mimeType: mimeType});
+      if (res && res.url) urls.push(res.url);
+    } catch(e) { console.warn('Upload failed:', img.renamed, e.message); }
+  }
+  return urls;
+}
+
+function _resetCarImages(prefix) {
+  _carImages = [];
+  _renderCarImagePreviews(prefix || 'car-');
+  var inp = document.getElementById((prefix||'car-') + 'img-input');
+  if (inp) inp.value = '';
+}
+function _safeHouseNo(val) {
+  if (val === null || val === undefined || val === '') return '';
+  // ALWAYS return as plain string — no date conversion
+  // Google Sheets may send Date objects but we display raw
+  if (val instanceof Date) {
+    // Should not happen if GAS _STR_FIELDS is set correctly
+    // But if it does, just convert to string without reformatting
+    return String(val);
+  }
+  return String(val).trim();
+}
 async function loadHousesPage() {
   showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19...');
   try {
@@ -4466,43 +4546,33 @@ async function doCreateHouse() {
 function viewHouseDetail(houseId) {
   var h = (_housesCache || []).find(function(x){ return x.house_id === houseId; });
   if (!h) { Swal.fire({ icon:'warning', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25' }); return; }
-  var usageLabel = {owner:'\u0e2d\u0e22\u0e39\u0e48\u0e40\u0e2d\u0e07',rent:'\u0e43\u0e2b\u0e49\u0e40\u0e0a\u0e48\u0e32',vacant:'\u0e27\u0e48\u0e32\u0e07'}[h.usage_type] || h.usage_type || '\u2014';
-  var statusLabel = {normal:'\u25cf \u0e1b\u0e01\u0e15\u0e34',overdue:'\u25cf \u0e04\u0e49\u0e32\u0e07\u0e0a\u0e33\u0e23\u0e30',suspended:'\u25cf \u0e23\u0e30\u0e07\u0e31\u0e1a',legal:'\u2696\ufe0f \u0e1f\u0e49\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e07'}[h.status] || h.status || '\u2014';
+  var usageMap = {owner:'\u0e2d\u0e22\u0e39\u0e48\u0e40\u0e2d\u0e07', rent:'\u0e43\u0e2b\u0e49\u0e40\u0e0a\u0e48\u0e32', vacant:'\u0e27\u0e48\u0e32\u0e07'};
   var fmt = function(v){ return '\u0e3f' + Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); };
-  Swal.fire({
-    width: '520px',
-    html:
-      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e2e8f0">' +
-        '<div style="width:44px;height:44px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">\U0001f3e0</div>' +
-        '<div style="text-align:left">' +
-          '<div style="font-size:17px;font-weight:700;color:#1e293b">\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no) + (h.soi ? ' <span style="font-size:12px;background:#e2e8f0;padding:2px 8px;border-radius:20px;color:#64748b">' + h.soi + '</span>' : '') + '</div>' +
-          '<div style="font-size:12px;color:#64748b;margin-top:2px">Admin Mode</div>' +
-        '</div>' +
-      '</div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;text-align:left;font-size:13px">' +
-        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07</div><div style="color:#1e293b;font-weight:600">' + (h.owner_name||'\u2014') + '</div></div>' +
-        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e1c\u0e39\u0e49\u0e40\u0e0a\u0e48\u0e32</div><div style="color:#1e293b">' + (h.renter_name||'\u2014') + '</div></div>' +
-        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e40\u0e1a\u0e2d\u0e23\u0e4c\u0e42\u0e17\u0e23</div><div style="color:#1e293b">' + (_fmtPhone(h.phone)||'\u2014') + '</div></div>' +
-        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e2d\u0e35\u0e40\u0e21\u0e25</div><div style="color:#1e293b;word-break:break-all">' + (h.email||'\u2014') + '</div></div>' +
-        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48</div><div style="color:#1e293b">' + (h.area_sqm||'0') + ' \u0e15\u0e23.\u0e27.</div></div>' +
-        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17</div><div style="color:#1e293b">' + usageLabel + '</div></div>' +
-      '</div>' +
-      '<div style="background:#f8fafc;border-radius:10px;padding:12px;margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">' +
-        '<div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07/\u0e1b\u0e35</div><div style="font-size:14px;font-weight:700;color:#3b82f6">' + fmt(h.fee_per_year) + '</div></div>' +
-        '<div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">\u0e04\u0e48\u0e32\u0e23\u0e16/\u0e1b\u0e35</div><div style="font-size:14px;font-weight:700;color:#8b5cf6">' + fmt(h.parking_fee_year) + '</div></div>' +
-        '<div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">\u0e04\u0e48\u0e32\u0e02\u0e22\u0e30/\u0e07\u0e27\u0e14</div><div style="font-size:14px;font-weight:700;color:#10b981">' + fmt(h.trash_fee_period) + '</div></div>' +
-      '</div>' +
-      (h.status_note ? '<div style="margin-top:10px;padding:8px 12px;background:#fef3c7;border-radius:8px;font-size:12px;text-align:left;color:#92400e">\u26a0\ufe0f ' + h.status_note + '</div>' : ''),
-    showCancelButton: true,
-    confirmButtonText: '\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02',
-    cancelButtonText: '\u0e1b\u0e34\u0e14',
-    customClass: { confirmButton:'btn btn-p', cancelButton:'btn btn-g' },
-    buttonsStyling: false
-  }).then(function(r) {
-    if (r.isConfirmed) openEditHouseModal(houseId);
-  });
-}
-// ============================================================
+  var statusBadge = {normal:'<span class="bd b-ok">\u25cf \u0e1b\u0e01\u0e15\u0e34</span>', overdue:'<span class="bd b-wn">\u25cf \u0e04\u0e49\u0e32\u0e07\u0e0a\u0e33\u0e23\u0e30</span>', suspended:'<span class="bd b-dg">\u25cf \u0e23\u0e30\u0e07\u0e31\u0e1a</span>', legal:'<span class="bd b-pur">\u2696\ufe0f \u0e1f\u0e49\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e07</span>'}[h.status] || '<span class="bd b-mu">'+h.status+'</span>';
+
+  document.getElementById('vh-title').textContent = '\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no);
+  document.getElementById('vh-sub').innerHTML = (h.soi ? '\u0e0b\u0e2d\u0e22 ' + h.soi + ' \u00b7 ' : '') + statusBadge;
+  document.getElementById('vh-owner').textContent  = h.owner_name || '\u2014';
+  document.getElementById('vh-renter').textContent  = h.renter_name || '\u2014';
+  document.getElementById('vh-contact').textContent = h.contact_person || '\u2014';
+  document.getElementById('vh-phone').textContent   = _fmtPhone(h.phone) || '\u2014';
+  document.getElementById('vh-email').textContent   = h.email || '\u2014';
+  document.getElementById('vh-address').textContent = h.address || '\u2014';
+  document.getElementById('vh-area').textContent    = (h.area_sqm || '0') + ' \u0e15\u0e23.\u0e27.';
+  document.getElementById('vh-usage').textContent   = usageMap[h.usage_type] || h.usage_type || '\u2014';
+  document.getElementById('vh-fee').textContent     = fmt(h.fee_per_year);
+  document.getElementById('vh-park').textContent    = fmt(h.parking_fee_year);
+  document.getElementById('vh-trash').textContent   = fmt(h.trash_fee_period);
+
+  var noteEl = document.getElementById('vh-note');
+  if (h.status_note) { noteEl.style.display='block'; noteEl.textContent = '\u26a0\ufe0f ' + h.status_note; }
+  else noteEl.style.display = 'none';
+
+  var editBtn = document.getElementById('vh-edit-btn');
+  if (editBtn) editBtn.onclick = function() { closeM('m-view-house'); openEditHouseModal(houseId); };
+
+  openM('m-view-house');
+}// ============================================================
 // NOTIFICATION PANEL
 // ============================================================
 var _notifData    = [];
@@ -5937,6 +6007,7 @@ async function doAdminAddCar() {
   var prov    = (document.getElementById('acar-prov')||{}).value||'';
   var park    = (document.getElementById('acar-park')||{}).value||'\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
   var stat    = (document.getElementById('acar-status')||{}).value||'active';
+  var fee     = parseFloat((document.getElementById('acar-fee')||{}).value||0) || 0;
 
   if (!houseId) { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1a\u0e49\u0e32\u0e19'}); return; }
   if (!type)    { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17'}); return; }
@@ -5946,7 +6017,7 @@ async function doAdminAddCar() {
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
   try {
     await api('createVehicle', { house_id:houseId, type, plate_number:plate, brand, model,
-      color, province:prov, parking_location:park, status:stat });
+      color, province:prov, parking_location:park, status:stat, fee_amount:fee });
     closeM('m-admin-addcar');
     invalidatePageCache('admin-vehicle');
     await loadAdminVehiclePage();
@@ -5957,22 +6028,40 @@ async function doAdminAddCar() {
 
 // ── Admin Edit Car ──
 function openAdminEditCarModal(vehicleId) {
-  var v = _allVehiclesCache.find(function(x){ return x.vehicle_id === vehicleId; });
-  if (!v) return;
+  var v = (_allVehiclesCache || []).find(function(x){ return x.vehicle_id === vehicleId; });
+  if (!v) { Swal.fire({icon:'warning',title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e23\u0e16'}); return; }
   _initVehicleDropdowns('aeditcar-');
+  _resetCarImages('aeditcar-');
+
   document.getElementById('aeditcar-id').value    = v.vehicle_id;
-  document.getElementById('aeditcar-plate').value = v.plate_number||'';
-  document.getElementById('aeditcar-model').value = v.model||'';
-  var t = document.getElementById('aeditcar-type');    if(t) t.value = v.type||'';
-  var p = document.getElementById('aeditcar-park');    if(p) p.value = v.parking_location||'\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
-  var s = document.getElementById('aeditcar-status');  if(s) s.value = v.status||'active';
-  _setSelectOrCustom('aeditcar-brand-sel','aeditcar-brand', v.brand||'');
-  _setSelectOrCustom('aeditcar-color-sel','aeditcar-color', v.color||'');
-  var pv = document.getElementById('aeditcar-prov'); if(pv) pv.value = v.province||'';
+  document.getElementById('aeditcar-plate').value = v.plate_number || '';
+  document.getElementById('aeditcar-model').value = v.model || '';
+  document.getElementById('aeditcar-fee').value   = v.fee_amount || 0;
+  var t = document.getElementById('aeditcar-type');   if(t) t.value = v.type || '';
+  var p = document.getElementById('aeditcar-park');   if(p) p.value = v.parking_location || '\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
+  var s = document.getElementById('aeditcar-status'); if(s) s.value = v.status || 'active';
+  _setSelectOrCustom('aeditcar-brand-sel','aeditcar-brand', v.brand || '');
+  _setSelectOrCustom('aeditcar-color-sel','aeditcar-color', v.color || '');
+  var pv = document.getElementById('aeditcar-prov'); if(pv) pv.value = v.province || '';
+
+  // Show existing images
+  var imgWrap = document.getElementById('aeditcar-current-imgs');
+  if (imgWrap) {
+    var imgs = [];
+    try { imgs = JSON.parse(v.image_urls || '[]'); } catch(e) { if(v.image_urls) imgs = [v.image_urls]; }
+    if (imgs.length) {
+      imgWrap.innerHTML = '<div class="sl" style="margin-bottom:6px">\U0001f4f8 \u0e23\u0e39\u0e1b\u0e1b\u0e31\u0e08\u0e08\u0e38\u0e1a\u0e31\u0e19</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
+        imgs.map(function(url) {
+          return '<img src="' + url + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">';
+        }).join('') + '</div>';
+    } else {
+      imgWrap.innerHTML = '';
+    }
+  }
   _setEl('aeditcar-sub', '\u0e1a\u0e49\u0e32\u0e19 ' + (v.house_id||'') + ' \u00b7 ' + (v.plate_number||''));
   openM('m-admin-editcar');
 }
-
 async function doAdminEditCar() {
   var vid    = (document.getElementById('aeditcar-id')||{}).value||'';
   var type   = (document.getElementById('aeditcar-type')||{}).value||'';
@@ -5983,13 +6072,18 @@ async function doAdminEditCar() {
   var prov   = (document.getElementById('aeditcar-prov')||{}).value||'';
   var park   = (document.getElementById('aeditcar-park')||{}).value||'\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
   var stat   = (document.getElementById('aeditcar-status')||{}).value||'active';
-
+  var fee    = parseFloat((document.getElementById('aeditcar-fee')||{}).value||0) || 0;
   if (!plate) { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19'}); return; }
 
   showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
   try {
-    await api('updateVehicle', { vehicle_id:vid, type, plate_number:plate, brand, model,
-      color, province:prov, parking_location:park, status:stat });
+    // Upload new images if any
+    var newUrls = await _uploadCarImages();
+    var payload = { vehicle_id:vid, type, plate_number:plate, brand, model,
+      color, province:prov, parking_location:park, status:stat, fee_amount:fee };
+    if (newUrls.length) payload.image_urls = JSON.stringify(newUrls);
+    await api('updateVehicle', payload);
+    _resetCarImages('aeditcar-');
     closeM('m-admin-editcar');
     invalidatePageCache('admin-vehicle');
     await loadAdminVehiclePage();
@@ -5997,7 +6091,6 @@ async function doAdminEditCar() {
   } catch(e) { Swal.fire({icon:'error',title:'Error',text:e.message}); }
   finally { hideLoader(); }
 }
-
 // ── Extend VD helpers for 'acar' and 'aeditcar' prefixes ──
 // _vdGetBrand and _vdGetColor need to handle these prefixes too
 var _origVdGetBrand = _vdGetBrand;
@@ -6369,12 +6462,12 @@ function _openInvoiceWindow(f, isFullYear) {
     <div class="fr3">
       <div class="fg"><label class="fl">ยี่ห้อ *</label>
         <select class="fs" id="acar-brand-sel" onchange="_vdBrandChange('acar')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="acar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+        <input class="fi" id="acar-brand" placeholder="พิมพ์ยี่ห้อ (อื่น×)" style="margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
         <input class="fi" id="acar-model" placeholder="เช่น Camry"></div>
       <div class="fg"><label class="fl">สี *</label>
         <select class="fs" id="acar-color-sel" onchange="_vdColorChange('acar')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="acar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+        <input class="fi" id="acar-color" placeholder="พิมพ์สี (อื่น×)" style="margin-top:6px"></div>
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">จังหวัด *</label>
@@ -6390,6 +6483,8 @@ function _openInvoiceWindow(f, isFullYear) {
           <option value="active">ใช้งานปกติ</option>
           <option value="inactive">ไม่ได้ใช้งาน</option>
         </select></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ/ปี (฿)</label>
+        <input class="fi" id="acar-fee" type="number" min="0" placeholder="0"></div>
     </div>
     <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:4px">
       <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
@@ -6407,8 +6502,45 @@ function _openInvoiceWindow(f, isFullYear) {
 </div></div>
 
 
+</div>
 
-<div class="mo" id="m-admin-editcar">
+
+<!-- MODAL: ดูข้อมูลบ้าน -->
+<div class="mo" id="m-view-house" onclick="omOut(event,'m-view-house')">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:var(--r-xxl) var(--r-xxl) 0 0;padding:18px 20px">
+    <div class="md-hd-ico" style="background:rgba(255,255,255,.2);color:#fff">🏠</div>
+    <div>
+      <div class="md-title" id="vh-title" style="color:#fff;font-size:18px">—</div>
+      <div class="md-sub" id="vh-sub" style="color:rgba(255,255,255,.75)">—</div>
+    </div>
+  </div>
+  <div class="md-bd" style="padding:16px 20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:16px">
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">เจ้าของ</div><div id="vh-owner" style="font-weight:600;color:var(--tx)">—</div></div>
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">ผู้เช่า</div><div id="vh-renter" style="color:var(--tx2)">—</div></div>
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">ผู้ติดต่อ</div><div id="vh-contact" style="color:var(--tx2)">—</div></div>
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">เบอร์โทร</div><div id="vh-phone" style="color:var(--tx2)">—</div></div>
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">อีเมล</div><div id="vh-email" style="color:var(--tx2);word-break:break-all">—</div></div>
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">ที่อยู่</div><div id="vh-address" style="color:var(--tx2)">—</div></div>
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">พื้นที่</div><div id="vh-area" style="color:var(--tx2)">—</div></div>
+      <div><div style="font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:3px">ประเภทการใช้</div><div id="vh-usage" style="color:var(--tx2)">—</div></div>
+    </div>
+    <div style="background:var(--bg2);border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:12px">
+      <div><div style="font-size:10px;color:var(--mu);margin-bottom:3px">ค่าส่วนกลาง/ปี</div><div id="vh-fee" style="font-size:14px;font-weight:700;color:var(--pr)">—</div></div>
+      <div><div style="font-size:10px;color:var(--mu);margin-bottom:3px">ค่ารถ/ปี</div><div id="vh-park" style="font-size:14px;font-weight:700;color:#8b5cf6">—</div></div>
+      <div><div style="font-size:10px;color:var(--mu);margin-bottom:3px">ค่าขยะ/งวด</div><div id="vh-trash" style="font-size:14px;font-weight:700;color:#10b981">—</div></div>
+    </div>
+    <div id="vh-note" style="display:none;padding:8px 12px;background:var(--wn-bg,#fef3c7);border-radius:8px;font-size:12px;color:#92400e"></div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-view-house')">ปิด</button>
+    <button class="btn btn-p btn-sm" id="vh-edit-btn" onclick="closeM('m-view-house');คลิก">✏️ แก้ไข</button>
+  </div>
+</div></div>
+<!-- MODAL: Admin แก้ไขรถ -->
+<div class="mo" id="m-admin-editcar" onclick="omOut(event,'m-admin-editcar')">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">✏️</div>
@@ -6419,11 +6551,12 @@ function _openInvoiceWindow(f, isFullYear) {
     <div class="fr2">
       <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
         <select class="fs" id="aeditcar-type">
+          <option value="">— เลือกประเภท —</option>
           <option value="รถยนต์">🚗 รถยนต์</option>
           <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
           <option value="รถตู้">🚐 รถตู้</option>
           <option value="รถกระบะ">🛻 รถกระบะ</option>
-          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
+          <option value="รถอื่น×">🚙 รถอื่น×</option>
         </select></div>
       <div class="fg"><label class="fl">ทะเบียนรถ *</label>
         <input class="fi" id="aeditcar-plate" placeholder="กข-1234"></div>
@@ -6431,12 +6564,12 @@ function _openInvoiceWindow(f, isFullYear) {
     <div class="fr3">
       <div class="fg"><label class="fl">ยี่ห้อ</label>
         <select class="fs" id="aeditcar-brand-sel" onchange="_vdBrandChange('aeditcar')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="aeditcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+        <input class="fi" id="aeditcar-brand" placeholder="พิมพ์ยี่ห้อ (อื่น×)" style="margin-top:6px"></div>
       <div class="fg"><label class="fl">รุ่น</label>
         <input class="fi" id="aeditcar-model" placeholder="เช่น Camry"></div>
       <div class="fg"><label class="fl">สี</label>
         <select class="fs" id="aeditcar-color-sel" onchange="_vdColorChange('aeditcar')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="aeditcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+        <input class="fi" id="aeditcar-color" placeholder="พิมพ์สี (อื่น×)" style="margin-top:6px"></div>
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">จังหวัด</label>
@@ -6447,19 +6580,31 @@ function _openInvoiceWindow(f, isFullYear) {
           <option value="หน้าบ้าน">หน้าบ้าน</option>
           <option value="ส่วนกลาง">ส่วนกลาง</option>
         </select></div>
-      <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="aeditcar-status">
-          <option value="active">ใช้งานปกติ</option>
-          <option value="inactive">ไม่ได้ใช้งาน</option>
-          <option value="pending">รออนุมัติ</option>
-        </select></div>
+      <div class="fg"><label class="fl">ค่าจอดรถ/ปี (฿)</label>
+        <input class="fi" id="aeditcar-fee" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="fg"><label class="fl">สถานะ</label>
+      <select class="fs" id="aeditcar-status">
+        <option value="active">ใช้งานปกติ</option>
+        <option value="inactive">ไม่ได้ใช้งาน</option>
+        <option value="pending">รออนุมัติ</option>
+      </select></div>
+    <!-- Current images -->
+    <div id="aeditcar-current-imgs" style="margin-top:10px"></div>
+    <!-- Upload new image -->
+    <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:8px">
+      <div class="sl">📷 เพิ่ม/เปลี่ยนรูปภาพ</div>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
+        📷 เลือกรูปใหม่
+        <input type="file" id="aeditcar-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'aeditcar-')">
+      </label>
+      <span style="font-size:11px;color:var(--mu);margin-left:8px">ไม่เกิน 5 รูป, ย่อ 500KB</span>
+      <div id="aeditcar-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
     </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-admin-editcar')">ยกเลิก</button>
     <button class="btn btn-p btn-sm" onclick="doAdminEditCar()">💾 บันทึก</button>
   </div>
-</div></div>
-
-</body>
+</div></div></body>
 </html>
