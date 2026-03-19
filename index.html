@@ -506,6 +506,13 @@ a{color:var(--pr);text-decoration:none}
   transition:border-color var(--tr),box-shadow var(--tr);
   -webkit-appearance:none;
 }
+.fs{
+  padding-right:36px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  cursor:pointer;
+}
 .fi:focus,.fs:focus,.ft:focus{border-color:var(--pr);box-shadow:0 0 0 3px var(--prl)}
 .fi:disabled,.fs:disabled{background:var(--bg2);color:var(--mu);cursor:not-allowed}
 .ft{resize:vertical;min-height:80px}
@@ -1326,8 +1333,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             </select>
           </div>
           <div class="search-bar"><span>🔍</span><input type="text" id="house-search" placeholder="ค้นหาบ้านเลขที่ ชื่อ เบอร์โทร..." oninput="filterHousesTable()"></div>
-          <div class="tw"><table><thead><tr><th>บ้านเลขที่</th><th>เจ้าของ</th><th>โทร</th><th>ค่าส่วนกลาง</th><th>สถานะ</th><th></th></tr></thead><tbody id="tbl-houses">
-            <tr><td colspan="6" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
+          <div class="tw"><table><thead><tr><th>บ้านเลขที่</th><th>เจ้าของ</th><th>โทร</th><th>อีเมล</th><th>ค่าส่วนกลาง</th><th>สถานะ</th><th></th></tr></thead><tbody id="tbl-houses">
+            <tr><td colspan="7" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
           </tbody></table></div>
         </div>
       </div>
@@ -3091,7 +3098,8 @@ async function loadHousesPage() {
       return '<tr>' +
         '<td><strong>' + h.house_no + '</strong> <span class="tag">' + (h.soi||'') + '</span></td>' +
         '<td>' + (h.owner_name||'') + '</td>' +
-        '<td>' + (h.phone||'') + '</td>' +
+        '<td style="white-space:nowrap">' + (h.phone||'—') + '</td>' +
+        '<td style="font-size:12px">' + (h.email||'—') + '</td>' +
         '<td class="text-pr fw-7">\u0e3f' + Number(h.fee_per_year||0).toLocaleString() + '</td>' +
         '<td>' + badge + '</td>' +
         '<td><button class="btn btn-xs btn-o" onclick="openEditHouseModal(\'' + h.house_id + '\')">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button></td>' +
