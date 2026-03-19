@@ -54,8 +54,9 @@ var Fees = (function() {
     const { year, period } = body;
     if (!year || !period) throw new Error('year และ period (H1/H2) จำเป็น');
 
-    const houses = sheetToObjects('HOUSES');
-    const allFees = sheetToObjects('FEES');
+    const houses       = sheetToObjects('HOUSES');
+    const allFees       = sheetToObjects('FEES');
+    const allVehicles   = sheetToObjects('VEHICLES');
 
     const existing = allFees.filter(
       r => String(r.year) === String(year) && r.period === period
@@ -95,8 +96,18 @@ var Fees = (function() {
         return s + Math.max(0, rowTotal);
       }, 0).toFixed(2));
 
-      const fee_amount  = parseFloat((Number(h.fee_per_year   || 0) / 2).toFixed(2));
-      const parking_fee = parseFloat((Number(h.parking_fee_year || 0) / 2).toFixed(2));
+      const fee_amount  = parseFloat((Number(h.fee_per_year || 0) / 2).toFixed(2));
+      // ค่าจอดรถ = รวม fee_amount ของรถที่ approved ของบ้านนี้
+      const houseVehicles = allFees.filter ? [] : []; // placeholder — use vehicles sheet
+      const vehicleFees   = (allVehicles || []).filter(v =>
+        v.house_id === h.house_id && v.status === 'active' && Number(v.fee_amount||0) > 0
+      );
+      const parking_fee_from_vehicles = parseFloat(vehicleFees.reduce((s, v) =>
+        s + Number(v.fee_amount || 0), 0).toFixed(2));
+      // ถ้ามีค่าจอดรถจากรถจริง ใช้นั้น ไม่งั้นใช้ค่าเดิมหาร 2
+      const parking_fee = parking_fee_from_vehicles > 0
+        ? parking_fee_from_vehicles
+        : parseFloat((Number(h.parking_fee_year || 0) / 2).toFixed(2));
       const trash_fee   = parseFloat(Number(h.trash_fee_period || 0).toFixed(2));
       const total_raw   = parseFloat((fee_amount + parking_fee + trash_fee + overdue_carry).toFixed(2));
       const due_date    = period === 'H1' ? year + '-03-31' : year + '-09-30';

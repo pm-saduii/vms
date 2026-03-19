@@ -59,3 +59,39 @@ _Last updated: session ปัจจุบัน_
 - Settings pane: must NOT have tabs (stab-village, settings-tabs)
 - .md CSS: must have `background:var(--card)` AND `transform:translateY(30px)`
 - All 21 modals: must have balanced <div>/</div>
+
+---
+
+## ✅ Changes (session นี้ — DONE)
+
+### 1. Fix: Edit House — phone/email ไม่ดึงมา
+- ✅ Root cause: `loadHousesPage` ไม่ set `_housesCache` → `openEditHouseModal` ใช้ empty cache → ข้อมูลว่าง
+- ✅ Fix: เพิ่ม `_housesCache = houses;` ใน `loadHousesPage` หลัง `api('getHouses')`
+
+### 2. Fix: ค่าส่วนกลาง — แสดงค่าจอดรถจากข้อมูลรถ
+- ✅ Logic: `parking_fee` ของแต่ละบ้าน = รวม `fee_amount` ของรถที่ approved ทุกคันในบ้านนั้น
+- ✅ Fix: ใน `Fees_Issues_Violations.gs` ปรับ `generate()` ให้ query VEHICLES แล้ว sum fee_amount per house
+- ✅ Fix: `loadFeesPage` แสดง parking_fee ที่มาจากรถจริง
+
+### 3. Feature: Admin Vehicle Page — Group by House
+- ✅ Layout:
+  - แสดง 1 row ต่อ 1 บ้าน (house_no + จำนวนรถ)
+  - กดที่บ้าน → expand แสดง cards รถ (3 คันต่อแถว, responsive 1 คัน)
+- ✅ Tabs: pending / inactive / all แยกออกไป ต้องกดถึงจะโหลด
+- ⚠️ DO NOT CHANGE: tab structure เดิม (aveh-pending/active/inactive/all) ยังใช้งานได้
+
+### 4. Feature: Admin Sidebar Reorder
+เรียงใหม่:
+- profile card + ออกจากระบบ (ด้านบนสุด)
+- ปุ่ม Home (🏠 → dashboard)
+- **หน้าหลัก:** Dashboard → ข้อมูลบ้าน → ข้อมูลรถ → ค่าส่วนกลาง → แจ้งกระทำผิด
+- **จัดการ:** จัดการปัญหา → คำขอแก้ไข → ประกาศ → ผลงานนิติ → ทะเบียนช่าง → ประกาศขาย
+- **ตั้งค่า:** ตั้งค่าระบบ → ข้อมูลผู้ใช้ระบบ → Logs
+
+### 5. Feature: Resident Sidebar Reorder
+เรียงใหม่:
+- profile card + ออกจากระบบ (ด้านบนสุด)
+- ปุ่ม Home (🏠 → dashboard)
+- **หน้าหลัก:** หน้าหลัก → ข้อมูลบ้าน → ข้อมูลรถ → ค่าส่วนกลาง → แจ้งปัญหา → แจ้งเตือนจากนิติ
+- **ข้อมูลอื่นๆ:** ประกาศ → ผลงานนิติ → ทะเบียนช่าง → ประกาศขายของ
+- **บัญชี:** ข้อมูลผู้ใช้ระบบ
