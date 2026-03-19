@@ -1490,7 +1490,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
             <div class="fr3">
               <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
-                <input class="fi" id="cfg-inp-village_phone" type="tel" placeholder="0x-xxxx-xxxx"></div>
+                <input class="fi" id="cfg-inp-village_phone" type="tel" placeholder="0x-xxxx-xxxx" oninput="this.value=_fmtPhone(this.value)"></div>
               <div class="fg"><label class="fl">อีเมลนิติ</label>
                 <input class="fi" id="cfg-inp-village_email" type="email" placeholder="admin@village.com"></div>
               <div class="fg"><label class="fl">Logo (Emoji หรือ URL)</label>
@@ -1967,7 +1967,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="fg"><label class="fl">Username</label><input class="fi" id="prof-username" value="" disabled></div>
             <div class="fg"><label class="fl">บ้านเลขที่</label><input class="fi" id="prof-houseid" value="" disabled></div>
           </div>
-          <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="prof-phone"></div>
+          <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="prof-phone" oninput="this.value=_fmtPhone(this.value)"></div>
           <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="prof-email"></div>
           <button class="btn btn-p btn-full" onclick="doSaveResProfile()">💾 บันทึกข้อมูล</button>
         </div></div>
@@ -2033,7 +2033,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์</label><input class="fi" id="prof-name" value="" disabled></div>
       <div class="fg"><label class="fl">ผู้เช่า/ผู้อาศัย</label><input class="fi" value="" placeholder="(ไม่มี)"></div>
     </div>
-    <div class="fg"><label class="fl">เบอร์โทรศัพท์ ✏️</label><input class="fi" id="edit-phone" value="081-234-5678"></div>
+    <div class="fg"><label class="fl">เบอร์โทรศัพท์ ✏️</label><input class="fi" id="edit-phone" value="081-234-5678" oninput="this.value=_fmtPhone(this.value)"></div>
     <div class="fg"><label class="fl">อีเมล ✏️</label><input class="fi" id="edit-email" value="somchai@email.com"></div>
     <div class="fg"><label class="fl">ประเภทการใช้ ✏️</label>
       <select class="fs" id="edithouse-usage"><option value="owner">อยู่เอง</option><option value="rent">ให้เช่า</option><option value="vacant">ว่าง</option></select>
@@ -2312,7 +2312,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     </div>
     <div class="fr3">
       <div class="fg"><label class="fl">ผู้ติดต่อ</label><input class="fi" id="edithouse-contact" placeholder="ชื่อผู้ติดต่อ"></div>
-      <div class="fg"><label class="fl">เบอร์โทรติดต่อ</label><input class="fi" id="edithouse-phone" type="tel"></div>
+      <div class="fg"><label class="fl">เบอร์โทรติดต่อ</label><input class="fi" id="edithouse-phone" type="tel" oninput="this.value=_fmtPhone(this.value)"></div>
       <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="edithouse-email" type="email"></div>
     </div>
     <div class="sl">💰 ค่าธรรมเนียม (คำนวณอัตโนมัติ)</div>
@@ -2360,7 +2360,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="md-bd">
     <div class="fr2">
       <div class="fg"><label class="fl">ชื่อ-นามสกุล/ชื่อร้าน</label><input class="fi" id="newcon-name" placeholder="เช่น สมศักดิ์ ช่างไฟ"></div>
-      <div class="fg"><label class="fl">เบอร์โทรศัพท์</label><input class="fi" id="newcon-phone" placeholder="08X-XXX-XXXX"></div>
+      <div class="fg"><label class="fl">เบอร์โทรศัพท์</label><input class="fi" id="newcon-phone" placeholder="08X-XXX-XXXX" oninput="this.value=_fmtPhone(this.value)"></div>
     </div>
     <div class="fg"><label class="fl">Line ID / ช่องทางติดต่อ</label><input class="fi" id="newcon-lineid" placeholder="@username"></div>
     <div class="fg"><label class="fl">ที่อยู่/พื้นที่ให้บริการ</label><input class="fi" id="newcon-area" placeholder="เช่น นนทบุรี กรุงเทพฯ"></div>
@@ -3126,6 +3126,17 @@ async function loadPageData(view, page) {
 // ── ADMIN: Houses ─────────────────────────────────────────────
 
 // Convert house_no safely (Google Sheets may parse "10/1" as a Date)
+
+// Format phone number as xxx-xxx-xxxx (digits only, hyphen-separated)
+function _fmtPhone(v) {
+  if (!v) return '';
+  var d = String(v).replace(/[^\d]/g, '');  // strip non-digits
+  if (!d) return String(v);                  // return as-is if no digits
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return d.slice(0,3) + '-' + d.slice(3);
+  return d.slice(0,3) + '-' + d.slice(3,6) + '-' + d.slice(6,10);
+}
+
 function _safeHouseNo(val) {
   if (!val && val !== 0) return '';
   if (val instanceof Date) {
@@ -3175,7 +3186,7 @@ async function loadHousesPage() {
       return '<tr>' +
         '<td><strong>' + _safeHouseNo(h.house_no) + '</strong>' + (h.soi ? ' <span class="tag">' + h.soi + '</span>' : '') + '</td>' +
         '<td>' + (h.owner_name||'') + '</td>' +
-        '<td style="white-space:nowrap">' + (h.phone||'\u2014') + '</td>' +
+        '<td style="white-space:nowrap">' + (h.phone ? _fmtPhone(h.phone) : '\u2014') + '</td>' +
         '<td style="text-align:right;white-space:nowrap" class="text-pr fw-7">' + fmt(h.fee_per_year) + '</td>' +
         '<td style="text-align:right;white-space:nowrap">' + (park > 0 ? fmt(park) : '\u2014') + '</td>' +
         '<td>' + badge + '</td>' +
@@ -4316,7 +4327,7 @@ async function openEditHouseModal(id, mode) {
   document.getElementById('edithouse-owner').value      = h.owner_name || '';
   document.getElementById('edithouse-renter').value     = h.renter_name || '';
   document.getElementById('edithouse-contact').value    = h.contact_person || '';
-  document.getElementById('edithouse-phone').value      = h.phone || '';
+  document.getElementById('edithouse-phone').value      = _fmtPhone(h.phone);
   document.getElementById('edithouse-email').value      = h.email || '';
   document.getElementById('edithouse-fee').value        = isAdd ? '' : feeYr;
   document.getElementById('edithouse-parking').value    = isAdd ? '' : parkTotal;
@@ -4448,7 +4459,7 @@ function viewHouseDetail(houseId) {
     html: '<div style="text-align:left;font-size:13px;line-height:1.8">' +
       '<b>เจ้าของ:</b> ' + (h.owner_name||'—') + '<br>' +
       (h.renter_name ? '<b>ผู้เช่า:</b> ' + h.renter_name + '<br>' : '') +
-      '<b>เบอร์โทร:</b> ' + (h.phone||'—') + '<br>' +
+      '<b>เบอร์โทร:</b> ' + (_fmtPhone(h.phone) || '—') + '<br>' +
       '<b>อีเมล:</b> ' + (h.email||'—') + '<br>' +
       '<b>พื้นที่:</b> ' + (h.area_sqm||'0') + ' ตร.ว.<br>' +
       '<b>การใช้:</b> ' + usageLabel + '<br>' +
