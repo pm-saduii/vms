@@ -183,3 +183,35 @@ _Last updated: session ปัจจุบัน_
 - `id="edithouse-fee"`, `id="edithouse-parking"`, `id="edithouse-trash"` คงเดิม
 - Badge IDs ทุกตัวต้องคงเดิม
 - Load function names ทุกตัวต้องคงเดิม (loadHousesPage, loadFeesPage ฯลฯ)
+
+---
+
+## ✅ Session — Refresh Buttons + Houses Fix
+
+### Root Cause ข้อ 4 (phone/email ไม่แสดง — แก้ครั้งที่ 5)
+- **สาเหตุจริง:** มี 3 copies ของ `loadHousesPage` ใน JS
+- JS ใช้ definition สุดท้าย (copy เก่า) ซึ่งไม่ fetch vehicles + ไม่ set `_housesCache` ถูกต้อง
+- **แก้:** ลบ duplicate 2 copies ออก → เหลือ 1 copy (version ใหม่)
+
+### Refresh Buttons
+- เปลี่ยนจาก 🔄 emoji → styled `↺ รีโหลด` button (SVG icon)
+- CSS class `.btn-refresh` ใหม่
+- ทุกหน้าที่มีตาราง (13 หน้า)
+
+### Houses Table
+- Columns: บ้านเลขที่ | เจ้าของ | โทร | ค่าส่วนกลาง/ปี | ค่ารถ/ปี | สถานะ | ✏️
+- Sort by soi + house_no (natural sort)
+- ค่ารถ/ปี = SUM(VEHICLES.fee_amount) เฉพาะ approved
+
+### Bulk Modal Headers
+- ค่าขยะ/ปี (เปลี่ยนจาก /งวด)
+- แสดง: บ้าน | ตร.ว. | ค่าส่วนกลาง/ปี | ค่ารถ/ปี | ค่าขยะ/ปี
+
+### Edit House Modal
+- เพิ่ม `contact_person` field (ผู้ติดต่อ)
+- Fee fields readonly + auto-calc เมื่อเปลี่ยน area
+- phone/email/contact_person ดึงจาก _housesCache ถูกต้องแล้ว
+
+### DO NOT CHANGE
+- loadHousesPage ต้องมีแค่ 1 definition (ที่ pos ~172580)
+- เช่นเดียวกันกับ function อื่นๆ — อย่าให้มี duplicate
