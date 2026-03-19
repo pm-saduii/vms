@@ -1020,7 +1020,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         <input class="fi" id="inp-username" placeholder="กรอก username" autocomplete="username">
       </div>
       <div class="fg"><label class="fl">รหัสผ่าน</label>
-        <input class="fi" id="inp-password" type="password" placeholder="กรอก password" autocomplete="current-password">
+        <form onsubmit="doLogin();return false;" autocomplete="on"><input class="fi" id="inp-password" type="password" placeholder="กรอก password" autocomplete="current-password" name="password"></form>
       </div>
       <button class="btn btn-p btn-full" onclick="doLogin()" style="margin-top:4px">
         🔑 เข้าสู่ระบบ
@@ -1972,9 +1972,9 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <button class="btn btn-p btn-full" onclick="doSaveResProfile()">💾 บันทึกข้อมูล</button>
         </div></div>
         <div class="card"><div class="ch"><div class="ch-ico">🔒</div><div class="ct">เปลี่ยนรหัสผ่าน</div></div><div class="cb">
-          <div class="fg"><label class="fl">รหัสผ่านปัจจุบัน</label><input class="fi" type="password"></div>
+          <form autocomplete="new-password" onsubmit="return false;"><div class="fg"><label class="fl">รหัสผ่านปัจจุบัน</label><input class="fi" type="password"></div>
           <div class="fg"><label class="fl">รหัสผ่านใหม่</label><input class="fi" type="password"></div>
-          <div class="fg"><label class="fl">ยืนยันรหัสผ่านใหม่</label><input class="fi" type="password"></div>
+          <div class="fg"><label class="fl">ยืนยันรหัสผ่านใหม่</label><input class="fi" type="password"></div></form>
           <button class="btn btn-o btn-full" onclick="sw('changepw')">🔒 เปลี่ยนรหัสผ่าน</button>
         </div></div>
       </div>
@@ -3124,6 +3124,22 @@ async function loadPageData(view, page) {
 }
 
 // ── ADMIN: Houses ─────────────────────────────────────────────
+
+// Convert house_no safely (Google Sheets may parse "10/1" as a Date)
+function _safeHouseNo(val) {
+  if (!val && val !== 0) return '';
+  if (val instanceof Date) {
+    return val.getDate() + '/' + (val.getMonth() + 1);
+  }
+  var s = String(val).trim();
+  // Detect ISO date string like "2024-10-01"
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+    var d = new Date(s);
+    if (!isNaN(d)) return d.getDate() + '/' + (d.getMonth() + 1);
+  }
+  return s;
+}
+
 async function loadHousesPage() {
   showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19...');
   try {
