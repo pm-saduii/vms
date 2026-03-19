@@ -1045,21 +1045,17 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
   <!-- ADMIN NAV -->
   <div id="anav" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
-    <div class="sb-user-pill" style="cursor:pointer" onclick="doLogout()" title="ออกจากระบบ">
-      <div class="sb-av">น</div>
-      <div class="sb-uinfo">
-        <div class="sb-uname" id="sb-admin-name">—</div>
-        <div class="sb-urole" id="sb-admin-role">Administrator</div>
+
+    <!-- Home button -->
+    <div style="padding:8px 10px 4px">
+      <div class="sb-item" onclick="goHome('admin')" style="background:rgba(255,255,255,.12);justify-content:flex-start;gap:8px;font-weight:600;font-size:13px">
+        <span style="font-size:16px">🏠</span> Home
       </div>
-      <div style="font-size:11px;color:var(--sbm);opacity:.6">ออกจากระบบ</div>
     </div>
-    <div style="padding:4px 8px 2px">
-      <button onclick="go('admin','dash',null)" style="width:100%;padding:6px 10px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:center">
-        🏠 หน้าหลัก (Dashboard)
-      </button>
-    </div>
-    <nav class="sb-nav">
-      <div class="sb-sec">หน้าหลัก</div>
+
+    <!-- Menu nav -->
+    <nav class="sb-nav" style="flex:1">
+      <div class="sb-sec">ข้อมูลหลัก</div>
       <div class="sb-item act" onclick="go('admin','dash',this)"><span class="sb-ico">📊</span>Dashboard</div>
       <div class="sb-item" onclick="go('admin','houses',this)"><span class="sb-ico">🏠</span>ข้อมูลบ้าน</div>
       <div class="sb-item" onclick="go('admin','vehicle',this)"><span class="sb-ico">🚗</span>ข้อมูลรถ<span class="sb-badge" id="badge-vehicle"></span></div>
@@ -1077,6 +1073,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="sb-item" onclick="go('admin','usr',this)"><span class="sb-ico">👥</span>ข้อมูลผู้ใช้ระบบ</div>
       <div class="sb-item" onclick="go('admin','log',this)"><span class="sb-ico">📋</span>Logs การเข้าใช้ระบบ</div>
     </nav>
+
+    <!-- Theme picker (hidden) -->
     <div class="sb-themes" style="display:none">
       <div class="sb-themes-lbl" style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--sbm);text-transform:uppercase;padding:0 0 6px">ธีมสี</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px">
@@ -1088,28 +1086,37 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         <button class="th-txt-btn" data-t="violet"  onclick="setTheme('violet')">Violet</button>
       </div>
     </div>
+
+    <!-- Profile card (bottom) -->
+    <div class="sb-user-pill" style="margin:6px 8px;border-radius:10px;background:rgba(255,255,255,.08);cursor:default">
+      <div class="sb-av" style="background:var(--ac)">น</div>
+      <div class="sb-uinfo">
+        <div class="sb-uname" id="sb-admin-name">—</div>
+        <div class="sb-urole" id="sb-admin-role">Administrator</div>
+      </div>
+      <div class="sb-role-dot"></div>
+    </div>
+
+    <!-- Logout -->
     <div class="sb-foot">
       <div class="sb-logout" onclick="doLogout()">🚪 ออกจากระบบ</div>
     </div>
+
   </div>
 
   <!-- RESIDENT NAV -->
   <div id="rnav" style="display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0">
-    <div class="sb-user-pill" style="cursor:pointer" onclick="doLogout()" title="ออกจากระบบ">
-      <div class="sb-av" id="res-av">ล</div>
-      <div class="sb-uinfo">
-        <div class="sb-uname" id="sb-res-name">—</div>
-        <div class="sb-urole" id="sb-res-role">ลูกบ้าน</div>
+
+    <!-- Home button -->
+    <div style="padding:8px 10px 4px">
+      <div class="sb-item" onclick="goHome('res')" style="background:rgba(255,255,255,.12);justify-content:flex-start;gap:8px;font-weight:600;font-size:13px">
+        <span style="font-size:16px">🏠</span> Home
       </div>
-      <div style="font-size:11px;color:var(--sbm);opacity:.6">ออกจากระบบ</div>
     </div>
-    <div style="padding:4px 8px 2px">
-      <button onclick="go('res','dash',null)" style="width:100%;padding:6px 10px;background:var(--ac);color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:center">
-        🏠 หน้าหลัก (Dashboard)
-      </button>
-    </div>
-    <nav class="sb-nav">
-      <div class="sb-sec">หน้าหลัก</div>
+
+    <!-- Menu nav -->
+    <nav class="sb-nav" style="flex:1">
+      <div class="sb-sec">ข้อมูลหลัก</div>
       <div class="sb-item act" onclick="go('res','dash',this)"><span class="sb-ico">📊</span>หน้าหลัก</div>
       <div class="sb-item" onclick="go('res','house',this)"><span class="sb-ico">🏠</span>ข้อมูลบ้าน</div>
       <div class="sb-item" onclick="go('res','vehicle',this)"><span class="sb-ico">🚗</span>ข้อมูลรถ</div>
@@ -1124,20 +1131,22 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <div class="sb-sec">บัญชี</div>
       <div class="sb-item" onclick="go('res','profile',this)"><span class="sb-ico">👤</span>ข้อมูลผู้ใช้ระบบ</div>
     </nav>
-    <div class="sb-themes" style="display:none">
-      <div class="sb-themes-lbl" style="font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--sbm);text-transform:uppercase;padding:0 0 6px">ธีมสี</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px">
-        <button class="th-txt-btn" data-t="normal"  onclick="setTheme('normal')">Navy</button>
-        <button class="th-txt-btn" data-t="dark"    onclick="setTheme('dark')">Dark</button>
-        <button class="th-txt-btn" data-t="sage"    onclick="setTheme('sage')">Sage</button>
-        <button class="th-txt-btn" data-t="rose"    onclick="setTheme('rose')">Rose</button>
-        <button class="th-txt-btn" data-t="sand"    onclick="setTheme('sand')">Sand</button>
-        <button class="th-txt-btn" data-t="violet"  onclick="setTheme('violet')">Violet</button>
+
+    <!-- Profile card (bottom) -->
+    <div class="sb-user-pill" style="margin:6px 8px;border-radius:10px;background:rgba(255,255,255,.08);cursor:default">
+      <div class="sb-av" id="res-av" style="background:var(--ac)">ล</div>
+      <div class="sb-uinfo">
+        <div class="sb-uname" id="sb-res-name">—</div>
+        <div class="sb-urole" id="sb-res-role">ลูกบ้าน</div>
       </div>
+      <div class="sb-role-dot"></div>
     </div>
+
+    <!-- Logout -->
     <div class="sb-foot">
       <div class="sb-logout" onclick="doLogout()">🚪 ออกจากระบบ</div>
     </div>
+
   </div>
 </aside>
 
@@ -3966,6 +3975,12 @@ var PT = {
 var _pageCache = {};
 var _PAGE_TTL  = 60000; // 60s — force refresh after this
 
+function goHome(view) {
+  var navId = view === 'admin' ? 'anav' : 'rnav';
+  var dashPage = view === 'admin' ? 'dash' : 'dash';
+  var dashItem = document.querySelector('#' + navId + ' .sb-item[onclick*=",' + "'" + dashPage + "'" + '"]');
+  go(view, dashPage, dashItem);
+}
 function go(view, page, el) {
   var key = view + '-' + page;
   document.querySelectorAll('#v-' + view + ' .pane').forEach(function(p) { p.classList.remove('on'); });
