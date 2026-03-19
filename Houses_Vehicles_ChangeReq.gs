@@ -42,8 +42,17 @@ var Houses = (function() {
     if (existing) throw new Error('บ้านเลขที่นี้มีอยู่แล้ว');
 
     const row = {
-      house_id:          genId('HSE'),
-      house_no:          house_no,
+      // Running number: HSE-001, HSE-002, ...
+      house_id:          (function(){
+        var rows = sheetToObjects('HOUSES');
+        var max = rows.reduce(function(m, r){
+          var n = parseInt((String(r.house_id||'').match(/HSE-?(\d+)/i)||[0,0])[1])||0;
+          return n > m ? n : m;
+        }, 0);
+        var num = String(max + 1).padStart(3, '0');
+        return 'HSE-' + num;
+      })(),
+      house_no:          String(house_no),  // force string, prevent Date conversion
       soi:               soi || '',
       address:           body.address || '',
       owner_name:        owner_name,

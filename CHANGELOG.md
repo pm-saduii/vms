@@ -472,3 +472,56 @@ function openAddHouseModal() {
 ### DO NOT CHANGE
 - m-addcar (resident) modal ยังคงใช้งานได้ — อย่าลบ
 - loadAdminVehiclePage ต้อง render tab ทั้งหมดก่อนเสมอ
+
+---
+
+## 📋 วิเคราะห์ + แก้ไข — Houses & Vehicle (Session ล่าสุด)
+
+### ข้อ 1: Login แสดงชื่อ hardcoded
+- Root: HTML มี "The Greenfield" hardcoded → เห็นก่อน applySettings โหลด
+- Fix: เปลี่ยน default HTML เป็นว่าง → applySettings fill จาก Settings sheet
+
+### ข้อ 2: viewHouseDetail ไม่ได้ redesign
+- Root: มี 1 definition แต่ design ใหม่อาจยังไม่ถูกใช้
+- Fix: ตรวจสอบและ confirm design ใหม่ active
+
+### ข้อ 3: house_id → HSE-001, 002, 003...
+- Root: genId ใช้ timestamp+random → ไม่เรียงลำดับ
+- Fix: GAS Houses.create นับ rows ปัจจุบัน → pad เลข 3-4 หลัก
+
+### ข้อ 4: ซอย → dropdown 0-22
+- Root: edithouse-soi เป็น text input
+- Fix: เปลี่ยนเป็น select ซอย 0–22 (options เรียงตัวเลข)
+
+### ข้อ 5+6: เพิ่ม address field (แก้ไข + เพิ่มบ้าน)
+- Root: modal ไม่มี address field
+- Fix: เพิ่ม edithouse-address + populate + save ใน payload
+
+### ข้อ 7: หมายเหตุไม่ save
+- Root: GAS update ใช้ spread ...updates ดังนั้น status_note ถูกส่งแล้ว
+- แต่ doSaveEditHouse ไม่ส่ง address → Fix: เพิ่ม address ใน payload
+
+### ข้อ 8: 9/4 แสดงเป็น 4/9
+- Root: Google Sheets parse "9/4" เป็น Date (Sept 4) → _safeHouseNo แปลงกลับผิด
+- Fix: GAS Houses.create/update → force string โดยใช้ String() ก่อน save
+- Fix Frontend: _safeHouseNo ตรวจ Date → format day/month ถูกต้อง (month เป็น getMonth()+1)
+- Fix GAS: _STR_FIELDS มี 'house_no' แล้ว → sheetToObjects จะแปลง Date → day/month
+- REAL FIX: getDate() + '/' + (getMonth()+1) → 4/10 แต่ควรเป็น 9/4
+  - เดิม: Sept 4 → getDate()=4, getMonth()+1=9 → "4/9" ❌
+  - ถูก: แปลงกลับเป็น day/month แบบไทย = getDate() + '/' + (getMonth()+1) = "4/9"
+  - สาเหตุ: input "9/4" → Excel format = month/day → Sept 4 → แปลงกลับ = "4/9"
+  - SOLUTION: บันทึก house_no เป็น text ใน GAS ด้วย `"'" + house_no` (force string)
+
+### ข้อ 9: เพิ่มรถ house dropdown ว่าง
+- Root: openAdminAddCarModal ไม่ fetch/populate house list
+- Fix: เพิ่ม populate acar-houseid จาก _housesCache หรือ api('getHouses')
+
+### ข้อ 10: ปุ่มแก้ไขรถไม่ทำงาน
+- Root 1: m-admin-editcar modal MISSING ในไฟล์
+- Root 2: doAdminEditCar ใช้ await แต่ไม่ใช่ async function
+- Fix: เพิ่ม modal กลับ + แก้เป็น async function doAdminEditCar
+
+### DO NOT CHANGE
+- _STR_FIELDS ใน GAS มี 'house_no' แล้ว (Date→string conversion)
+- m-addcar (resident) modal ยังคงอยู่
+- openEditHouseModal ต้องใช้ _housesCache ก่อนเสมอ

@@ -1011,8 +1011,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="login-box">
     <div class="login-header">
       <div class="login-logo" id="login-logo">🏘️</div>
-      <div class="login-title" id="login-title">The Greenfield</div>
-      <div class="login-sub" id="login-sub">Village Management System v5.0</div>
+      <div class="login-title" id="login-title"></div>
+      <div class="login-sub" id="login-sub"></div>
     </div>
     <div class="login-body">
       <div class="login-err" id="login-err"></div>
@@ -2306,9 +2306,11 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     <div class="sl">📍 ที่อยู่</div>
     <div class="fr3">
       <div class="fg"><label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label><input class="fi" id="edithouse-no" placeholder="เช่น 10/1"></div>
-      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="edithouse-soi" placeholder="เช่น ซอย 3"></div>
+      <div class="fg"><label class="fl">ซอย</label><select class="fs" id="edithouse-soi"><option value="">-- เลือกซอย --</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option></select></div>
       <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="edithouse-area" type="number" placeholder="0" oninput="_calcEditHouseFee()"></div>
     </div>
+    <div class="fg" style="margin-top:6px"><label class="fl">ที่อยู่โดยละเอียด</label>
+      <input class="fi" id="edithouse-address" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด"></div>
     <div class="sl">👤 เจ้าของ</div>
     <div class="fr2">
       <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์ <span style="color:var(--dg)">*</span></label><input class="fi" id="edithouse-owner"></div>
@@ -3148,13 +3150,15 @@ function _fmtPhone(v) {
 function _safeHouseNo(val) {
   if (!val && val !== 0) return '';
   if (val instanceof Date) {
-    return val.getDate() + '/' + (val.getMonth() + 1);
+    // Sheets stores "9/4" as Sept 4 (US format month/day)
+    // To reconstruct Thai "day/month": month=9, day=4 → "9/4"
+    return (val.getMonth() + 1) + '/' + val.getDate();
   }
   var s = String(val).trim();
-  // Detect ISO date string like "2024-10-01"
+  // Detect ISO date string like "2024-09-04" → Sept 4 → "9/4"
   if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
     var d = new Date(s);
-    if (!isNaN(d)) return d.getDate() + '/' + (d.getMonth() + 1);
+    if (!isNaN(d)) return (d.getMonth() + 1) + '/' + d.getDate();
   }
   return s;
 }
@@ -4325,7 +4329,11 @@ function openAddHouseModal() {
   document.getElementById('edithouse-mode').value       = isAdd ? 'add' : 'edit';
   document.getElementById('edithouse-id').value         = h.house_id || '';
   document.getElementById('edithouse-no').value         = isAdd ? '' : _safeHouseNo(h.house_no);
-  document.getElementById('edithouse-soi').value        = h.soi || '';
+  // Set soi dropdown (extract numeric from "ซอย 3" or "3")
+  var soiNum = (String(h.soi||'').match(/\d+/)||[''])[0];
+  var soiSel = document.getElementById('edithouse-soi');
+  if (soiSel) soiSel.value = soiNum || '';
+  document.getElementById('edithouse-address').value     = h.address || '';
   document.getElementById('edithouse-area').value       = h.area_sqm || '';
   document.getElementById('edithouse-owner').value      = h.owner_name || '';
   document.getElementById('edithouse-renter').value     = h.renter_name || '';
@@ -4369,7 +4377,8 @@ async function doSaveEditHouse() {
 
   var payload = {
     house_no:         hn,
-    soi:              document.getElementById('edithouse-soi').value.trim(),
+    soi:              (function(){ var s = document.getElementById('edithouse-soi'); return s ? s.value : ''; })(),
+    address:          document.getElementById('edithouse-address').value.trim(),
     area_sqm:         area,
     owner_name:       own,
     renter_name:      document.getElementById('edithouse-renter').value.trim(),
@@ -5850,20 +5859,39 @@ async function doRejectVehicle(vehicleId) {
 }
 
 // ── Admin Add Car (auto-approved) ──
-function openAdminAddCarModal() {
+async function openAdminAddCarModal() {
+  // Populate house dropdown
+  var hSel = document.getElementById('acar-houseid');
+  if (hSel) {
+    var houses = _housesCache || [];
+    if (!houses.length) {
+      try { houses = await api('getHouses'); _housesCache = houses; } catch(e) {}
+    }
+    // Sort by soi numeric + house_no
+    var sorted = houses.slice().sort(function(a, b) {
+      var na = parseInt((String(a.soi||'').match(/\d+/)||[0])[0])||0;
+      var nb = parseInt((String(b.soi||'').match(/\d+/)||[0])[0])||0;
+      if (na !== nb) return na - nb;
+      return String(a.house_no||'').localeCompare(String(b.house_no||''),'th',{numeric:true});
+    });
+    hSel.innerHTML = '<option value="">-- \u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1a\u0e49\u0e32\u0e19 --</option>' +
+      sorted.map(function(h) {
+        var label = _safeHouseNo(h.house_no) + (h.soi ? ' \u0e0b\u0e2d\u0e22 '+h.soi : '') + ' — ' + (h.owner_name||'');
+        return '<option value="' + h.house_id + '">' + label + '</option>';
+      }).join('');
+  }
   _initVehicleDropdowns('acar-');
-  ['acar-houseid','acar-plate','acar-model'].forEach(function(id){
+  ['acar-plate','acar-model'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = '';
   });
+  if (hSel) hSel.value = '';
   var t = document.getElementById('acar-type'); if(t) t.value = '';
   var p = document.getElementById('acar-park'); if(p) p.value = '\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
   var s = document.getElementById('acar-status'); if(s) s.value = 'active';
   var bi = document.getElementById('acar-brand'); if(bi) bi.style.display='none';
   var ci = document.getElementById('acar-color'); if(ci) ci.style.display='none';
-  var sg = document.getElementById('acar-house-suggest'); if(sg) sg.style.display='none';
   openM('m-admin-addcar');
 }
-
 function searchHouseForCar(q) {
   var sg = document.getElementById('acar-house-suggest');
   if (!sg) return;
@@ -6375,6 +6403,61 @@ function _openInvoiceWindow(f, isFullYear) {
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-admin-addcar')">ยกเลิก</button>
     <button class="btn btn-p btn-sm" onclick="doAdminAddCar()">🚗 บันทึก (Approved ทันที)</button>
+  </div>
+</div></div>
+
+
+
+<div class="mo" id="m-admin-editcar">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd"><div class="md-hd-ico">✏️</div>
+    <div><div class="md-title">แก้ไขข้อมูลรถ</div><div class="md-sub" id="aeditcar-sub">—</div></div>
+  </div>
+  <input type="hidden" id="aeditcar-id">
+  <div class="md-bd">
+    <div class="fr2">
+      <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
+        <select class="fs" id="aeditcar-type">
+          <option value="รถยนต์">🚗 รถยนต์</option>
+          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
+          <option value="รถตู้">🚐 รถตู้</option>
+          <option value="รถกระบะ">🛻 รถกระบะ</option>
+          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="aeditcar-plate" placeholder="กข-1234"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ยี่ห้อ</label>
+        <select class="fs" id="aeditcar-brand-sel" onchange="_vdBrandChange('aeditcar')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <input class="fi" id="aeditcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">รุ่น</label>
+        <input class="fi" id="aeditcar-model" placeholder="เช่น Camry"></div>
+      <div class="fg"><label class="fl">สี</label>
+        <select class="fs" id="aeditcar-color-sel" onchange="_vdColorChange('aeditcar')"><option value="">-- เลือกสี --</option></select>
+        <input class="fi" id="aeditcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">จังหวัด</label>
+        <select class="fs" id="aeditcar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
+      <div class="fg"><label class="fl">ที่จอดรถ</label>
+        <select class="fs" id="aeditcar-park">
+          <option value="ในบ้าน">ในบ้าน</option>
+          <option value="หน้าบ้าน">หน้าบ้าน</option>
+          <option value="ส่วนกลาง">ส่วนกลาง</option>
+        </select></div>
+      <div class="fg"><label class="fl">สถานะ</label>
+        <select class="fs" id="aeditcar-status">
+          <option value="active">ใช้งานปกติ</option>
+          <option value="inactive">ไม่ได้ใช้งาน</option>
+          <option value="pending">รออนุมัติ</option>
+        </select></div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-admin-editcar')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doAdminEditCar()">💾 บันทึก</button>
   </div>
 </div></div>
 
