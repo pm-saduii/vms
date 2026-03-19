@@ -4264,18 +4264,8 @@ function filterHousesTable() {
 }
 
 function openAddHouseModal() {
-  // Clear all fields
-  ['addhouse-no','addhouse-soi','addhouse-area','addhouse-address',
-   'addhouse-owner','addhouse-renter','addhouse-phone','addhouse-email',
-   'addhouse-fee','addhouse-parking','addhouse-trash'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  var u = document.getElementById('addhouse-usage'); if (u) u.value = 'owner';
-  var t = document.getElementById('addhouse-type');  if (t) t.value = 'single_house';
-  openM('m-addhouse');
+  openEditHouseModal(null, 'add');
 }
-
 async function openEditHouseModal(id, mode) {
   var isAdd = mode === 'add';
   var h = {};

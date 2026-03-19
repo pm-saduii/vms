@@ -293,3 +293,150 @@ _Last updated: session ปัจจุบัน_
 - Refresh buttons ต้องใช้ data-pane + data-fn + onclick="_doRefresh(this)"
 - openEditHouseModal ต้องอ่าน _housesCache ก่อนเสมอ (ห้ามใช้ getHouseById)
 - doSaveEditHouse ต้อง clear _housesCache = [] หลัง save
+
+---
+
+## ✅ Session — Fix ครั้งที่ 7 (phone/email/reload/sheet)
+
+### Root Cause แท้จริงทั้ง 3 ข้อ
+
+**ข้อ 1 phone/email ไม่แสดง:**
+- `openEditHouseModal` เรียก `api('getHouseById')` แต่ `catch(e){}` กิน error เงียบๆ → h = {}
+- **Fix:** ใช้ `_housesCache` ก่อน (เหมือน viewHouseDetail) → cache miss ค่อย fetch getHouses
+
+**ข้อ 2 Sheet ไม่เปลี่ยน:**
+- **Fix:** `doSaveEditHouse` recompute fees + clear `_housesCache = []` หลัง save
+
+**ข้อ 3 Reload ไม่ทำงาน:**
+- onclick HTML attr ใช้ `'` ใน `"` → browser ตัด argument ออก
+- **Fix:** เปลี่ยนเป็น `data-pane` + `data-fn` + `onclick="_doRefresh(this)"`
+- เพิ่ม `_doRefresh()` + `_refreshFnMap{}` helper
+
+---
+
+## ✅ Session — Fix ครั้งที่ 8 (_safeHouseNo + password form)
+
+### ข้อ 1: _safeHouseNo is not defined
+- Function หายไปตอน file rebuild
+- **Fix:** เพิ่ม `function _safeHouseNo(val)` — จัดการ Date object, ISO string, ปกติ
+
+### ข้อ 2: Password field not in form
+- Chrome แจ้งเตือน — password input ต้องอยู่ใน `<form>`
+- **Fix:** Login → `<form onsubmit="doLogin();return false;">`
+- **Fix:** Change password → `<form autocomplete="new-password" onsubmit="return false;">`
+
+---
+
+## ✅ Session — Phone Format xxx-xxx-xxxx
+
+### เพิ่ม _fmtPhone() helper
+- Strip non-digits แล้ว format เป็น `xxx-xxx-xxxx`
+- รองรับทุก input: `081-234-5678`, `0812345678`, `081 234 5678` → `081-234-5678`
+
+### ใช้กับทุกจุด
+- **Input fields (oninput):** edithouse-phone, newcon-phone, cfg-inp-village_phone, prof-phone, edit-phone
+- **ตารางบ้าน:** `_fmtPhone(h.phone)`
+- **Modal แก้ไข:** format ก่อน populate
+- **Popup ดูข้อมูล:** format ก่อนแสดง
+
+### DO NOT CHANGE
+- `_fmtPhone` ต้องอยู่ก่อน `_safeHouseNo` ซึ่งต้องอยู่ก่อน `loadHousesPage`
+- Refresh buttons ต้องใช้ `data-pane` + `data-fn` + `onclick="_doRefresh(this)"`
+
+---
+
+## 📋 สรุป Fix ครั้งที่ 1-6 (Retrospective)
+
+### Fix ครั้งที่ 1 — Stray modal content
+- **ปัญหา:** m-condetail มี hardcoded 081-111-2222, @somsak_elec, รีวิวช่างโผล่ทุกหน้า
+- **Root cause:** modal div ปิดก่อนกำหนด → stray content ไหลออกมา render ตลอด
+- **Fix:** ลบ stray block ออก, ตรวจ div balance ทุก modal
+
+### Fix ครั้งที่ 2 — Settings pane โผล่ทุกหน้า
+- **ปัญหา:** Invoice section (bill_prefix ฯลฯ) แสดงใต้ทุกหน้า
+- **Root cause:** `p-admin-settings` div ปิดที่ char 75884 (เหลือแค่ header) เพราะ tab structure เก่ายังอยู่ → ทุก section ตกอยู่นอก pane → display:block ตลอด
+- **Fix:** เขียน settings pane ใหม่ทั้งหมด single-page 6 sections, balanced 84/84 divs
+
+### Fix ครั้งที่ 3 — Houses: columns, sort, bulk modal
+- **ปัญหา:** columns ผิด, เรียงไม่ถูก, bulk modal ไม่แสดงค่ารถ
+- **Fix Houses columns:** บ้าน | เจ้าของ | โทร | ค่าส่วนกลาง/ปี | ค่ารถ/ปี | สถานะ | ✏️ ดู
+- **Fix Sort:** `String(soi).match(/\d+/)` extract ตัวเลขจาก "ซอย 3" → sort numeric
+- **Fix Bulk modal:** fetch VEHICLES → sum fee_amount per house → แสดงค่ารถ/ปี ถูกต้อง
+- **Fix ค่าขยะ:** แสดงเป็น /ปี แทน /งวด
+
+### Fix ครั้งที่ 4 — Edit house modal
+- **ปัญหา:** fee/parking/trash แก้ไขได้ (ควรเป็น readonly auto-calc)
+- **Fix:** fee, parking, trash → `readonly` + `background:var(--bg3)`
+- **Fix area:** `oninput="_calcEditHouseFee()"` → คำนวณ fee ใหม่ทันที (area × rate × 12)
+- **เพิ่ม:** `contact_person` field ในแก้ไขบ้าน
+
+### Fix ครั้งที่ 5 — openAddHouseModal ใช้ modal เดียวกัน
+- **ปัญหา:** เพิ่มบ้านใช้ m-addhouse แยก ไม่สอดคล้องกับแก้ไข
+- **Fix:** `openAddHouseModal()` → `openEditHouseModal(null, 'add')`
+- **Fix doSaveEditHouse:** ตรวจ `mode` field → `createHouse` หรือ `updateHouse`
+- **เพิ่ม:** `id="edithouse-mode"` hidden field ในโมดัล
+
+### Fix ครั้งที่ 6 — Duplicate loadHousesPage (root cause phone/email ไม่แสดง)
+- **Root cause แท้:** มี **3 copies** ของ `loadHousesPage` ใน JS → browser ใช้ copy สุดท้าย (เก่า) → ไม่มี phone/email ใน cache
+- **Fix:** ลบ 2 copies เก่าออก → เหลือ 1 copy (version ใหม่ที่ถูก)
+- **Rule:** function ใดๆ ต้องมีแค่ 1 definition ในไฟล์
+
+---
+
+## ✅ GAS Changes (Fees_Issues_Violations.gs)
+
+### generateFullYear()
+- ออกใบแจ้งหนี้เต็มปี: fee = fee_per_year, parking = parking_fee_year, trash = trash_per_year×2
+- ส่วนลด = fee_per_year × fee_discount_pct% (ค่าส่วนกลางเท่านั้น)
+- route: `generateFullYearBill`
+
+### generate() — parking from vehicles
+- ดึง VEHICLES sheet → sum fee_amount ของ active vehicles แยกแต่ละบ้าน
+- Fallback: ใช้ parking_fee_year / 2 ถ้าไม่มีรถ
+
+### bill_type field
+- เพิ่มใน FEES schema: `half_year` หรือ `full_year`
+
+---
+
+## 🔧 DO NOT CHANGE (Critical Rules)
+
+| Rule | เหตุผล |
+|------|--------|
+| loadHousesPage ต้องมี 1 definition | duplicate ทำให้ browser ใช้ version ผิด |
+| openEditHouseModal ต้องอ่าน _housesCache ก่อน | api('getHouseById') มี silent error |
+| doSaveEditHouse ต้อง clear _housesCache = [] | force reload หลัง save ทุกครั้ง |
+| Refresh buttons ใช้ data-pane + data-fn + _doRefresh | single-quote ใน onclick HTML attr ถูกตัด |
+| _fmtPhone ต้องอยู่ก่อน _safeHouseNo ก่อน loadHousesPage | function ที่ใช้ต้อง define ก่อนใช้ |
+| Settings pane: ไม่มี tabs (stab-village) | เคยทำให้ pane ปิดก่อนกำหนด |
+| m-fee-detail: ไม่มี X button | spec กำหนด |
+| modals ทุกตัว: div balanced | imbalance ทำให้ content โผล่นอก modal |
+
+---
+
+## ✅ Fix — openAddHouseModal TypeError
+
+### Error
+```
+TypeError: Cannot read properties of null (reading 'classList')
+at openM (vms/:4130)
+at openAddHouseModal (vms/:4276)
+```
+
+### Root Cause
+- `openAddHouseModal()` เรียก `openM('m-addhouse')` แต่ modal `id="m-addhouse"` ถูกลบออกไปใน session Fix ครั้งที่ 5 (ตอนรวม modal เป็นตัวเดียว)
+- `document.getElementById('m-addhouse')` return `null` → `.classList.add()` crash
+
+### Fix
+```js
+function openAddHouseModal() {
+  openEditHouseModal(null, 'add');  // ใช้ m-admin-edithouse เดิม
+}
+```
+- ใช้ modal `m-admin-edithouse` ที่มีอยู่แล้ว
+- `openEditHouseModal(null, 'add')` ตรวจ `isAdd = true` → clear fields + title "เพิ่มบ้านใหม่"
+- `doSaveEditHouse()` ตรวจ mode → เรียก `createHouse` แทน `updateHouse`
+
+### DO NOT CHANGE
+- `openAddHouseModal` ต้องเรียก `openEditHouseModal(null, 'add')` เท่านั้น
+- ห้ามใช้ `openM('m-addhouse')` เพราะ modal นั้นถูกลบออกแล้ว
