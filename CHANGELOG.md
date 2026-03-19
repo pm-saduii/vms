@@ -440,3 +440,35 @@ function openAddHouseModal() {
 ### DO NOT CHANGE
 - `openAddHouseModal` ต้องเรียก `openEditHouseModal(null, 'add')` เท่านั้น
 - ห้ามใช้ `openM('m-addhouse')` เพราะ modal นั้นถูกลบออกแล้ว
+
+---
+
+## ✅ Fix — Houses + Vehicle Page Redesign
+
+### Houses: viewHouseDetail redesign
+- หัว modal ใช้ style เดียวกับ edit modal (ico + title + sub)
+- ขนาดใหญ่ขึ้น (md wide) แสดงข้อมูลครบ 2 คอลัมน์
+- ปุ่ม ✏️ แก้ไข ใช้ confirmButtonText เหมือนเดิม
+
+### Houses: Loading ก่อนเปิด modal
+- กดแก้ไข → showLoader → load data → hideLoader → openM
+- กดเพิ่มบ้าน → showLoader → hideLoader → openM (add mode)
+
+### Houses: เพิ่มบ้านใหม่ — ค่ารถ + ค่าขยะ
+- ค่ารถ: fetch vehicles ของบ้านนั้น → sum fee_amount (active)
+- ค่าขยะ: ดึงจาก Settings fee_trash_per_year
+
+### Vehicle: Fix หัวข้อ
+- PT เพิ่ม 'admin-vehicle': 'ข้อมูลรถ — จัดการ'
+
+### Vehicle: Fix tab order + load ทันที
+- Tab order: ทั้งหมด | รออนุมัติ | อนุมัติแล้ว | ไม่ใช้งาน
+- เมื่อกด menu รถ → loadAdminVehiclePage() → แสดง tab ทั้งหมดและข้อมูลทันที
+
+### Vehicle: Fix m-admin-addcar missing (TypeError)
+- Root cause: modal ถูกลบใน session rebuild
+- Fix: เพิ่ม modal m-admin-addcar กลับคืน
+
+### DO NOT CHANGE
+- m-addcar (resident) modal ยังคงใช้งานได้ — อย่าลบ
+- loadAdminVehiclePage ต้อง render tab ทั้งหมดก่อนเสมอ

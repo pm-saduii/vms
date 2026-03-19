@@ -1618,25 +1618,29 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="ph-ico">🚗</div>
             <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">จัดการยานพาหนะและการอนุมัติ</div></div>
           </div>
-          <div class="ph-acts"><button class="btn-refresh" data-pane="admin-vehicle" data-fn="loadAdminVehiclePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">🚗 + เพิ่มรถ (Admin)</button></div>
+          <div class="ph-acts">
+            <button class="btn-refresh" data-pane="admin-vehicle" data-fn="loadAdminVehiclePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button>
+            <button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">🚗 + เพิ่มรถ</button>
+          </div>
         </div></div>
         <div class="stats" style="grid-template-columns:repeat(4,1fr)">
-          <div class="sc"><div class="sc-ico w">⏳</div><div><div class="sc-v" id="stat-veh-pending">—</div><div class="sc-l">รออนุมัติ</div></div></div>
-          <div class="sc"><div class="sc-ico a">✅</div><div><div class="sc-v" id="stat-veh-active">—</div><div class="sc-l">ใช้งานอยู่</div></div></div>
-          <div class="sc"><div class="sc-ico d">🔴</div><div><div class="sc-v" id="stat-veh-inactive">—</div><div class="sc-l">ไม่ใช้งาน</div></div></div>
           <div class="sc"><div class="sc-ico p">🚗</div><div><div class="sc-v" id="stat-veh-total">—</div><div class="sc-l">ทั้งหมด</div></div></div>
+          <div class="sc"><div class="sc-ico w">⏳</div><div><div class="sc-v" id="stat-veh-pending">—</div><div class="sc-l">รออนุมัติ</div></div></div>
+          <div class="sc"><div class="sc-ico a">✅</div><div><div class="sc-v" id="stat-veh-active">—</div><div class="sc-l">อนุมัติแล้ว</div></div></div>
+          <div class="sc"><div class="sc-ico d">🔴</div><div><div class="sc-v" id="stat-veh-inactive">—</div><div class="sc-l">ไม่ใช้งาน</div></div></div>
         </div>
-        <div class="tabs">
-          <button class="tab on" id="tab-aveh-pending" onclick="stab('aveh','pending',this)">⏳ รออนุมัติ</button>
+       <div class="tabs">
+          <button class="tab on" onclick="stab('aveh','all',this)">📋 ทั้งหมด</button>
+          <button class="tab" id="tab-aveh-pending" onclick="stab('aveh','pending',this)">⏳ รออนุมัติ</button>
           <button class="tab" onclick="stab('aveh','active',this)">✅ อนุมัติแล้ว</button>
           <button class="tab" onclick="stab('aveh','inactive',this)">🔴 ไม่ใช้งาน</button>
-          <button class="tab" onclick="stab('aveh','all',this)">📋 ทั้งหมด</button>
         </div>
-        <div id="aveh-pending" class="pane on"><div id="list-vehicles-pending"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="aveh-all" class="pane on"><div id="list-vehicles-all"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="aveh-pending" class="pane"><div id="list-vehicles-pending"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
         <div id="aveh-active" class="pane"><div id="list-vehicles-active"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
         <div id="aveh-inactive" class="pane"><div id="list-vehicles-inactive"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
-        <div id="aveh-all" class="pane"><div id="list-vehicles-all"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
+
     </div><!-- end v-admin -->
 
     <!-- ═══ RESIDENT VIEW ═══ -->
@@ -3104,7 +3108,11 @@ async function loadPageData(view, page) {
     if (key === 'admin-ann')        await loadAnnouncementsPage();
     if (key === 'admin-rep')        await loadReportsPage();
     if (key === 'admin-contractor') await loadContractorsPage();
-    if (key === 'admin-vehicle')    { await loadAdminVehiclePage(); return; }
+    if (key === 'admin-vehicle') {
+      await loadAdminVehiclePage();
+      stab('aveh', 'all', document.querySelector('#p-admin-vehicle .tab'));
+      return;
+    }
     if (key === 'res-vehicle')      { await loadResVehiclePage(); return; }
     if (key === 'admin-market')     await loadMarketAdminPage();
     if (key === 'admin-usr')        await loadUsersPage();
@@ -4018,6 +4026,7 @@ var PT = {
   'admin-market':      '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28\u0e02\u0e32\u0e22',
   'admin-usr':         '\u0e2a\u0e21\u0e32\u0e0a\u0e34\u0e01',
   'admin-log':         'Login Logs',
+  'admin-vehicle':     'ข้อมูลรถ — <span class="hl">จัดการ</span>',
   'admin-settings':    'ตั้งค่าระบบ',
   'res-dash':          '\u0e2b\u0e19\u0e49\u0e32\u0e41\u0e23\u0e01',
   'res-house':         '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',
@@ -4264,11 +4273,15 @@ function filterHousesTable() {
 }
 
 function openAddHouseModal() {
-  openEditHouseModal(null, 'add');
-}
-async function openEditHouseModal(id, mode) {
+  showLoader('เตรียมช่อง...');
+  setTimeout(function() {
+    hideLoader();
+    openEditHouseModal(null, 'add');
+  }, 200);
+}async function openEditHouseModal(id, mode) {
   var isAdd = mode === 'add';
   var h = {};
+  showLoader('โหลดข้อมูล...');
 
   if (!isAdd) {
     // Use _housesCache first (same source as viewHouseDetail which shows correct data)
@@ -4332,6 +4345,7 @@ async function openEditHouseModal(id, mode) {
   _setEl('edithouse-sub', isAdd
     ? '\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48'
     : '\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no) + ' \u00b7 Admin Mode');
+  hideLoader();
   openM('m-admin-edithouse');
 }
 
@@ -4441,34 +4455,44 @@ async function doCreateHouse() {
 }
 
 function viewHouseDetail(houseId) {
-  var h = _housesCache.find(function(x){ return x.house_id === houseId; });
-  if (!h) return;
-  var usageLabel = {owner:'อยู่เอง',rent:'ให้เช่า',vacant:'ว่าง'}[h.usage_type]||h.usage_type||'—';
+  var h = (_housesCache || []).find(function(x){ return x.house_id === houseId; });
+  if (!h) { Swal.fire({ icon:'warning', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25' }); return; }
+  var usageLabel = {owner:'\u0e2d\u0e22\u0e39\u0e48\u0e40\u0e2d\u0e07',rent:'\u0e43\u0e2b\u0e49\u0e40\u0e0a\u0e48\u0e32',vacant:'\u0e27\u0e48\u0e32\u0e07'}[h.usage_type] || h.usage_type || '\u2014';
+  var statusLabel = {normal:'\u25cf \u0e1b\u0e01\u0e15\u0e34',overdue:'\u25cf \u0e04\u0e49\u0e32\u0e07\u0e0a\u0e33\u0e23\u0e30',suspended:'\u25cf \u0e23\u0e30\u0e07\u0e31\u0e1a',legal:'\u2696\ufe0f \u0e1f\u0e49\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e07'}[h.status] || h.status || '\u2014';
+  var fmt = function(v){ return '\u0e3f' + Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); };
   Swal.fire({
-    title: 'บ้าน ' + _safeHouseNo(h.house_no) + (h.soi?' '+h.soi:''),
-    html: '<div style="text-align:left;font-size:13px;line-height:1.8">' +
-      '<b>เจ้าของ:</b> ' + (h.owner_name||'—') + '<br>' +
-      (h.renter_name ? '<b>ผู้เช่า:</b> ' + h.renter_name + '<br>' : '') +
-      '<b>เบอร์โทร:</b> ' + (_fmtPhone(h.phone) || '—') + '<br>' +
-      '<b>อีเมล:</b> ' + (h.email||'—') + '<br>' +
-      '<b>พื้นที่:</b> ' + (h.area_sqm||'0') + ' ตร.ว.<br>' +
-      '<b>การใช้:</b> ' + usageLabel + '<br>' +
-      '<hr style="margin:8px 0;border:1px solid var(--bo)">' +
-      '<b>ค่าส่วนกลาง/ปี:</b> ฿' + Number(h.fee_per_year||0).toLocaleString() + '<br>' +
-      '<b>ค่าจอดรถ/ปี:</b> ฿' + Number(h.parking_fee_year||0).toLocaleString() + '<br>' +
-      '<b>ค่าขยะ/งวด:</b> ฿' + Number(h.trash_fee_period||0).toLocaleString() + '<br>' +
-      (h.status_note ? '<b>หมายเหตุ:</b> ' + h.status_note : '') +
-    '</div>',
+    width: '520px',
+    html:
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #e2e8f0">' +
+        '<div style="width:44px;height:44px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">\U0001f3e0</div>' +
+        '<div style="text-align:left">' +
+          '<div style="font-size:17px;font-weight:700;color:#1e293b">\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no) + (h.soi ? ' <span style="font-size:12px;background:#e2e8f0;padding:2px 8px;border-radius:20px;color:#64748b">' + h.soi + '</span>' : '') + '</div>' +
+          '<div style="font-size:12px;color:#64748b;margin-top:2px">Admin Mode</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;text-align:left;font-size:13px">' +
+        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07</div><div style="color:#1e293b;font-weight:600">' + (h.owner_name||'\u2014') + '</div></div>' +
+        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e1c\u0e39\u0e49\u0e40\u0e0a\u0e48\u0e32</div><div style="color:#1e293b">' + (h.renter_name||'\u2014') + '</div></div>' +
+        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e40\u0e1a\u0e2d\u0e23\u0e4c\u0e42\u0e17\u0e23</div><div style="color:#1e293b">' + (_fmtPhone(h.phone)||'\u2014') + '</div></div>' +
+        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e2d\u0e35\u0e40\u0e21\u0e25</div><div style="color:#1e293b;word-break:break-all">' + (h.email||'\u2014') + '</div></div>' +
+        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48</div><div style="color:#1e293b">' + (h.area_sqm||'0') + ' \u0e15\u0e23.\u0e27.</div></div>' +
+        '<div><div style="font-size:10.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:2px">\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17</div><div style="color:#1e293b">' + usageLabel + '</div></div>' +
+      '</div>' +
+      '<div style="background:#f8fafc;border-radius:10px;padding:12px;margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">' +
+        '<div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07/\u0e1b\u0e35</div><div style="font-size:14px;font-weight:700;color:#3b82f6">' + fmt(h.fee_per_year) + '</div></div>' +
+        '<div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">\u0e04\u0e48\u0e32\u0e23\u0e16/\u0e1b\u0e35</div><div style="font-size:14px;font-weight:700;color:#8b5cf6">' + fmt(h.parking_fee_year) + '</div></div>' +
+        '<div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">\u0e04\u0e48\u0e32\u0e02\u0e22\u0e30/\u0e07\u0e27\u0e14</div><div style="font-size:14px;font-weight:700;color:#10b981">' + fmt(h.trash_fee_period) + '</div></div>' +
+      '</div>' +
+      (h.status_note ? '<div style="margin-top:10px;padding:8px 12px;background:#fef3c7;border-radius:8px;font-size:12px;text-align:left;color:#92400e">\u26a0\ufe0f ' + h.status_note + '</div>' : ''),
     showCancelButton: true,
-    confirmButtonText: '✏️ แก้ไข',
-    cancelButtonText: 'ปิด',
+    confirmButtonText: '\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02',
+    cancelButtonText: '\u0e1b\u0e34\u0e14',
     customClass: { confirmButton:'btn btn-p', cancelButton:'btn btn-g' },
     buttonsStyling: false
   }).then(function(r) {
     if (r.isConfirmed) openEditHouseModal(houseId);
   });
 }
-
 // ============================================================
 // NOTIFICATION PANEL
 // ============================================================
@@ -5493,18 +5517,18 @@ async function doSubmitEditCar() {
 // ADMIN: VEHICLE PAGE
 // ============================================================
 async function loadAdminVehiclePage() {
+  showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30...');
   try {
     var all = await api('getVehicles');
     _allVehiclesCache = all;
-
     var pending  = all.filter(function(v){ return v.status === 'pending';  });
     var active   = all.filter(function(v){ return v.status === 'active';   });
     var inactive = all.filter(function(v){ return v.status === 'inactive'; });
 
+    _setEl('stat-veh-total',    all.length);
     _setEl('stat-veh-pending',  pending.length);
     _setEl('stat-veh-active',   active.length);
     _setEl('stat-veh-inactive', inactive.length);
-    _setEl('stat-veh-total',    all.length);
 
     var bp = document.getElementById('tab-aveh-pending');
     if (bp) bp.textContent = '\u23f3 \u0e23\u0e2d\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34' + (pending.length ? ' (' + pending.length + ')' : '');
@@ -5512,18 +5536,15 @@ async function loadAdminVehiclePage() {
     var badge = document.getElementById('badge-vehicle');
     if (badge) badge.textContent = pending.length > 0 ? pending.length : '';
 
-    // ── Active: Group by house ──
-    _renderVehiclesByHouse('list-vehicles-active', active);
-    // ── Pending: table view with approve button ──
-    _renderAdminVehicleTable('list-vehicles-pending', pending, 'pending');
-    // ── Inactive: table view ──
+    // Render all tabs
+    _renderAdminVehicleTable('list-vehicles-all',      all,      'all');
+    _renderVehiclesByHouse('list-vehicles-active',     active);
+    _renderAdminVehicleTable('list-vehicles-pending',  pending,  'pending');
     _renderAdminVehicleTable('list-vehicles-inactive', inactive, 'inactive');
-    // ── All: table view ──
-    _renderAdminVehicleTable('list-vehicles-all', all, 'all');
-
-  } catch(e) { console.warn('loadAdminVehiclePage:', e); }
+  } catch(e) {
+    console.warn('loadAdminVehiclePage:', e);
+  } finally { hideLoader(); }
 }
-
 function _renderVehiclesByHouse(elId, vehicles) {
   var el = document.getElementById(elId);
   if (!el) return;
@@ -6291,5 +6312,71 @@ function _openInvoiceWindow(f, isFullYear) {
 }
 
 </script>
+
+
+<div class="mo" id="m-admin-addcar">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd"><div class="md-hd-ico">🚗</div>
+    <div><div class="md-title">เพิ่มรถ (Admin)</div><div class="md-sub">รถที่เพิ่มโดย Admin จะ approved ทันที</div></div>
+  </div>
+  <div class="md-bd">
+    <div class="fg"><label class="fl">บ้านเลขที่ *</label>
+      <select class="fs" id="acar-houseid" onchange="onAdminCarHouseChange(this.value)"><option value="">-- เลือกบ้าน --</option></select>
+      <div id="acar-house-label" style="font-size:11.5px;color:var(--ac);margin-top:4px;font-weight:600"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">ประเภทยานพาหนะ *</label>
+        <select class="fs" id="acar-type">
+          <option value="">-- เลือกประเภท --</option>
+          <option value="รถยนต์">🚗 รถยนต์</option>
+          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
+          <option value="รถตู้">🚐 รถตู้</option>
+          <option value="รถกระบะ">🛻 รถกระบะ</option>
+          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
+        </select></div>
+      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
+        <input class="fi" id="acar-plate" placeholder="เช่น กข-1234"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">ยี่ห้อ *</label>
+        <select class="fs" id="acar-brand-sel" onchange="_vdBrandChange('acar')"><option value="">-- เลือกยี่ห้อ --</option></select>
+        <input class="fi" id="acar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
+      <div class="fg"><label class="fl">รุ่น</label>
+        <input class="fi" id="acar-model" placeholder="เช่น Camry"></div>
+      <div class="fg"><label class="fl">สี *</label>
+        <select class="fs" id="acar-color-sel" onchange="_vdColorChange('acar')"><option value="">-- เลือกสี --</option></select>
+        <input class="fi" id="acar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label class="fl">จังหวัด *</label>
+        <select class="fs" id="acar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
+      <div class="fg"><label class="fl">ที่จอดรถ</label>
+        <select class="fs" id="acar-park">
+          <option value="ในบ้าน">ในบ้าน</option>
+          <option value="หน้าบ้าน">หน้าบ้าน</option>
+          <option value="ส่วนกลาง">ส่วนกลาง</option>
+        </select></div>
+      <div class="fg"><label class="fl">สถานะเริ่มต้น</label>
+        <select class="fs" id="acar-status">
+          <option value="active">ใช้งานปกติ</option>
+          <option value="inactive">ไม่ได้ใช้งาน</option>
+        </select></div>
+    </div>
+    <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:4px">
+      <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
+        📷 เลือกรูปภาพ
+        <input type="file" id="acar-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'acar-')">
+      </label>
+      <div id="acar-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-admin-addcar')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doAdminAddCar()">🚗 บันทึก (Approved ทันที)</button>
+  </div>
+</div></div>
+
 </body>
 </html>
