@@ -1432,149 +1432,125 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: SETTINGS -->
       <div id="p-admin-settings" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px">
-          <div class="ph-ico">⚙️</div>
-          <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
-        </div>
-        <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
+        <div class="ph"><div class="ph-in">
+          <div style="display:flex;align-items:center;gap:13px">
+            <div class="ph-ico">⚙️</div>
+            <div><div class="ph-h1">ตั้งค่าระบบ</div><div class="ph-sub">จัดการข้อมูลหมู่บ้านและการชำระเงิน</div></div>
+          </div>
+          <div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="doSaveSettings()">💾 บันทึกทั้งหมด</button></div>
         </div></div>
 
-        <div class="tabs" id="settings-tabs">
-          <button class="tab on" onclick="stab('stab','village',this)">🏘️ ข้อมูลหมู่บ้าน</button>
-          <button class="tab" onclick="stab('stab','payment',this)">💳 การชำระเงิน</button>
-          <button class="tab" onclick="stab('stab','juristic',this)">🏢 นิติบุคคล</button>
-          <button class="tab" onclick="stab('stab','feecalc',this)">🧮 คำนวณค่าส่วนกลาง</button>
-        </div>
-
-        <!-- TAB: village -->
-        <div id="stab-village" class="pane on">
-          <div class="card" style="margin-top:14px">
-            <div class="ch"><div class="ch-ico">🏘️</div><div class="ct">ข้อมูลหมู่บ้าน</div></div>
-            <div class="md-bd" style="padding:0 4px">
-              <div class="fr2">
-                <div class="fg"><label class="fl">ชื่อหมู่บ้าน</label>
-                  <input class="fi" id="cfg-inp-village_name" placeholder="เช่น The Greenfield"></div>
-                <div class="fg"><label class="fl">คำบรรยาย (subtitle)</label>
-                  <input class="fi" id="cfg-inp-village_subtitle" placeholder="Village Management System"></div>
-              </div>
-              <div class="fg"><label class="fl">ที่อยู่หมู่บ้าน</label>
-                <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
-              <div class="fr2">
-                <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
-                  <input class="fi" id="cfg-inp-village_phone" placeholder="0x-xxxx-xxxx" type="tel"></div>
-                <div class="fg"><label class="fl">อีเมลนิติ</label>
-                  <input class="fi" id="cfg-inp-village_email" placeholder="admin@village.com" type="email"></div>
-              </div>
-              <div class="fg"><label class="fl">Logo (Emoji หรือ URL รูปภาพ)</label>
-                <input class="fi" id="cfg-inp-village_logo" placeholder="🏘️ หรือ https://...logo.png" oninput="updateLogoPreview(this.value)">
-                <div style="margin-top:6px;font-size:12px;color:var(--mu)">ตัวอย่าง: <span id="cfg-logo-preview" style="font-size:20px">🏘️</span></div>
-              </div>
+        <!-- 1: ข้อมูลหมู่บ้าน -->
+        <div class="card" style="margin-top:14px">
+          <div class="ch"><div class="ch-ico">🏘️</div><div class="ct">ข้อมูลหมู่บ้าน</div></div>
+          <div style="padding:4px 16px 16px">
+            <div class="fr2">
+              <div class="fg"><label class="fl">ชื่อหมู่บ้าน</label>
+                <input class="fi" id="cfg-inp-village_name" placeholder="เช่น The Greenfield"></div>
+              <div class="fg"><label class="fl">คำบรรยาย (subtitle)</label>
+                <input class="fi" id="cfg-inp-village_subtitle" placeholder="Village Management System"></div>
+            </div>
+            <div class="fg"><label class="fl">ที่อยู่หมู่บ้าน</label>
+              <textarea class="ft" id="cfg-inp-village_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
+            <div class="fr3">
+              <div class="fg"><label class="fl">เบอร์โทรนิติ</label>
+                <input class="fi" id="cfg-inp-village_phone" type="tel" placeholder="0x-xxxx-xxxx"></div>
+              <div class="fg"><label class="fl">อีเมลนิติ</label>
+                <input class="fi" id="cfg-inp-village_email" type="email" placeholder="admin@village.com"></div>
+              <div class="fg"><label class="fl">Logo (Emoji หรือ URL)</label>
+                <input class="fi" id="cfg-inp-village_logo" placeholder="🏘️ หรือ https://...logo.png"></div>
             </div>
           </div>
         </div>
 
-        <!-- TAB: payment -->
-        <div id="stab-payment" class="pane">
-          <div class="card" style="margin-top:14px">
-            <div class="ch"><div class="ch-ico">💳</div><div class="ct">ข้อมูลการชำระเงิน</div></div>
-            <div class="md-bd" style="padding:0 4px">
-              <div class="fr3">
-                <div class="fg"><label class="fl">ธนาคาร</label>
-                  <input class="fi" id="cfg-inp-bank_name" placeholder="เช่น กสิกรไทย"></div>
-                <div class="fg"><label class="fl">เลขบัญชี</label>
-                  <input class="fi" id="cfg-inp-bank_account_no" placeholder="xxx-x-xxxxx-x"></div>
-                <div class="fg"><label class="fl">ชื่อบัญชี</label>
-                  <input class="fi" id="cfg-inp-bank_account_name" placeholder="นิติบุคคลหมู่บ้าน..."></div>
-              </div>
-              <div class="fg"><label class="fl">URL QR Code พร้อมเพย์ / PromptPay</label>
-                <input class="fi" id="cfg-inp-payment_qr_url" placeholder="https://... (URL รูป QR Code)" oninput="updateQrPreview(this.value)"></div>
-              <div id="cfg-qr-preview-wrap" style="display:none;margin-top:8px">
-                <img id="cfg-qr-preview" src="" style="width:120px;height:120px;object-fit:contain;border:1px solid var(--bo);border-radius:8px">
-              </div>
-              <div class="sl" style="margin-top:16px">📅 กำหนดการชำระ</div>
-              <div class="fr2">
-                <div class="fg"><label class="fl">รูปแบบงวด</label>
-                  <select class="fs" id="cfg-inp-fee_period_label" onchange="updatePeriodPreview()">
-                    <option value="Y">เต็มปี — 1 งวด/ปี (Y)</option>
-                    <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
-                  </select>
-                </div>
-                <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
-                  <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="31"></div>
-              </div>
-              <!-- Period schedule display (auto-generated based on selection) -->
-              <div id="cfg-period-preview" style="margin-top:10px;padding:12px;background:var(--bg2);border-radius:10px;font-size:12.5px">
-                <div style="font-weight:700;margin-bottom:8px;color:var(--tx2)">📋 ตารางงวดการชำระ (อ้างอิง)</div>
-                <div id="cfg-period-table"></div>
-              </div>
+        <!-- 2: นิติบุคคล -->
+        <div class="card">
+          <div class="ch"><div class="ch-ico">🏢</div><div class="ct">นิติบุคคล</div></div>
+          <div style="padding:4px 16px 16px">
+            <div class="fr3">
+              <div class="fg"><label class="fl">ชื่อนิติบุคคล</label>
+                <input class="fi" id="cfg-inp-juristic_name" placeholder="บริษัทนิติบุคคลหมู่บ้าน..."></div>
+              <div class="fg"><label class="fl">เลขทะเบียนนิติ</label>
+                <input class="fi" id="cfg-inp-juristic_id" placeholder="0-xxxx-xxxxx-xx-x"></div>
+              <div class="fg"><label class="fl">ที่อยู่นิติบุคคล</label>
+                <textarea class="ft" id="cfg-inp-juristic_address" rows="2" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
             </div>
           </div>
         </div>
 
-              <div class="fr3" style="margin-top:10px">
-                <div class="fg"><label class="fl">งวด 1: ช่วงเวลา</label>
+        <!-- 3: ธนาคาร -->
+        <div class="card">
+          <div class="ch"><div class="ch-ico">💳</div><div class="ct">ธนาคาร &amp; การชำระเงิน</div></div>
+          <div style="padding:4px 16px 16px">
+            <div class="fr3">
+              <div class="fg"><label class="fl">ธนาคาร</label>
+                <input class="fi" id="cfg-inp-bank_name" placeholder="เช่น กสิกรไทย"></div>
+              <div class="fg"><label class="fl">เลขบัญชี</label>
+                <input class="fi" id="cfg-inp-bank_account_no" placeholder="xxx-x-xxxxx-x"></div>
+              <div class="fg"><label class="fl">ชื่อบัญชี</label>
+                <input class="fi" id="cfg-inp-bank_account_name" placeholder="นิติบุคคลหมู่บ้าน..."></div>
+            </div>
+            <div class="fg"><label class="fl">URL QR Code พร้อมเพย์</label>
+              <input class="fi" id="cfg-inp-payment_qr_url" placeholder="https://... (URL รูป QR Code)"></div>
+          </div>
+        </div>
+
+        <!-- 4: กำหนดการชำระ -->
+        <div class="card">
+          <div class="ch"><div class="ch-ico">📅</div><div class="ct">กำหนดการชำระค่าส่วนกลาง</div></div>
+          <div style="padding:4px 16px 16px">
+            <div class="fr2">
+              <div class="fg"><label class="fl">รูปแบบงวด</label>
+                <select class="fs" id="cfg-inp-fee_period_label">
+                  <option value="H">ครึ่งปี — 2 งวด/ปี (H1, H2)</option>
+                  <option value="Y">เต็มปี — 1 งวด/ปี (Y)</option>
+                </select></div>
+              <div class="fg"><label class="fl">วันครบกำหนดชำระ (วันที่)</label>
+                <input class="fi" id="cfg-inp-fee_due_day" type="number" min="1" max="31" placeholder="31"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">
+              <div>
+                <div class="sl" style="margin-bottom:8px">งวด 1</div>
+                <div class="fg"><label class="fl">ช่วงเวลา</label>
                   <input class="fi" id="cfg-inp-fee_p1_range" placeholder="เช่น 1/1 - 30/6"></div>
-                <div class="fg"><label class="fl">งวด 1: ชำระไม่เกิน</label>
+                <div class="fg"><label class="fl">ชำระไม่เกิน</label>
                   <input class="fi" id="cfg-inp-fee_p1_due" placeholder="เช่น 31/1"></div>
-                <div class="fg"><label class="fl">งวด 1: ตัวย่อ</label>
+                <div class="fg"><label class="fl">ตัวย่อ</label>
                   <input class="fi" id="cfg-inp-fee_p1_label" placeholder="เช่น H1"></div>
               </div>
-              <div class="fr3">
-                <div class="fg"><label class="fl">งวด 2: ช่วงเวลา</label>
+              <div>
+                <div class="sl" style="margin-bottom:8px">งวด 2</div>
+                <div class="fg"><label class="fl">ช่วงเวลา</label>
                   <input class="fi" id="cfg-inp-fee_p2_range" placeholder="เช่น 1/7 - 31/12"></div>
-                <div class="fg"><label class="fl">งวด 2: ชำระไม่เกิน</label>
+                <div class="fg"><label class="fl">ชำระไม่เกิน</label>
                   <input class="fi" id="cfg-inp-fee_p2_due" placeholder="เช่น 31/7"></div>
-                <div class="fg"><label class="fl">งวด 2: ตัวย่อ</label>
+                <div class="fg"><label class="fl">ตัวย่อ</label>
                   <input class="fi" id="cfg-inp-fee_p2_label" placeholder="เช่น H2"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- TAB: juristic -->
-        <div id="stab-juristic" class="pane">
-          <div class="card" style="margin-top:14px">
-            <div class="ch"><div class="ch-ico">🏢</div><div class="ct">นิติบุคคล</div></div>
-            <div class="md-bd" style="padding:0 4px">
-              <div class="fr2">
-                <div class="fg"><label class="fl">ชื่อนิติบุคคล</label>
-                  <input class="fi" id="cfg-inp-juristic_name" placeholder="บริษัทนิติบุคคลหมู่บ้าน..."></div>
-                <div class="fg"><label class="fl">เลขทะเบียนนิติ</label>
-                  <input class="fi" id="cfg-inp-juristic_id" placeholder="0-xxxx-xxxxx-xx-x"></div>
-              </div>
-              <div class="fg"><label class="fl">ที่อยู่นิติบุคคล (สำหรับใบเสร็จ)</label>
-                <textarea class="ft" id="cfg-inp-juristic_address" rows="3" placeholder="เลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
+        <!-- 5: อัตราค่าส่วนกลาง -->
+        <div class="card">
+          <div class="ch"><div class="ch-ico">🧮</div><div class="ct">อัตราค่าส่วนกลาง &amp; การคำนวณ</div></div>
+          <div style="padding:4px 16px 16px">
+            <div class="fr2">
+              <div class="fg"><label class="fl">ค่าส่วนกลางต่อตารางวา (บาท/เดือน)</label>
+                <input class="fi" id="cfg-inp-fee_rate_per_sqw" type="number" min="0" step="0.01" placeholder="40.00"></div>
+              <div class="fg"><label class="fl">ค่าขยะต่อปี (บาท)</label>
+                <input class="fi" id="cfg-inp-fee_trash_per_year" type="number" min="0" placeholder="600"></div>
+            </div>
+            <div class="fr2">
+              <div class="fg"><label class="fl">ค่าจอดรถต่อคัน/ปี (บาท)</label>
+                <input class="fi" id="cfg-inp-fee_parking_per_car" type="number" min="0" placeholder="1200"></div>
+              <div class="fg"><label class="fl">% ส่วนลดชำระเต็มปี</label>
+                <input class="fi" id="cfg-inp-fee_discount_pct" type="number" min="0" max="100" step="0.1" placeholder="5"></div>
             </div>
           </div>
         </div>
 
-        <!-- TAB: feecalc -->
-        <div id="stab-feecalc" class="pane">
-          <div class="card" style="margin-top:14px">
-            <div class="ch"><div class="ch-ico">🧮</div><div class="ct">ค่าคำนวณค่าส่วนกลาง</div></div>
-            <div class="md-bd" style="padding:0 4px">
-              <div class="fr2">
-                <div class="fg"><label class="fl">ค่าส่วนกลางต่อตารางวา (บาท/เดือน)</label>
-                  <input class="fi" id="cfg-inp-fee_rate_per_sqw" type="number" min="0" step="0.01" placeholder="40.00"></div>
-                <div class="fg"><label class="fl">ค่าขยะต่อปี (บาท)</label>
-                  <input class="fi" id="cfg-inp-fee_trash_per_year" type="number" min="0" placeholder="600"></div>
-              </div>
-              <div class="fr2">
-                <div class="fg"><label class="fl">ค่าจอดรถต่อคัน/ปี (บาท)</label>
-                  <input class="fi" id="cfg-inp-fee_parking_per_car" type="number" min="0" placeholder="1200"></div>
-                <div class="fg"><label class="fl">% ส่วนลดชำระเต็มปี</label>
-                  <input class="fi" id="cfg-inp-fee_discount_pct" type="number" min="0" max="100" step="0.1" placeholder="5"></div>
-              </div>
-              <div style="margin-top:14px;padding:12px 16px;background:var(--acl);border-radius:10px;font-size:13px;color:var(--tx2)">
-                <strong>สูตรคำนวณ:</strong><br>
-                ค่าส่วนกลาง/ปี = ค่า/ตร.ว. × พื้นที่ (ตร.ว.) × 12 เดือน<br>
-                <span style="color:var(--mu)">ตัวอย่าง: 40 × 52 ตร.ว. × 12 = ฿24,960.00/ปี</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 6: Invoice Settings -->
+        <!-- 6: ใบแจ้งหนี้ -->
         <div class="card" style="margin-bottom:24px">
           <div class="ch"><div class="ch-ico">🧾</div><div class="ct">ข้อมูลใบแจ้งหนี้ &amp; เงื่อนไขการชำระ</div></div>
           <div style="padding:4px 16px 16px">
@@ -1596,6 +1572,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <input class="fi" id="cfg-inp-fee_condition_3" placeholder="ขอให้ส่งหลักฐานการชำระ..."></div>
           </div>
         </div>
+
       </div><!-- end p-admin-settings -->
 
       <!-- ADMIN: VEHICLES -->
