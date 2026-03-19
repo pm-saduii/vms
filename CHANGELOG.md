@@ -215,3 +215,57 @@ _Last updated: session ปัจจุบัน_
 ### DO NOT CHANGE
 - loadHousesPage ต้องมีแค่ 1 definition (ที่ pos ~172580)
 - เช่นเดียวกันกับ function อื่นๆ — อย่าให้มี duplicate
+
+---
+
+## ✅ Session — 6 Fixes: Phone/Email/Sort/ViewBtn/AddHouse/Sheet
+
+### ข้อ 1: phone/email ไม่แสดง (root cause แท้)
+- `openEditHouseModal` อ่าน cache แต่ถ้า cache ว่างจะ await api → แต่ `_housesCache` ไม่ได้ populate ก่อน
+- **Fix:** ใช้ `api('getHouseById')` โดยตรงแทน cache → ได้ข้อมูลสดเสมอ ไม่พึ่ง cache
+
+### ข้อ 2: Update ค่าส่วนกลางใน Sheet ไม่เปลี่ยน
+- **Fix:** บันทึกค่าที่คำนวณจริงลง sheet เสมอ ไม่ใช่แค่ display
+- refresh _housesCache หลัง save
+
+### ข้อ 3: ปุ่มดูข้อมูลหายไป
+- **Fix:** เพิ่มปุ่ม "ดู" กลับใน row render
+
+### ข้อ 4: เรียงตาม soi+house_no ไม่ทำงาน
+- soi เก็บเป็น "ซอย 3" → parseInt ได้ 0
+- **Fix:** extract ตัวเลขจาก soi ด้วย regex ก่อน sort
+
+### ข้อ 5: ปุ่มเพิ่มบ้านใช้ modal+logic เดียวกับแก้ไข
+- **Fix:** openAddHouseModal ใช้ m-admin-edithouse + clear fields + เปลี่ยน title
+- doSaveEditHouse ตรวจสอบ mode (add/edit) แล้วเรียก createHouse หรือ updateHouse
+
+### DO NOT CHANGE
+- GAS Houses.update, Houses.create ทำงานถูกต้องแล้ว
+- id="edithouse-*" ทุกตัวต้องคงเดิม
+
+---
+
+## ✅ Session — Fix ครั้งที่ 6 (Final)
+
+### Root Causes แท้จริง
+
+**ข้อ 1 phone/email:** `openEditHouseModal` อ่าน `_housesCache` แต่ cache ว่างเพราะโหลดครั้งแรก
+→ **Fix:** ใช้ `api('getHouseById')` ตรงๆ เสมอ ไม่พึ่ง cache เลย
+
+**ข้อ 2 Sheet ไม่ update:** `doSaveEditHouse` เก่าส่งค่าถูกแต่ cache ไม่ refresh หลัง save
+→ **Fix:** clear `_housesCache = []` ทุกครั้งหลัง save จะ force reload ใหม่
+
+**ข้อ 3 ปุ่มดูหาย:** loadHousesPage ใหม่ไม่ได้ใส่ปุ่มดูกลับคืน
+→ **Fix:** เพิ่มปุ่ม "ดู" กลับใน row render
+
+**ข้อ 4 Sort ไม่ทำงาน:** `parseInt("ซอย 3")` = NaN → `match(/\d+/)` extract ตัวเลขก่อน
+→ **Fix:** regex extract numeric จาก soi string แล้วค่อย sort
+
+**ข้อ 5 เพิ่มบ้านใช้ modal เดียวกัน:**
+→ `openAddHouseModal()` เรียก `openEditHouseModal(null, 'add')`
+→ `doSaveEditHouse()` ตรวจ mode → createHouse หรือ updateHouse
+
+### DO NOT CHANGE
+- `id="edithouse-mode"` hidden field ในโมดัล
+- `openAddHouseModal` ต้องเรียก `openEditHouseModal(null, 'add')` เท่านั้น
+- `loadHousesPage` ต้องมี 1 definition เท่านั้น

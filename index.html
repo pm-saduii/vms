@@ -2297,6 +2297,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     <div><div class="md-title">แก้ไขข้อมูลบ้าน</div><div class="md-sub" id="edithouse-sub">Admin Mode</div></div>
   </div>
   <input type="hidden" id="edithouse-id">
+  <input type="hidden" id="edithouse-mode" value="edit">
   <div class="md-bd">
     <div class="sl">📍 ที่อยู่</div>
     <div class="fr3">
@@ -3124,49 +3125,53 @@ async function loadPageData(view, page) {
 
 // ── ADMIN: Houses ─────────────────────────────────────────────
 async function loadHousesPage() {
-  showLoader('โหลดข้อมูลบ้าน...');
+  showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19...');
   try {
     var houses = await api('getHouses');
     _housesCache = houses; _housesAllCache = houses;
-    // Fetch vehicles for parking fee
+    // Fetch vehicles for parking fee per house
     var vehicles = [];
     try { vehicles = await api('getVehicles'); } catch(e) {}
     var parkMap = {};
     vehicles.forEach(function(v) {
-      if (v.status === 'active' && Number(v.fee_amount||0) > 0) {
+      if (v.status === 'active' && Number(v.fee_amount||0) > 0)
         parkMap[v.house_id] = (parkMap[v.house_id] || 0) + Number(v.fee_amount);
-      }
     });
-    // Sort by soi (numeric) then house_no (natural)
+    // Sort: extract numeric from soi ("ซอย 3" → 3), then natural sort house_no
     var sorted = houses.slice().sort(function(a, b) {
-      var soiA = parseInt(a.soi) || 0, soiB = parseInt(b.soi) || 0;
-      if (soiA !== soiB) return soiA - soiB;
-      return String(a.house_no||'').localeCompare(String(b.house_no||''), 'th', {numeric:true});
+      var numA = parseInt((String(a.soi||'').match(/\d+/) || ['0'])[0]);
+      var numB = parseInt((String(b.soi||'').match(/\d+/) || ['0'])[0]);
+      if (numA !== numB) return numA - numB;
+      return String(a.house_no||'').localeCompare(String(b.house_no||''), 'th', {numeric: true});
     });
     var tbody = document.getElementById('tbl-houses');
     if (!tbody) return;
     var badgeMap = {
-      normal:    '<span class="bd b-ok">● ปกติ</span>',
-      overdue:   '<span class="bd b-wn">● ค้างชำระ</span>',
-      suspended: '<span class="bd b-dg">● ระงับ</span>',
-      legal:     '<span class="bd b-pur">⚖️ ฟ้องร้อง</span>'
+      normal:    '<span class="bd b-ok">\u25cf \u0e1b\u0e01\u0e15\u0e34</span>',
+      overdue:   '<span class="bd b-wn">\u25cf \u0e04\u0e49\u0e32\u0e07\u0e0a\u0e33\u0e23\u0e30</span>',
+      suspended: '<span class="bd b-dg">\u25cf \u0e23\u0e30\u0e07\u0e31\u0e1a</span>',
+      legal:     '<span class="bd b-pur">\u2696\ufe0f \u0e1f\u0e49\u0e2d\u0e07\u0e23\u0e49\u0e2d\u0e07</span>'
     };
     tbody.innerHTML = sorted.map(function(h) {
       var badge = badgeMap[h.status] || '<span class="bd b-mu">' + h.status + '</span>';
       var park  = parkMap[h.house_id] || 0;
-      var fmtB  = function(v){ return '฿' + Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+      var fmt   = function(v){ return '\u0e3f' + Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); };
       return '<tr>' +
         '<td><strong>' + _safeHouseNo(h.house_no) + '</strong>' + (h.soi ? ' <span class="tag">' + h.soi + '</span>' : '') + '</td>' +
         '<td>' + (h.owner_name||'') + '</td>' +
-        '<td style="white-space:nowrap">' + (h.phone||'—') + '</td>' +
-        '<td style="text-align:right;white-space:nowrap" class="text-pr fw-7">' + fmtB(h.fee_per_year) + '</td>' +
-        '<td style="text-align:right;white-space:nowrap">' + (park > 0 ? fmtB(park) : '—') + '</td>' +
+        '<td style="white-space:nowrap">' + (h.phone||'\u2014') + '</td>' +
+        '<td style="text-align:right;white-space:nowrap" class="text-pr fw-7">' + fmt(h.fee_per_year) + '</td>' +
+        '<td style="text-align:right;white-space:nowrap">' + (park > 0 ? fmt(park) : '\u2014') + '</td>' +
         '<td>' + badge + '</td>' +
-        '<td><button class="btn btn-xs btn-o" data-hid="' + h.house_id + '" onclick="openEditHouseModal(this.dataset.hid)">✏️</button></td>' +
+        '<td style="display:flex;gap:4px">' +
+          '<button class="btn btn-xs btn-g" data-hid="' + h.house_id + '" onclick="viewHouseDetail(this.dataset.hid)">\u0e14\u0e39</button>' +
+          '<button class="btn btn-xs btn-o" data-hid="' + h.house_id + '" onclick="openEditHouseModal(this.dataset.hid)">\u270f\ufe0f</button>' +
+        '</td>' +
         '</tr>';
-    }).join('') || '<tr><td colspan="7" class="text-mu" style="text-align:center;padding:20px">ไม่มีข้อมูล</td></tr>';
+    }).join('') || '<tr><td colspan="7" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25</td></tr>';
   } finally { hideLoader(); }
 }
+
 // ── ADMIN: Fees ───────────────────────────────────────────────
 async function loadFeesPage() {
   showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07...');
@@ -6207,45 +6212,72 @@ async function _uploadCarImages() {
 function _safeHouseNo(v){if(!v&&v!==0)return'';var s=String(v);if(/^\d{4}-\d{2}-\d{2}T/.test(s)){var d=new Date(s);if(!isNaN(d))return d.getDate()+'/'+(d.getMonth()+1);}return s;}
 var _housesCache=[];
 
-async function openEditHouseModal(id) {
-  var h = (_housesCache||[]).find(function(x){ return x.house_id === id; });
-  if (!h) {
-    showLoader('...');
-    try { var all = await api('getHouses'); _housesCache = all; _housesAllCache = all; h = all.find(function(x){ return x.house_id === id; }); }
-    catch(e) {} finally { hideLoader(); }
+async function openEditHouseModal(id, mode) {
+  // mode = 'edit' (default) or 'add'
+  var isAdd = mode === 'add';
+  showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25...');
+  var h = {};
+  if (!isAdd) {
+    // ALWAYS fetch fresh from server — never rely on cache for this
+    try {
+      h = await api('getHouseById', { house_id: id });
+    } catch(e) {
+      hideLoader();
+      Swal.fire({ icon:'error', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19', text: e.message });
+      return;
+    }
+    // Update cache with fresh data
+    if (_housesCache) {
+      var idx = _housesCache.findIndex(function(x){ return x.house_id === id; });
+      if (idx >= 0) _housesCache[idx] = h; else _housesCache.push(h);
+    }
   }
-  if (!h) { Swal.fire({icon:'error', title:'ไม่พบ'}); return; }
+  hideLoader();
 
-  // Compute fees
+  // Compute fees from settings
   var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw','40')) || 40;
   var trashYear  = parseFloat(_cfg('fee_trash_per_year','600')) || 600;
   var area = parseFloat(h.area_sqm || 0);
   var feeYr = parseFloat((ratePerSqw * area * 12).toFixed(2));
-  // Get parking from vehicles
-  var vehicles = [];
-  try { vehicles = await api('getVehiclesByHouse', {house_id: id}); } catch(e) {}
-  var parkTotal = vehicles.filter(function(v){ return v.status === 'active'; })
-    .reduce(function(s,v){ return s + Number(v.fee_amount||0); }, 0);
 
-  document.getElementById('edithouse-id').value        = h.house_id;
-  document.getElementById('edithouse-no').value        = _safeHouseNo(h.house_no);
-  document.getElementById('edithouse-soi').value       = h.soi||'';
-  document.getElementById('edithouse-area').value      = h.area_sqm||'';
-  document.getElementById('edithouse-owner').value     = h.owner_name||'';
-  document.getElementById('edithouse-renter').value    = h.renter_name||'';
-  document.getElementById('edithouse-contact').value   = h.contact_person||'';
-  document.getElementById('edithouse-phone').value     = h.phone||'';
-  document.getElementById('edithouse-email').value     = h.email||'';
-  document.getElementById('edithouse-fee').value       = feeYr;
-  document.getElementById('edithouse-parking').value   = parkTotal;
-  document.getElementById('edithouse-trash').value     = parseFloat((trashYear/2).toFixed(2));
-  document.getElementById('edithouse-statusnote').value = h.status_note||'';
-  var u = document.getElementById('edithouse-usage'); if(u) u.value = h.usage_type||'owner';
-  var s = document.getElementById('edithouse-status'); if(s) s.value = h.status||'normal';
-  _setEl('edithouse-sub', 'บ้าน ' + _safeHouseNo(h.house_no) + ' · Admin Mode');
+  // Parking from vehicles (active only)
+  var parkTotal = 0;
+  if (!isAdd && id) {
+    try {
+      var vehs = await api('getVehiclesByHouse', { house_id: id });
+      parkTotal = vehs.filter(function(v){ return v.status === 'active'; })
+        .reduce(function(s, v){ return s + Number(v.fee_amount || 0); }, 0);
+    } catch(e) {}
+  }
+
+  // Populate fields
+  document.getElementById('edithouse-mode').value      = isAdd ? 'add' : 'edit';
+  document.getElementById('edithouse-id').value        = h.house_id || '';
+  document.getElementById('edithouse-no').value        = isAdd ? '' : _safeHouseNo(h.house_no);
+  document.getElementById('edithouse-soi').value       = h.soi || '';
+  document.getElementById('edithouse-area').value      = h.area_sqm || '';
+  document.getElementById('edithouse-owner').value     = h.owner_name || '';
+  document.getElementById('edithouse-renter').value    = h.renter_name || '';
+  document.getElementById('edithouse-contact').value   = h.contact_person || '';
+  document.getElementById('edithouse-phone').value     = h.phone || '';
+  document.getElementById('edithouse-email').value     = h.email || '';
+  document.getElementById('edithouse-fee').value       = isAdd ? '' : feeYr;
+  document.getElementById('edithouse-parking').value   = isAdd ? '' : parkTotal;
+  document.getElementById('edithouse-trash').value     = isAdd ? '' : parseFloat((trashYear / 2).toFixed(2));
+  document.getElementById('edithouse-statusnote').value = h.status_note || '';
+  var uEl = document.getElementById('edithouse-usage');  if (uEl) uEl.value = h.usage_type || 'owner';
+  var sEl = document.getElementById('edithouse-status'); if (sEl) sEl.value = h.status || 'normal';
+
+  // Update modal title
+  var titleEl = document.querySelector('#m-admin-edithouse .md-title');
+  if (titleEl) titleEl.textContent = isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48' : '\u0e41\u0e01\u0e49\u0e44\u0e02\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19';
+  _setEl('edithouse-sub', isAdd ? '\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48' : '\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no) + ' \u00b7 Admin Mode');
   openM('m-admin-edithouse');
 }
 
+function openAddHouseModal() {
+  openEditHouseModal(null, 'add');
+}
 function _calcEditHouseFee() {
   var area = parseFloat(document.getElementById('edithouse-area').value||0) || 0;
   var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw','40')) || 40;
@@ -6253,49 +6285,59 @@ function _calcEditHouseFee() {
   var feeEl = document.getElementById('edithouse-fee');
   if (feeEl) feeEl.value = feeYr;
 }
-async function doSaveEditHouse(){var id=document.getElementById('edithouse-id').value;if(!id)return;var hn=document.getElementById('edithouse-no').value.trim(),own=document.getElementById('edithouse-owner').value.trim();if(!hn||!own){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25'});return;}showLoader('...');try{await api('updateHouse',{house_id:id,house_no:hn,soi:document.getElementById('edithouse-soi').value.trim(),area_sqm:Number(document.getElementById('edithouse-area').value)||0,owner_name:own,renter_name:document.getElementById('edithouse-renter').value.trim(),contact_person:document.getElementById('edithouse-contact').value.trim(),phone:document.getElementById('edithouse-phone').value.trim(),email:document.getElementById('edithouse-email').value.trim(),fee_per_year:Number(document.getElementById('edithouse-fee').value)||0,parking_fee_year:Number(document.getElementById('edithouse-parking').value)||0,trash_fee_period:Number(document.getElementById('edithouse-trash').value)||0,usage_type:document.getElementById('edithouse-usage').value,status:document.getElementById('edithouse-status').value,status_note:(document.getElementById('edithouse-statusnote')||{}).value||''});closeM('m-admin-edithouse');await loadHousesPage();Swal.fire({icon:'success',title:'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-function filterFeesTable(){var v=(document.getElementById('fee-filter-status')||{}).value||'';var fees=(window._feesAll||[]).filter(function(f){return!v||f.status===v;});var tb=document.getElementById('tbl-fees');if(!tb)return;if(!fees.length){tb.innerHTML='<tr><td colspan="9" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</td></tr>';return;}tb.innerHTML=fees.map(function(f){var b={pending:'<span class="bd b-wn">\u0e23\u0e2d</span>',slip_submitted:'<span class="bd b-pr">\u0e2a\u0e25\u0e34\u0e1b</span>',paid:'<span class="bd b-ok">\u0e0a\u0e33\u0e23\u0e30</span>',overdue:'<span class="bd b-dg">\u0e04\u0e49\u0e32\u0e07</span>'}[f.status]||'<span class="bd b-mu">'+f.status+'</span>';var ab=f.status==='slip_submitted'?'<button class="btn btn-xs btn-a" data-fid="'+f.fee_id+'" onclick="doApproveSlip(this.dataset.fid)">\u2713 Approve</button>':'';return'<tr><td><strong>'+(f.house_id||'')+'</strong></td><td>'+f.period+'/'+f.year+'</td><td>\u0e3f'+Number(f.fee_amount||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.parking_fee||0).toLocaleString()+'</td><td>\u0e3f'+Number(f.trash_fee||0).toLocaleString()+'</td><td class="text-dg">'+(Number(f.penalty_fee||0)>0?'\u0e3f'+Number(f.penalty_fee).toLocaleString():'\u2014')+'</td><td class="fw-7">\u0e3f'+Number(f.total||0).toLocaleString()+'</td><td>'+b+'</td><td style="display:flex;gap:5px">'+ab+'<button class="btn btn-xs btn-o" data-fid="'+f.fee_id+'" onclick="openEditFeeModal(this.dataset.fid)">\u270f\ufe0f \u0e41\u0e01\u0e49\u0e44\u0e02</button>'+'<button class="btn btn-xs btn-g" data-fid="'+f.fee_id+'" onclick="openFeeDetail(this.dataset.fid)">\u0e14\u0e39</button></td></tr>';}).join('');}
-var _curFee=null;
-async function openFeeDetail(id) {
-  _curFee = id;
-  var f = (window._feesAll||[]).find(function(x){ return x.fee_id === id; });
-  if (!f) {
-    try { var fs = await api('getFees'); window._feesAll = fs; f = fs.find(function(x){ return x.fee_id === id; }); } catch(e) {}
+async function doSaveEditHouse() {
+  var mode = (document.getElementById('edithouse-mode')||{}).value || 'edit';
+  var isAdd = mode === 'add';
+  var id   = document.getElementById('edithouse-id').value;
+  var hn   = document.getElementById('edithouse-no').value.trim();
+  var own  = document.getElementById('edithouse-owner').value.trim();
+  if (!hn || !own) {
+    Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e40\u0e25\u0e02\u0e17\u0e35\u0e48\u0e41\u0e25\u0e30\u0e0a\u0e37\u0e48\u0e2d\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07' });
+    return;
   }
-  if (!f) { Swal.fire({ icon:'error', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a' }); return; }
+  // Compute fresh fees from inputs (readonly but correct values)
+  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw','40')) || 40;
+  var trashYear  = parseFloat(_cfg('fee_trash_per_year','600')) || 600;
+  var area = parseFloat(document.getElementById('edithouse-area').value || 0);
+  var feeYr = parseFloat((ratePerSqw * area * 12).toFixed(2));
+  var trashPeriod = parseFloat((trashYear / 2).toFixed(2));
+  var parkVal = parseFloat(document.getElementById('edithouse-parking').value || 0);
 
-  function _fv(v) { return '\u0e3f' + Number(v||0).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-  function _showRow(rowId, val) {
-    var el = document.getElementById(rowId);
-    if (el) el.style.display = Number(val||0) !== 0 ? 'flex' : 'none';
-  }
+  var payload = {
+    house_no:         hn,
+    soi:              document.getElementById('edithouse-soi').value.trim(),
+    area_sqm:         area,
+    owner_name:       own,
+    renter_name:      document.getElementById('edithouse-renter').value.trim(),
+    contact_person:   document.getElementById('edithouse-contact').value.trim(),
+    phone:            document.getElementById('edithouse-phone').value.trim(),
+    email:            document.getElementById('edithouse-email').value.trim(),
+    fee_per_year:     feeYr,
+    parking_fee_year: parkVal,
+    trash_fee_period: trashPeriod,
+    usage_type:       document.getElementById('edithouse-usage').value,
+    status:           document.getElementById('edithouse-status').value,
+    status_note:      (document.getElementById('edithouse-statusnote')||{}).value || ''
+  };
 
-  _setEl('fd-sub', '\u0e1a\u0e49\u0e32\u0e19 '+(f.house_id||'')+' \u00b7 '+(f.period||'')+'/'+(f.year||''));
-  _setEl('fd-fee-amount', _fv(f.fee_amount));
-  _setEl('fd-parking',    _fv(f.parking_fee));
-  _setEl('fd-trash',      _fv(f.trash_fee));
-
-  _setEl('fd-other-fee', _fv(f.other_fee));
-  _setEl('fd-other-note', f.other_fee_note ? '('+f.other_fee_note+')' : '');
-  _showRow('fd-other-row', f.other_fee);
-
-  _setEl('fd-carry',      _fv(f.overdue_carry));    _showRow('fd-carry-row',  f.overdue_carry);
-  _setEl('fd-penalty10',  _fv(f.penalty_10pct));    _showRow('fd-p10-row',    f.penalty_10pct);
-  _setEl('fd-collection', _fv(f.collection_fee));   _showRow('fd-col-row',    f.collection_fee);
-  _setEl('fd-penalty',    _fv(f.penalty_fee));      _showRow('fd-pen-row',    f.penalty_fee);
-  _setEl('fd-discount', '-\u0e3f'+Number(f.discount||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}));
-  _showRow('fd-disc-row', f.discount);
-  _setEl('fd-total', _fv(f.total));
-
-  var ss = document.getElementById('fd-slip-section');
-  if (ss) ss.style.display = f.slip_url ? 'block' : 'none';
-  var sl = document.getElementById('fd-slip-link');
-  if (sl && f.slip_url) sl.href = f.slip_url;
-  var ab = document.getElementById('btn-fee-approve');
-  if (ab) ab.style.display = f.status === 'slip_submitted' ? 'inline-flex' : 'none';
-  openM('m-fee-detail');
-}
-async function doApproveSlipFromModal(){if(!_curFee)return;showLoader('...');try{await api('approveSlip',{fee_id:_curFee});closeM('m-fee-detail');await loadFeesPage();loadAdminDashboard();Swal.fire({icon:'success',title:'Approve \u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1200,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
+  showLoader(isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19...' : '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
+  try {
+    if (isAdd) {
+      await api('createHouse', payload);
+    } else {
+      if (!id) { hideLoader(); return; }
+      payload.house_id = id;
+      await api('updateHouse', payload);
+    }
+    closeM('m-admin-edithouse');
+    invalidatePageCache('admin-houses');
+    _housesCache = []; _housesAllCache = [];
+    await loadHousesPage();
+    Swal.fire({ icon:'success', title: isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08' : '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
+  } catch(e) {
+    Swal.fire({ icon:'error', title:'Error', text: e.message });
+  } finally { hideLoader(); }
+}async function doApproveSlipFromModal(){if(!_curFee)return;showLoader('...');try{await api('approveSlip',{fee_id:_curFee});closeM('m-fee-detail');await loadFeesPage();loadAdminDashboard();Swal.fire({icon:'success',title:'Approve \u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1200,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
 async function loadReportsPage(){try{const r=await api('getReports');const el=document.getElementById('list-reports');if(!el)return;if(!r.length){el.innerHTML='<p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35</p>';return;}var g={};r.forEach(function(x){var k=x.month+'/'+x.year;if(!g[k])g[k]=[];g[k].push(x);});el.innerHTML=Object.keys(g).map(function(k){var it=g[k],tot=it.reduce(function(s,x){return s+Number(x.budget||0);},0);return'<div class="card"><div class="ch"><div class="ch-ico">&#127942;</div><div class="ct">\u0e40\u0e14\u0e37\u0e2d\u0e19 '+k+'</div></div><div class="cb">'+it.map(function(x){return'<div class="ann"><div class="ann-dot ad-evt"></div><div><div class="ann-t">'+x.title+'</div><div class="ann-b">\u0e07\u0e1a \u0e3f'+Number(x.budget||0).toLocaleString()+(x.summary?' \u00b7 '+x.summary.substring(0,60):'')+'</div></div></div>';}).join('')+'<div class="fee-row" style="margin-top:8px;border-top:1px solid var(--bo);padding-top:8px"><div class="fee-lbl">\u0e23\u0e27\u0e21\u0e07\u0e1a</div><div class="fee-val fw-7 text-pr">\u0e3f'+tot.toLocaleString()+'</div></div></div></div>';}).join('');}catch(e){}}
 async function loadResWorkPage(){try{const r=await api('getReports');const el=document.getElementById('list-res-reports');if(!el)return;if(!r.length){el.innerHTML='<p class="text-mu" style="text-align:center;padding:20px;font-size:13px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35</p>';return;}var g={};r.forEach(function(x){var k=x.month+'/'+x.year;if(!g[k])g[k]=[];g[k].push(x);});el.innerHTML=Object.keys(g).map(function(k){return'<div class="card" style="margin-bottom:14px"><div class="ch"><div class="ch-ico">&#127942;</div><div class="ct">\u0e40\u0e14\u0e37\u0e2d\u0e19 '+k+'</div></div><div class="cb">'+g[k].map(function(x){return'<div class="ann"><div class="ann-dot ad-evt"></div><div><div class="ann-t">'+x.title+'</div><div class="ann-b">\u0e07\u0e1a \u0e3f'+Number(x.budget||0).toLocaleString()+(x.summary?' \u00b7 '+x.summary.substring(0,60):'')+'</div></div></div>';}).join('')+'</div></div>';}).join('');}catch(e){}}
 async function doCreateUser(){var un=document.getElementById('adduser-username').value.trim(),pw=document.getElementById('adduser-password').value,dn=document.getElementById('adduser-display').value.trim(),hi=document.getElementById('adduser-houseid').value.trim(),ro=document.getElementById('adduser-role').value,ph=document.getElementById('adduser-phone').value.trim();if(!un||!pw){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01 Username \u0e41\u0e25\u0e30 Password'});return;}if(pw.length<6){Swal.fire({icon:'warning',title:'Password \u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e19\u0e49\u0e2d\u0e22 6 \u0e15\u0e31\u0e27'});return;}showLoader('...');try{await api('createUser',{username:un,password:pw,display_name:dn,house_id:hi,role:ro,phone:ph});closeM('m-adduser');await loadUsersPage();Swal.fire({icon:'success',title:'\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
