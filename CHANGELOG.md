@@ -159,3 +159,27 @@ _Last updated: session ปัจจุบัน_
 - `id="sb-admin-name"`, `id="sb-admin-role"` ต้องคงเดิม
 - `id="sb-res-name"`, `id="sb-res-role"` ต้องคงเดิม
 - `id="badge-*"` ทุกตัวต้องคงเดิม
+
+---
+
+## ✅ Houses Page + Refresh Buttons (session นี้)
+
+### Refresh Buttons — ทุกหน้าที่มีตาราง
+- Icon: 🔄 (ใกล้เคียง sync icon ในรูป)
+- เพิ่มใน ph-acts ทุก pane: houses, fees, issues, vio, req, ann, rep, contractor, market, vehicle, usr, log, dash
+
+### Houses Page แก้ไข
+1. **เรียงตามซอย + บ้านเลขที่** — sort ก่อน render (natural sort)
+2. **ปุ่ม → "ปรับปรุงค่าส่วนกลาง/ค่ารถ"** — เปลี่ยน label openBulkFeeModal
+3. **คำนวณค่าส่วนกลาง** = `area_sqm × fee_rate_per_sqw × 12`
+4. **คำนวณค่ารถ** = `SUM(VEHICLES.fee_amount)` แยกแต่ละหลัง (ต้อง fetch vehicles)
+5. **คำนวณค่าขยะ** = `fee_trash_per_year` (จาก settings ต่อปี)
+6. **Column ตาราง** เปลี่ยนเป็น: บ้านเลขที่ | เจ้าของ | โทร | ค่าส่วนกลาง | ค่ารถ | สถานะ | ปุ่มแก้ไข (ลบ email ออก)
+7. **Edit modal** — ค่าส่วนกลาง/ค่ารถ/ค่าขยะ readonly + auto-calculate เมื่อเปลี่ยน area
+8. **_housesCache** fix (done แล้ว) — phone/email ดึงได้แล้ว
+
+### DO NOT CHANGE
+- `id="edithouse-phone"`, `id="edithouse-email"` ต้องคงเดิม (openEditHouseModal ใช้)
+- `id="edithouse-fee"`, `id="edithouse-parking"`, `id="edithouse-trash"` คงเดิม
+- Badge IDs ทุกตัวต้องคงเดิม
+- Load function names ทุกตัวต้องคงเดิม (loadHousesPage, loadFeesPage ฯลฯ)
