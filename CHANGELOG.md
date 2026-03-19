@@ -269,3 +269,27 @@ _Last updated: session ปัจจุบัน_
 - `id="edithouse-mode"` hidden field ในโมดัล
 - `openAddHouseModal` ต้องเรียก `openEditHouseModal(null, 'add')` เท่านั้น
 - `loadHousesPage` ต้องมี 1 definition เท่านั้น
+
+---
+
+## ✅ Session — Fix ครั้งที่ 7 (Final)
+
+### Root Cause แท้จริงทั้ง 3 ข้อ
+
+**ข้อ 1 phone/email ไม่แสดง:**
+- `openEditHouseModal` ใช้ `api('getHouseById')` แต่ `catch(e) {}` กิน error เงียบๆ → h = {}
+- viewHouseDetail อ่าน `_housesCache` แสดงถูก
+- **Fix:** ใช้ `_housesCache` ก่อน (เหมือน viewHouseDetail) → ถ้าไม่มีค่อย fetch getHouses
+
+**ข้อ 2 Sheet ไม่เปลี่ยน:**
+- **Fix:** `doSaveEditHouse` recompute fees + clear `_housesCache = []` หลัง save → force reload
+
+**ข้อ 3 Reload ไม่ทำงาน:**
+- `onclick="invalidatePageCache('admin-houses')..."` ถูก HTML parser ตัด `'` → function arg ว่าง
+- **Fix:** เปลี่ยนเป็น `data-pane="..."` `data-fn="..."` + `onclick="_doRefresh(this)"`
+- เพิ่ม `_doRefresh()` + `_refreshFnMap{}` helper
+
+### DO NOT CHANGE
+- Refresh buttons ต้องใช้ data-pane + data-fn + onclick="_doRefresh(this)"
+- openEditHouseModal ต้องอ่าน _housesCache ก่อนเสมอ (ห้ามใช้ getHouseById)
+- doSaveEditHouse ต้อง clear _housesCache = [] หลัง save

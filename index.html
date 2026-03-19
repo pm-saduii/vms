@@ -1215,7 +1215,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
                 <div class="ph-sub"><span id="cfg-village-name">The Greenfield</span> · <span id="dash-date-sub">—</span></div>
               </div>
             </div>
-            <div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button>
+            <div class="ph-acts"><button class="btn-refresh" data-pane="admin-dash" data-fn="loadAdminDashboard" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button>
               <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">
                 <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:#fff" id="dash-hdr-houses">—</div><div style="font-size:10px;color:rgba(255,255,255,.8)">บ้านทั้งหมด</div></div>
                 <div style="text-align:center"><div style="font-size:18px;font-weight:800;color:#fff" id="dash-hdr-collect">—</div><div style="font-size:10px;color:rgba(255,255,255,.8)">ยอดค้างชำระ</div></div>
@@ -1347,7 +1347,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: HOUSES -->
       <div id="p-admin-houses" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · <span id="cfg-village-name2">The Greenfield</span></div></div></div><div class="ph-acts" style="display:flex;gap:8px"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านทั้งหมด</div><div class="ph-sub"><span id="dash-hdr-houses">—</span> หน่วย · <span id="cfg-village-name2">The Greenfield</span></div></div></div><div class="ph-acts" style="display:flex;gap:8px"><button class="btn-refresh" data-pane="admin-houses" data-fn="loadHousesPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button>
               <button class="btn btn-ghost btn-sm" onclick="openBulkFeeModal()">🧮 ปรับปรุงค่าส่วนกลาง/ค่ารถ</button>
               <button class="btn btn-ghost btn-sm" onclick="openAddHouseModal()">+ เพิ่มบ้าน</button>
             </div></div></div>
@@ -1370,7 +1370,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: FEES -->
       <div id="p-admin-fees" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💰</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">จัดการใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="doGenerateFees()">⚡ ออกใบครึ่งปี</button>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">💰</div><div><div class="ph-h1">ค่าส่วนกลาง</div><div class="ph-sub">จัดการใบแจ้งหนี้และการชำระ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-fees" data-fn="loadFeesPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="doGenerateFees()">⚡ ออกใบครึ่งปี</button>
               <button class="btn btn-ghost btn-sm" onclick="doGenerateFullYear()" style="background:var(--acl);color:var(--ac)">📋 ออกใบเต็มปี</button></div></div></div>
         <div class="stats" style="grid-template-columns:repeat(3,1fr)">
           <div class="sc"><div class="sc-ico p">💰</div><div><div class="sc-v" id="stat-fee-total" style="font-size:15px">—</div><div class="sc-l">รวมทั้งหมด</div></div></div>
@@ -1389,7 +1389,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: ISSUES -->
       <div id="p-admin-issues" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน<div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache('issues');loadIssuesPage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน<div class="ph-acts"><button class="btn-refresh" data-pane="admin-issues" data-fn="loadIssuesPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
         <div class="tabs">
           <button class="tab on" id="tab-iss-open" onclick="stab('ai','open',this)">🔴 รอดำเนินการ</button>
           <button class="tab" id="tab-iss-doing" onclick="stab('ai','doing',this)">🟡 กำลังดำเนิน</button>
@@ -1402,7 +1402,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: VIO      <!-- ADMIN: VIO (แจ้งกระทำผิด) -->
       <div id="p-admin-vio" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ แจ้งใหม่</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-vio" data-fn="loadViolationsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ แจ้งใหม่</button></div></div></div>
         <div class="card">
           <div class="ch"><div class="ch-ico">⚠️</div><div class="ct">รายการแจ้งเตือนทั้งหมด</div></div>
           <div class="cb" id="list-violations">
@@ -1413,25 +1413,25 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: REQUEST (คำขอแก้ไข) -->
       <div id="p-admin-req" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📝</div><div><div class="ph-h1">คำขอแก้ไข</div><div class="ph-sub" id="req-sub">รอการอนุมัติ<div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache('req');loadChangeReqPage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📝</div><div><div class="ph-h1">คำขอแก้ไข</div><div class="ph-sub" id="req-sub">รอการอนุมัติ<div class="ph-acts"><button class="btn-refresh" data-pane="admin-req" data-fn="loadChangeReqPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📝</div><div class="ct">คำขอแก้ไขข้อมูลบ้าน</div></div><div class="cb" id="list-change-reqs"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
       <!-- ADMIN: ANNOUNCE      <!-- ADMIN: ANNOUNCE -->
       <div id="p-admin-ann" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📢</div><div><div class="ph-h1">ประกาศ</div><div class="ph-sub">จัดการข่าวสารและประกาศ</div></div></div><div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newann')">+ ออกประกาศ</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📢</div><div><div class="ph-h1">ประกาศ</div><div class="ph-sub">จัดการข่าวสารและประกาศ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-ann" data-fn="loadAnnouncementsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newann')">+ ออกประกาศ</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📢</div><div class="ct">ประกาศทั้งหมด</div></div><div class="cb" id="list-announcements"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
       <!-- ADMIN: REPORT      <!-- ADMIN: REPORT -->
       <div id="p-admin-rep" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏆</div><div><div class="ph-h1">ผลงานนิติ</div><div class="ph-sub">รายงานประจำเดือน</div></div></div><div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newrep')">+ เพิ่มรายงาน</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏆</div><div><div class="ph-h1">ผลงานนิติ</div><div class="ph-sub">รายงานประจำเดือน</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-rep" data-fn="loadReportsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newrep')">+ เพิ่มรายงาน</button></div></div></div>
         <div id="list-reports" class="g2"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">กำลังโหลด...</p></div>
       </div>
 
       <!-- ADMIN: CONTRACTOR      <!-- ADMIN: CONTRACTOR -->
       <div id="p-admin-contractor" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔨</div><div><div class="ph-h1">ทะเบียนช่าง</div><div class="ph-sub">จัดการข้อมูลช่างและผู้รับเหมา</div></div></div><div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newcon')">+ เพิ่มช่าง</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔨</div><div><div class="ph-h1">ทะเบียนช่าง</div><div class="ph-sub">จัดการข้อมูลช่างและผู้รับเหมา</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-contractor" data-fn="loadContractorsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newcon')">+ เพิ่มช่าง</button></div></div></div>
         <div class="tabs"><button class="tab on" onclick="stab('acon','approved',this)">✅ อนุมัติแล้ว</button><button class="tab" id="tab-con-pending" onclick="stab('acon','pending',this)">⏳ รออนุมัติ</button></div>
         <div id="acon-approved" class="pane on"><div class="g2" id="list-contractors-approved"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">กำลังโหลด...</p></div></div>
         <div id="acon-pending" class="pane"><div id="list-contractors-pending"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
@@ -1439,7 +1439,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: MARKET      <!-- ADMIN: MARKET -->
       <div id="p-admin-market" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🛒</div><div><div class="ph-h1">ประกาศขาย-ให้ฟรี</div><div class="ph-sub" id="mkt-sub">จัดการประกาศ<div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache('market');loadMarketPage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🛒</div><div><div class="ph-h1">ประกาศขาย-ให้ฟรี</div><div class="ph-sub" id="mkt-sub">จัดการประกาศ<div class="ph-acts"><button class="btn-refresh" data-pane="admin-market" data-fn="loadMarketPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
         <div class="tabs"><button class="tab on" id="tab-amk-pending" onclick="stab('amk','pending',this)">⏳ รออนุมัติ</button><button class="tab" onclick="stab('amk','active',this)">✅ เปิดประกาศ</button><button class="tab" onclick="stab('amk','closed',this)">🔴 ปิดแล้ว</button></div>
         <div id="amk-pending" class="pane on"><div id="list-market-pending"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
         <div id="amk-active" class="pane"><div id="list-market-active"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
@@ -1448,7 +1448,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: USERS      <!-- ADMIN: USERS -->
       <div id="p-admin-usr" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">👥</div><div><div class="ph-h1">สมาชิก</div><div class="ph-sub">จัดการบัญชีผู้ใช้งาน</div></div></div><div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-adduser')">+ เพิ่มสมาชิก</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">👥</div><div><div class="ph-h1">สมาชิก</div><div class="ph-sub">จัดการบัญชีผู้ใช้งาน</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-usr" data-fn="loadUsersPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-adduser')">+ เพิ่มสมาชิก</button></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">👥</div><div class="ct">รายชื่อสมาชิก</div></div>
           <div class="tw"><table><thead><tr><th>ID</th><th>Username</th><th>บ้าน</th><th>Role</th><th>สถานะ</th></tr></thead><tbody id="tbl-users">
             <tr><td colspan="5" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
@@ -1458,7 +1458,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: LOGIN LOGS -->
       <div id="p-admin-log" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📋</div><div><div class="ph-h1">Login Logs</div><div class="ph-sub">บันทึกการเข้าใช้ระบบ<div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache('log');loadLoginLogsPage()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📋</div><div><div class="ph-h1">Login Logs</div><div class="ph-sub">บันทึกการเข้าใช้ระบบ<div class="ph-acts"><button class="btn-refresh" data-pane="admin-log" data-fn="loadLoginLogsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
         <div class="card"><div class="ch"><div class="ch-ico">📋</div><div class="ct">บันทึกล่าสุด</div></div>
           <div class="tw"><table><thead><tr><th>#</th><th>Username</th><th>Role</th><th>วันที่</th><th>ผล</th></tr></thead><tbody id="tbl-logs">
             <tr><td colspan="5" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
@@ -1618,7 +1618,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="ph-ico">🚗</div>
             <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">จัดการยานพาหนะและการอนุมัติ</div></div>
           </div>
-          <div class="ph-acts"><button class="btn-refresh" onclick="invalidatePageCache("><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">🚗 + เพิ่มรถ (Admin)</button></div>
+          <div class="ph-acts"><button class="btn-refresh" data-pane="admin-vehicle" data-fn="loadAdminVehiclePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">🚗 + เพิ่มรถ (Admin)</button></div>
         </div></div>
         <div class="stats" style="grid-template-columns:repeat(4,1fr)">
           <div class="sc"><div class="sc-ico w">⏳</div><div><div class="sc-v" id="stat-veh-pending">—</div><div class="sc-l">รออนุมัติ</div></div></div>
@@ -1967,8 +1967,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             <div class="fg"><label class="fl">Username</label><input class="fi" id="prof-username" value="" disabled></div>
             <div class="fg"><label class="fl">บ้านเลขที่</label><input class="fi" id="prof-houseid" value="" disabled></div>
           </div>
-          <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="edithouse-phone"></div>
-          <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="edithouse-email"></div>
+          <div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="prof-phone"></div>
+          <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="prof-email"></div>
           <button class="btn btn-p btn-full" onclick="doSaveResProfile()">💾 บันทึกข้อมูล</button>
         </div></div>
         <div class="card"><div class="ch"><div class="ch-ico">🔒</div><div class="ct">เปลี่ยนรหัสผ่าน</div></div><div class="cb">
@@ -4008,6 +4008,32 @@ var PT = {
 var _pageCache = {};
 var _PAGE_TTL  = 60000; // 60s — force refresh after this
 
+// Refresh helper — called by data-* refresh buttons
+var _refreshFnMap = {
+  'loadAdminDashboard':   function(){ return loadAdminDashboard(); },
+  'loadHousesPage':       function(){ return loadHousesPage(); },
+  'loadFeesPage':         function(){ return loadFeesPage(); },
+  'loadViolationsPage':   function(){ return loadViolationsPage(); },
+  'loadAnnouncementsPage':function(){ return loadAnnouncementsPage(); },
+  'loadReportsPage':      function(){ return loadReportsPage(); },
+  'loadContractorsPage':  function(){ return loadContractorsPage(); },
+  'loadUsersPage':        function(){ return loadUsersPage(); },
+  'loadAdminVehiclePage': function(){ return loadAdminVehiclePage(); },
+  'loadIssuesPage':       function(){ return loadIssuesPage(); },
+  'loadChangeReqPage':    function(){ return loadChangeReqPage(); },
+  'loadMarketPage':       function(){ return loadMarketPage(); },
+  'loadLoginLogsPage':    function(){ return loadLoginLogsPage(); }
+};
+async function _doRefresh(btn) {
+  var pane = btn.getAttribute('data-pane');
+  var fn   = btn.getAttribute('data-fn');
+  if (pane) invalidatePageCache(pane);
+  if (fn && _refreshFnMap[fn]) {
+    btn.disabled = true;
+    try { await _refreshFnMap[fn](); } finally { btn.disabled = false; }
+  }
+}
+
 function goHome(view) {
   var navId = view === 'admin' ? 'anav' : 'rnav';
   var dashPage = view === 'admin' ? 'dash' : 'dash';
@@ -4222,6 +4248,141 @@ function openAddHouseModal() {
   var t = document.getElementById('addhouse-type');  if (t) t.value = 'single_house';
   openM('m-addhouse');
 }
+
+async function openEditHouseModal(id, mode) {
+  var isAdd = mode === 'add';
+  var h = {};
+
+  if (!isAdd) {
+    // Use _housesCache first (same source as viewHouseDetail which shows correct data)
+    h = (_housesCache || []).find(function(x){ return x.house_id === id; });
+    if (!h) {
+      showLoader('\u0e42\u0e2b\u0e25\u0e14...');
+      try {
+        var all = await api('getHouses');
+        _housesCache = all; _housesAllCache = all;
+        h = all.find(function(x){ return x.house_id === id; });
+      } catch(e) {
+        hideLoader();
+        Swal.fire({ icon:'error', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25', text: e.message });
+        return;
+      }
+      hideLoader();
+    }
+    if (!h) {
+      Swal.fire({ icon:'error', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19' });
+      return;
+    }
+  }
+
+  // Compute fees from settings
+  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw', '40')) || 40;
+  var trashYear  = parseFloat(_cfg('fee_trash_per_year', '600')) || 600;
+  var area  = parseFloat(h.area_sqm || 0);
+  var feeYr = parseFloat((ratePerSqw * area * 12).toFixed(2));
+
+  // Parking: sum active vehicles
+  var parkTotal = 0;
+  if (!isAdd && id) {
+    try {
+      var vehs = await api('getVehiclesByHouse', { house_id: id });
+      parkTotal = (vehs || []).filter(function(v){ return v.status === 'active'; })
+        .reduce(function(s, v){ return s + Number(v.fee_amount || 0); }, 0);
+    } catch(e) {}
+  }
+
+  // Populate fields
+  document.getElementById('edithouse-mode').value       = isAdd ? 'add' : 'edit';
+  document.getElementById('edithouse-id').value         = h.house_id || '';
+  document.getElementById('edithouse-no').value         = isAdd ? '' : _safeHouseNo(h.house_no);
+  document.getElementById('edithouse-soi').value        = h.soi || '';
+  document.getElementById('edithouse-area').value       = h.area_sqm || '';
+  document.getElementById('edithouse-owner').value      = h.owner_name || '';
+  document.getElementById('edithouse-renter').value     = h.renter_name || '';
+  document.getElementById('edithouse-contact').value    = h.contact_person || '';
+  document.getElementById('edithouse-phone').value      = h.phone || '';
+  document.getElementById('edithouse-email').value      = h.email || '';
+  document.getElementById('edithouse-fee').value        = isAdd ? '' : feeYr;
+  document.getElementById('edithouse-parking').value    = isAdd ? '' : parkTotal;
+  document.getElementById('edithouse-trash').value      = isAdd ? '' : parseFloat((trashYear / 2).toFixed(2));
+  document.getElementById('edithouse-statusnote').value = h.status_note || '';
+  var uEl = document.getElementById('edithouse-usage');  if (uEl) uEl.value = h.usage_type || 'owner';
+  var sEl = document.getElementById('edithouse-status'); if (sEl) sEl.value = h.status || 'normal';
+
+  // Update modal title
+  var titleEl = document.querySelector('#m-admin-edithouse .md-title');
+  if (titleEl) titleEl.textContent = isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48' : '\u0e41\u0e01\u0e49\u0e44\u0e02\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19';
+  _setEl('edithouse-sub', isAdd
+    ? '\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48'
+    : '\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no) + ' \u00b7 Admin Mode');
+  openM('m-admin-edithouse');
+}
+
+async function doSaveEditHouse() {
+  var mode  = (document.getElementById('edithouse-mode') || {}).value || 'edit';
+  var isAdd = mode === 'add';
+  var id    = document.getElementById('edithouse-id').value;
+  var hn    = document.getElementById('edithouse-no').value.trim();
+  var own   = document.getElementById('edithouse-owner').value.trim();
+  if (!hn || !own) {
+    Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e40\u0e25\u0e02\u0e17\u0e35\u0e48\u0e41\u0e25\u0e30\u0e0a\u0e37\u0e48\u0e2d\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07' });
+    return;
+  }
+  // Recompute fees to ensure correct values go to sheet
+  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw', '40')) || 40;
+  var trashYear  = parseFloat(_cfg('fee_trash_per_year', '600')) || 600;
+  var area       = parseFloat(document.getElementById('edithouse-area').value || 0);
+  var feeYr      = parseFloat((ratePerSqw * area * 12).toFixed(2));
+  var trashPeriod= parseFloat((trashYear / 2).toFixed(2));
+  var parkVal    = parseFloat(document.getElementById('edithouse-parking').value || 0);
+
+  var payload = {
+    house_no:         hn,
+    soi:              document.getElementById('edithouse-soi').value.trim(),
+    area_sqm:         area,
+    owner_name:       own,
+    renter_name:      document.getElementById('edithouse-renter').value.trim(),
+    contact_person:   document.getElementById('edithouse-contact').value.trim(),
+    phone:            document.getElementById('edithouse-phone').value.trim(),
+    email:            document.getElementById('edithouse-email').value.trim(),
+    fee_per_year:     feeYr,
+    parking_fee_year: parkVal,
+    trash_fee_period: trashPeriod,
+    usage_type:       document.getElementById('edithouse-usage').value,
+    status:           document.getElementById('edithouse-status').value,
+    status_note:      (document.getElementById('edithouse-statusnote') || {}).value || ''
+  };
+
+  showLoader(isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19...' : '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
+  try {
+    if (isAdd) {
+      await api('createHouse', payload);
+    } else {
+      if (!id) { hideLoader(); return; }
+      payload.house_id = id;
+      await api('updateHouse', payload);
+    }
+    closeM('m-admin-edithouse');
+    invalidatePageCache('admin-houses');
+    _housesCache = []; _housesAllCache = [];   // force fresh reload
+    await loadHousesPage();
+    Swal.fire({
+      icon:'success',
+      title: isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08' : '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',
+      timer: 1500, showConfirmButton: false
+    });
+  } catch(e) {
+    Swal.fire({ icon:'error', title:'Error', text: e.message });
+  } finally { hideLoader(); }
+}
+
+function _calcEditHouseFee() {
+  var area = parseFloat(document.getElementById('edithouse-area').value || 0) || 0;
+  var rate = parseFloat(_cfg('fee_rate_per_sqw', '40')) || 40;
+  var el   = document.getElementById('edithouse-fee');
+  if (el) el.value = parseFloat((rate * area * 12).toFixed(2));
+}
+
 
 async function doCreateHouse() {
   var house_no   = (document.getElementById('addhouse-no')||{}).value||'';
@@ -6105,562 +6266,13 @@ function _openInvoiceWindow(f, isFullYear) {
 
     '<scr'+'ipt>window.onload = function(){ window.print(); }<\/scr'+'ipt>' +
     '</body></html>';
-
   var w = window.open('', '_blank', 'width=900,height=700');
   if (w) {
     w.document.write(html);
     w.document.close();
-  } else {
-    Swal.fire({ icon: 'warning', title: 'Popup ถูกบล็อก', text: 'กรุณาอนุญาต Popup ในเบราว์เซอร์' });
   }
 }
 
-
-// ============================================================
-// CAR IMAGE UPLOAD — resize to max 1280px, rename CAR_date_time
-// ============================================================
-var _carImages = []; // [{file, dataUrl, renamed}]
-
-function onCarImageSelect(input, prefix) {
-  var files = Array.from(input.files);
-  var remaining = 5 - _carImages.length;
-  if (remaining <= 0) {
-    Swal.fire({ icon:'warning', title:'\u0e41\u0e19\u0e1a\u0e23\u0e39\u0e1b\u0e44\u0e14\u0e49\u0e2a\u0e39\u0e07\u0e2a\u0e38\u0e14 5 \u0e23\u0e39\u0e1b', timer:1500, showConfirmButton:false });
-    return;
-  }
-  files = files.slice(0, remaining);
-  input.value = '';
-  files.forEach(function(file) {
-    var now = new Date();
-    var pad = function(n){ return String(n).padStart(2,'0'); };
-    var dt = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) +
-             '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) +
-             '_' + Math.floor(Math.random()*1000);
-    var ext = (file.name.match(/\.(\w+)$/) || [,'jpg'])[1].toLowerCase();
-    var renamed = 'CAR_' + dt + '.' + ext;
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var img = new Image();
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        var MAX = 1280;
-        var w = img.width, h = img.height;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else       { w = Math.round(w * MAX / h); h = MAX; }
-        }
-        canvas.width = w; canvas.height = h;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-        _carImages.push({ file: file, dataUrl: dataUrl, renamed: renamed });
-        _renderCarImagePreviews(prefix);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function _renderCarImagePreviews(prefix) {
-  var wrap = document.getElementById(prefix + 'img-previews');
-  if (!wrap) return;
-  wrap.innerHTML = _carImages.map(function(img, idx) {
-    return '<div style="position:relative;display:inline-block">' +
-      '<img src="' + img.dataUrl + '" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
-      '<button onclick="_removeCarImage(' + idx + ',\'' + prefix + '\')" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;text-align:center;padding:0">\u00d7</button>' +
-      '<div style="font-size:9px;color:var(--mu);text-align:center;max-width:80px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">' + img.renamed + '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function _removeCarImage(idx, prefix) {
-  _carImages.splice(idx, 1);
-  _renderCarImagePreviews(prefix);
-}
-
-async function _uploadCarImages() {
-  if (!_carImages.length) return [];
-  var urls = [];
-  for (var i = 0; i < _carImages.length; i++) {
-    var img = _carImages[i];
-    var base64 = img.dataUrl.split(',')[1];
-    var mimeType = img.dataUrl.split(';')[0].replace('data:','');
-    try {
-      var res = await api('uploadImage', { filename: img.renamed, base64: base64, mimeType: mimeType });
-      if (res && res.url) urls.push(res.url);
-    } catch(e) { console.warn('Image upload failed:', img.renamed, e.message); }
-  }
-  return urls;
-}
 </script>
-
-<!-- MODAL: เพิ่มสมาชิก -->
-<div class="mo" id="m-adduser">
-<div class="md"><div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">👤</div><div><div class="md-title">เพิ่มสมาชิกใหม่</div><div class="md-sub">สร้างบัญชีผู้ใช้งาน</div></div>
-</div>
-  <div class="md-bd">
-    <div class="fr2"><div class="fg"><label class="fl">Username</label><input class="fi" id="adduser-username" placeholder="ชื่อผู้ใช้"></div><div class="fg"><label class="fl">รหัสผ่าน</label><input class="fi" id="adduser-password" type="password" placeholder="อย่างน้อย 6 ตัว"></div></div>
-    <div class="fr2"><div class="fg"><label class="fl">ชื่อที่แสดง</label><input class="fi" id="adduser-display" placeholder="ชื่อ-นามสกุล"></div><div class="fg"><label class="fl">house_id</label><input class="fi" id="adduser-houseid" placeholder="HSE-xxxxx"></div></div>
-    <div class="fr2"><div class="fg"><label class="fl">Role</label><select class="fs" id="adduser-role"><option value="resident">Resident</option><option value="admin">Admin</option></select></div><div class="fg"><label class="fl">เบอร์โทร</label><input class="fi" id="adduser-phone" placeholder="0xx-xxx-xxxx"></div></div>
-  </div>
-  <div class="md-ft"><button class="btn btn-g btn-sm" onclick="closeM('m-adduser')">ยกเลิก</button><button class="btn btn-p btn-sm" onclick="doCreateUser()">สร้างบัญชี</button></div>
-</div></div>
-<script>
-// === DYNAMIC PATCHES ===
-function _safeHouseNo(v){if(!v&&v!==0)return'';var s=String(v);if(/^\d{4}-\d{2}-\d{2}T/.test(s)){var d=new Date(s);if(!isNaN(d))return d.getDate()+'/'+(d.getMonth()+1);}return s;}
-var _housesCache=[];
-
-async function openEditHouseModal(id, mode) {
-  // mode = 'edit' (default) or 'add'
-  var isAdd = mode === 'add';
-  showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25...');
-  var h = {};
-  if (!isAdd) {
-    // ALWAYS fetch fresh from server — never rely on cache for this
-    try {
-      h = await api('getHouseById', { house_id: id });
-    } catch(e) {
-      hideLoader();
-      Swal.fire({ icon:'error', title:'\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19', text: e.message });
-      return;
-    }
-    // Update cache with fresh data
-    if (_housesCache) {
-      var idx = _housesCache.findIndex(function(x){ return x.house_id === id; });
-      if (idx >= 0) _housesCache[idx] = h; else _housesCache.push(h);
-    }
-  }
-  hideLoader();
-
-  // Compute fees from settings
-  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw','40')) || 40;
-  var trashYear  = parseFloat(_cfg('fee_trash_per_year','600')) || 600;
-  var area = parseFloat(h.area_sqm || 0);
-  var feeYr = parseFloat((ratePerSqw * area * 12).toFixed(2));
-
-  // Parking from vehicles (active only)
-  var parkTotal = 0;
-  if (!isAdd && id) {
-    try {
-      var vehs = await api('getVehiclesByHouse', { house_id: id });
-      parkTotal = vehs.filter(function(v){ return v.status === 'active'; })
-        .reduce(function(s, v){ return s + Number(v.fee_amount || 0); }, 0);
-    } catch(e) {}
-  }
-
-  // Populate fields
-  document.getElementById('edithouse-mode').value      = isAdd ? 'add' : 'edit';
-  document.getElementById('edithouse-id').value        = h.house_id || '';
-  document.getElementById('edithouse-no').value        = isAdd ? '' : _safeHouseNo(h.house_no);
-  document.getElementById('edithouse-soi').value       = h.soi || '';
-  document.getElementById('edithouse-area').value      = h.area_sqm || '';
-  document.getElementById('edithouse-owner').value     = h.owner_name || '';
-  document.getElementById('edithouse-renter').value    = h.renter_name || '';
-  document.getElementById('edithouse-contact').value   = h.contact_person || '';
-  document.getElementById('edithouse-phone').value     = h.phone || '';
-  document.getElementById('edithouse-email').value     = h.email || '';
-  document.getElementById('edithouse-fee').value       = isAdd ? '' : feeYr;
-  document.getElementById('edithouse-parking').value   = isAdd ? '' : parkTotal;
-  document.getElementById('edithouse-trash').value     = isAdd ? '' : parseFloat((trashYear / 2).toFixed(2));
-  document.getElementById('edithouse-statusnote').value = h.status_note || '';
-  var uEl = document.getElementById('edithouse-usage');  if (uEl) uEl.value = h.usage_type || 'owner';
-  var sEl = document.getElementById('edithouse-status'); if (sEl) sEl.value = h.status || 'normal';
-
-  // Update modal title
-  var titleEl = document.querySelector('#m-admin-edithouse .md-title');
-  if (titleEl) titleEl.textContent = isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48' : '\u0e41\u0e01\u0e49\u0e44\u0e02\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19';
-  _setEl('edithouse-sub', isAdd ? '\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48' : '\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no) + ' \u00b7 Admin Mode');
-  openM('m-admin-edithouse');
-}
-
-function openAddHouseModal() {
-  openEditHouseModal(null, 'add');
-}
-function _calcEditHouseFee() {
-  var area = parseFloat(document.getElementById('edithouse-area').value||0) || 0;
-  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw','40')) || 40;
-  var feeYr = parseFloat((ratePerSqw * area * 12).toFixed(2));
-  var feeEl = document.getElementById('edithouse-fee');
-  if (feeEl) feeEl.value = feeYr;
-}
-async function doSaveEditHouse() {
-  var mode = (document.getElementById('edithouse-mode')||{}).value || 'edit';
-  var isAdd = mode === 'add';
-  var id   = document.getElementById('edithouse-id').value;
-  var hn   = document.getElementById('edithouse-no').value.trim();
-  var own  = document.getElementById('edithouse-owner').value.trim();
-  if (!hn || !own) {
-    Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e40\u0e25\u0e02\u0e17\u0e35\u0e48\u0e41\u0e25\u0e30\u0e0a\u0e37\u0e48\u0e2d\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07' });
-    return;
-  }
-  // Compute fresh fees from inputs (readonly but correct values)
-  var ratePerSqw = parseFloat(_cfg('fee_rate_per_sqw','40')) || 40;
-  var trashYear  = parseFloat(_cfg('fee_trash_per_year','600')) || 600;
-  var area = parseFloat(document.getElementById('edithouse-area').value || 0);
-  var feeYr = parseFloat((ratePerSqw * area * 12).toFixed(2));
-  var trashPeriod = parseFloat((trashYear / 2).toFixed(2));
-  var parkVal = parseFloat(document.getElementById('edithouse-parking').value || 0);
-
-  var payload = {
-    house_no:         hn,
-    soi:              document.getElementById('edithouse-soi').value.trim(),
-    area_sqm:         area,
-    owner_name:       own,
-    renter_name:      document.getElementById('edithouse-renter').value.trim(),
-    contact_person:   document.getElementById('edithouse-contact').value.trim(),
-    phone:            document.getElementById('edithouse-phone').value.trim(),
-    email:            document.getElementById('edithouse-email').value.trim(),
-    fee_per_year:     feeYr,
-    parking_fee_year: parkVal,
-    trash_fee_period: trashPeriod,
-    usage_type:       document.getElementById('edithouse-usage').value,
-    status:           document.getElementById('edithouse-status').value,
-    status_note:      (document.getElementById('edithouse-statusnote')||{}).value || ''
-  };
-
-  showLoader(isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19...' : '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
-  try {
-    if (isAdd) {
-      await api('createHouse', payload);
-    } else {
-      if (!id) { hideLoader(); return; }
-      payload.house_id = id;
-      await api('updateHouse', payload);
-    }
-    closeM('m-admin-edithouse');
-    invalidatePageCache('admin-houses');
-    _housesCache = []; _housesAllCache = [];
-    await loadHousesPage();
-    Swal.fire({ icon:'success', title: isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08' : '\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
-  } catch(e) {
-    Swal.fire({ icon:'error', title:'Error', text: e.message });
-  } finally { hideLoader(); }
-}async function doApproveSlipFromModal(){if(!_curFee)return;showLoader('...');try{await api('approveSlip',{fee_id:_curFee});closeM('m-fee-detail');await loadFeesPage();loadAdminDashboard();Swal.fire({icon:'success',title:'Approve \u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1200,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-async function loadReportsPage(){try{const r=await api('getReports');const el=document.getElementById('list-reports');if(!el)return;if(!r.length){el.innerHTML='<p class="text-mu" style="text-align:center;padding:20px;font-size:13px;grid-column:1/-1">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35</p>';return;}var g={};r.forEach(function(x){var k=x.month+'/'+x.year;if(!g[k])g[k]=[];g[k].push(x);});el.innerHTML=Object.keys(g).map(function(k){var it=g[k],tot=it.reduce(function(s,x){return s+Number(x.budget||0);},0);return'<div class="card"><div class="ch"><div class="ch-ico">&#127942;</div><div class="ct">\u0e40\u0e14\u0e37\u0e2d\u0e19 '+k+'</div></div><div class="cb">'+it.map(function(x){return'<div class="ann"><div class="ann-dot ad-evt"></div><div><div class="ann-t">'+x.title+'</div><div class="ann-b">\u0e07\u0e1a \u0e3f'+Number(x.budget||0).toLocaleString()+(x.summary?' \u00b7 '+x.summary.substring(0,60):'')+'</div></div></div>';}).join('')+'<div class="fee-row" style="margin-top:8px;border-top:1px solid var(--bo);padding-top:8px"><div class="fee-lbl">\u0e23\u0e27\u0e21\u0e07\u0e1a</div><div class="fee-val fw-7 text-pr">\u0e3f'+tot.toLocaleString()+'</div></div></div></div>';}).join('');}catch(e){}}
-async function loadResWorkPage(){try{const r=await api('getReports');const el=document.getElementById('list-res-reports');if(!el)return;if(!r.length){el.innerHTML='<p class="text-mu" style="text-align:center;padding:20px;font-size:13px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35</p>';return;}var g={};r.forEach(function(x){var k=x.month+'/'+x.year;if(!g[k])g[k]=[];g[k].push(x);});el.innerHTML=Object.keys(g).map(function(k){return'<div class="card" style="margin-bottom:14px"><div class="ch"><div class="ch-ico">&#127942;</div><div class="ct">\u0e40\u0e14\u0e37\u0e2d\u0e19 '+k+'</div></div><div class="cb">'+g[k].map(function(x){return'<div class="ann"><div class="ann-dot ad-evt"></div><div><div class="ann-t">'+x.title+'</div><div class="ann-b">\u0e07\u0e1a \u0e3f'+Number(x.budget||0).toLocaleString()+(x.summary?' \u00b7 '+x.summary.substring(0,60):'')+'</div></div></div>';}).join('')+'</div></div>';}).join('');}catch(e){}}
-async function doCreateUser(){var un=document.getElementById('adduser-username').value.trim(),pw=document.getElementById('adduser-password').value,dn=document.getElementById('adduser-display').value.trim(),hi=document.getElementById('adduser-houseid').value.trim(),ro=document.getElementById('adduser-role').value,ph=document.getElementById('adduser-phone').value.trim();if(!un||!pw){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01 Username \u0e41\u0e25\u0e30 Password'});return;}if(pw.length<6){Swal.fire({icon:'warning',title:'Password \u0e15\u0e49\u0e2d\u0e07\u0e21\u0e35\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e19\u0e49\u0e2d\u0e22 6 \u0e15\u0e31\u0e27'});return;}showLoader('...');try{await api('createUser',{username:un,password:pw,display_name:dn,house_id:hi,role:ro,phone:ph});closeM('m-adduser');await loadUsersPage();Swal.fire({icon:'success',title:'\u0e2a\u0e23\u0e49\u0e32\u0e07\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-async function doSaveResProfile(){var ph=(document.getElementById('res-prof-phone')||{}).value||'',em=(document.getElementById('res-prof-email')||{}).value||'';if(!APP.user||!APP.user.house_id)return;showLoader('...');try{await api('submitChangeReq',{house_id:APP.user.house_id,target_type:'house',field_changes:JSON.stringify({phone:{old:'',new:ph},email:{old:'',new:em}}),note:'\u0e2d\u0e31\u0e1b\u0e40\u0e14\u0e15'});Swal.fire({icon:'success',title:'\u0e2a\u0e48\u0e07\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e25\u0e49\u0e27',timer:2000,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-async function doCreateContractor(){var nm=(document.getElementById('newcon-name')||{}).value||'',ph=(document.getElementById('newcon-phone')||{}).value||'',ar=(document.getElementById('newcon-area')||{}).value||'',bi=(document.getElementById('newcon-bio')||{}).value||'';var sc=document.getElementById('newcon-skills-container');var sk=sc?Array.from(sc.querySelectorAll('input[type=checkbox]:checked')).map(function(x){return x.parentElement.textContent.trim();}).join(', '):'';if(!nm.trim()||!ph.trim()){Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e01\u0e23\u0e2d\u0e01\u0e0a\u0e37\u0e48\u0e2d\u0e41\u0e25\u0e30\u0e40\u0e1a\u0e2d\u0e23\u0e4c\u0e42\u0e17\u0e23'});return;}showLoader('...');try{await api('createContractor',{name:nm.trim(),phone:ph.trim(),area:ar,bio:bi,skills:sk,status:'approved'});closeM('m-newcon');await loadContractorsPage();Swal.fire({icon:'success',title:'\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});}catch(e){Swal.fire({icon:'error',title:'Error',text:e.message});}finally{hideLoader();}}
-function openConDetail(cid){var c=(window._consAll||[]).find(function(x){return x.contractor_id===cid;});if(!c)return;var sk=[];try{sk=JSON.parse(c.skills||'[]');}catch(e){sk=c.skills?c.skills.split(','):[];}  _setEl('cd-name',c.name||'\u2014');_setEl('cd-rating',Number(c.rating_avg)>0?'&#11088;'+Number(c.rating_avg).toFixed(1)+' \u00b7 '+(c.rating_count||0)+' \u0e23\u0e35\u0e27\u0e34\u0e27':'\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e35\u0e27\u0e34\u0e27');_setEl('cd-phone','&#128222; '+(c.phone||'\u2014'));_setEl('cd-line',c.line_id||'\u2014');_setEl('cd-area','&#128205; '+(c.area||'\u2014'));_setEl('cd-status',c.status==='approved'?'\u2713 \u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34':'\u23f3 \u0e23\u0e2d');var se=document.getElementById('cd-skills');if(se)se.innerHTML=sk.map(function(s){return'<span class="con-tag">'+s.trim()+'</span>';}).join('')||'\u2014';_setEl('cd-bio',c.bio||'\u2014');var tl=document.getElementById('cd-tel-link');if(tl)tl.href=c.phone?'tel:'+c.phone.replace(/-/g,''):'#';openM('m-condetail');}
-</script>
-
-<!-- MODAL: เพิ่มบ้านใหม่ -->
-<div class="mo" id="m-addhouse">
-<div class="md wide">
-  <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🏠</div>
-    <div><div class="md-title">เพิ่มบ้านใหม่</div><div class="md-sub">กรอกข้อมูลบ้านและเจ้าของ</div></div>
-  </div>
-  <div class="md-bd">
-    <div class="sl">📍 ที่อยู่</div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label><input class="fi" id="addhouse-no" placeholder="เช่น 10/1"></div>
-      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="addhouse-soi" placeholder="เช่น ซอย 3"></div>
-      <div class="fg"><label class="fl">พื้นที่ (ตร.ว.)</label><input class="fi" id="addhouse-area" type="number" placeholder="0"></div>
-    </div>
-    <div class="fg"><label class="fl">ที่อยู่เพิ่มเติม</label><input class="fi" id="addhouse-address" placeholder="ที่อยู่เต็ม (ถ้ามี)"></div>
-    <div class="sl">👤 เจ้าของ</div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์ <span style="color:var(--dg)">*</span></label><input class="fi" id="addhouse-owner" placeholder="ชื่อ-นามสกุล"></div>
-      <div class="fg"><label class="fl">ผู้เช่า</label><input class="fi" id="addhouse-renter" placeholder="(ถ้ามี)"></div>
-    </div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">เบอร์โทรติดต่อ</label><input class="fi" id="addhouse-phone" placeholder="0xx-xxx-xxxx" type="tel"></div>
-      <div class="fg"><label class="fl">อีเมล</label><input class="fi" id="addhouse-email" placeholder="email@example.com" type="email"></div>
-    </div>
-    <div class="sl">💰 ค่าธรรมเนียม (บาท/ปี หรือ งวด)</div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="addhouse-fee" type="number" placeholder="0" min="0"></div>
-      <div class="fg"><label class="fl">ค่าจอดรถ/ปี</label><input class="fi" id="addhouse-parking" type="number" placeholder="0" min="0"></div>
-      <div class="fg"><label class="fl">ค่าขยะ/งวด</label><input class="fi" id="addhouse-trash" type="number" placeholder="0" min="0"></div>
-    </div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทการใช้</label>
-        <select class="fs" id="addhouse-usage">
-          <option value="owner">อยู่เอง</option>
-          <option value="rent">ให้เช่า</option>
-          <option value="vacant">ว่าง</option>
-        </select>
-      </div>
-      <div class="fg"><label class="fl">ประเภทบ้าน</label>
-        <select class="fs" id="addhouse-type">
-          <option value="single_house">บ้านเดี่ยว</option>
-          <option value="townhouse">ทาวน์เฮ้าส์</option>
-          <option value="condo">คอนโด</option>
-        </select>
-      </div>
-    </div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeM('m-addhouse')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doCreateHouse()">🏠 บันทึกบ้านใหม่</button>
-  </div>
-</div></div>
-
-<!-- Notification Panel (slides in from top-right) -->
-<div id="notif-panel" style="
-  position:fixed;top:58px;right:0;width:340px;max-width:96vw;
-  background:var(--card);border:1.5px solid var(--bo);
-  border-radius:0 0 16px 16px;
-  box-shadow:0 8px 32px rgba(0,0,0,.13);
-  z-index:999;
-  display:none;
-  max-height:calc(100vh - 80px);
-  overflow:hidden;
-  flex-direction:column;
-">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--bo)">
-    <div style="font-weight:800;font-size:14px;color:var(--tx)">🔔 การแจ้งเตือน</div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button onclick="markAllNotifsRead()" style="font-size:11px;color:var(--pr);background:none;border:none;cursor:pointer;font-weight:600">อ่านทั้งหมด</button>
-      <button onclick="toggleNotifPanel()" style="width:26px;height:26px;border-radius:6px;background:var(--bg2);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
-    </div>
-  </div>
-  <div id="notif-panel-tabs" style="display:flex;gap:0;border-bottom:1px solid var(--bo)">
-    <button class="notif-tab on" data-tab="all"    onclick="switchNotifTab('all',this)"    style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid var(--pr);color:var(--pr)">ทั้งหมด <span id="nt-cnt-all"  class="nb"></span></button>
-    <button class="notif-tab"    data-tab="unread" onclick="switchNotifTab('unread',this)" style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid transparent;color:var(--mu)">ยังไม่อ่าน <span id="nt-cnt-unread" class="nb"></span></button>
-    <button class="notif-tab"    data-tab="slip"   onclick="switchNotifTab('slip',this)"   style="flex:1;padding:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:transparent;border-bottom:2px solid transparent;color:var(--mu)">สลิป <span id="nt-cnt-slip" class="nb"></span></button>
-  </div>
-  <div id="notif-panel-list" style="overflow-y:auto;flex:1;padding:8px 0">
-    <p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">กำลังโหลด...</p>
-  </div>
-</div>
-<!-- Notif backdrop -->
-<div id="notif-backdrop" onclick="toggleNotifPanel()" style="position:fixed;inset:0;z-index:998;display:none;background:transparent"></div>
-
-<!-- MODAL: ลืมรหัสผ่าน / Reset Password -->
-<div class="mo" id="m-forgot">
-<div class="md">
-  <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">🔐</div>
-    <div>
-      <div class="md-title">ตั้งรหัสผ่านใหม่</div>
-      <div class="md-sub">ยืนยันตัวตนด้วยข้อมูลบ้าน</div>
-    </div>
-  </div>
-  <div class="md-bd" id="forgot-step1">
-    <div style="font-size:13px;color:var(--mu);margin-bottom:14px;line-height:1.6">
-      กรุณากรอกข้อมูลที่ลงทะเบียนไว้ในระบบ เพื่อยืนยันตัวตนก่อนเปลี่ยนรหัสผ่าน
-    </div>
-    <div class="fg">
-      <label class="fl">บ้านเลขที่ <span style="color:var(--dg)">*</span></label>
-      <input class="fi" id="forgot-house-no" placeholder="เช่น 10/1">
-    </div>
-    <div class="fg">
-      <label class="fl">เบอร์โทรติดต่อ <span style="color:var(--dg)">*</span></label>
-      <input class="fi" id="forgot-phone" placeholder="0xx-xxx-xxxx" type="tel">
-    </div>
-    <div class="fg">
-      <label class="fl">อีเมล <span style="color:var(--dg)">*</span></label>
-      <input class="fi" id="forgot-email" placeholder="email@example.com" type="email">
-    </div>
-    <div id="forgot-err" style="display:none;background:var(--dgl);color:var(--dg);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px"></div>
-  </div>
-  <div class="md-bd" id="forgot-step2" style="display:none">
-    <div style="font-size:13px;color:var(--ac);margin-bottom:14px;background:var(--acl);padding:10px 14px;border-radius:8px">
-      ✅ ยืนยันตัวตนสำเร็จ — กรุณาตั้งรหัสผ่านใหม่
-    </div>
-    <div class="fg">
-      <label class="fl">รหัสผ่านใหม่ <span style="color:var(--dg)">*</span></label>
-      <input class="fi" id="forgot-newpw" type="password" placeholder="อย่างน้อย 5 ตัวอักษร">
-    </div>
-    <div class="fg">
-      <label class="fl">ยืนยันรหัสผ่านใหม่ <span style="color:var(--dg)">*</span></label>
-      <input class="fi" id="forgot-confirmpw" type="password" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
-    </div>
-    <div id="forgot-pw-err" style="display:none;background:var(--dgl);color:var(--dg);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:8px"></div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeForgotModal()">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" id="forgot-btn-verify" onclick="doForgotVerify()">ยืนยันตัวตน</button>
-    <button class="btn btn-p btn-sm" id="forgot-btn-save" style="display:none" onclick="doForgotSave()">💾 บันทึกรหัสผ่านใหม่</button>
-  </div>
-</div></div>
-
-<!-- MODAL: แก้ไขค่าส่วนกลาง -->
-<div class="mo" id="m-edit-fee">
-<div class="md wide">
-  <div class="md-handle"></div>
-  <div class="md-hd">
-    <div class="md-hd-ico">💰</div>
-    <div><div class="md-title">แก้ไขค่าส่วนกลาง</div><div class="md-sub" id="ef-sub">—</div></div>
-  </div>
-  <input type="hidden" id="ef-fee-id">
-  <div class="md-bd">
-    <div class="sl">💰 ค่าธรรมเนียมหลัก</div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">ค่าส่วนกลาง (฿)</label>
-        <input class="fi" id="ef-fee-amount" type="number" min="0" placeholder="0"></div>
-      <div class="fg"><label class="fl">ค่าจอดรถ (฿)</label>
-        <input class="fi" id="ef-parking-fee" type="number" min="0" placeholder="0"></div>
-      <div class="fg"><label class="fl">ค่าขยะ (฿)</label>
-        <input class="fi" id="ef-trash-fee" type="number" min="0" placeholder="0"></div>
-    </div>
-    <div class="sl">📎 ค่าอื่นๆ</div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">ค่าอื่นๆ (฿)</label>
-        <input class="fi" id="ef-other-fee" type="number" min="0" placeholder="0"></div>
-      <div class="fg"><label class="fl">รายละเอียดค่าอื่นๆ</label>
-        <input class="fi" id="ef-other-fee-note" placeholder="เช่น ค่าดูแลสระว่ายน้ำ"></div>
-    </div>
-    <div class="sl">⚠️ ค่าปรับ / ส่วนลด</div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">ค่าปรับ (฿)</label>
-        <input class="fi" id="ef-penalty-fee" type="number" min="0" placeholder="0"></div>
-      <div class="fg"><label class="fl">หมายเหตุค่าปรับ</label>
-        <input class="fi" id="ef-penalty-note" placeholder="เหตุผลค่าปรับ"></div>
-      <div class="fg"><label class="fl">ส่วนลด (฿)</label>
-        <input class="fi" id="ef-discount" type="number" min="0" placeholder="0"></div>
-    </div>
-    <div class="sl">📋 สถานะ</div>
-    <div class="fg">
-      <label class="fl">สถานะการชำระ</label>
-      <select class="fs" id="ef-status">
-        <option value="pending">รอชำระ</option>
-        <option value="overdue">ค้างชำระ</option>
-        <option value="paid">ชำระแล้ว</option>
-        <option value="slip_submitted">ส่งสลิปแล้ว</option>
-      </select>
-    </div>
-    <!-- Live total preview -->
-    <div style="margin-top:14px;padding:12px 16px;background:var(--prl);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:13px;color:var(--tx2);font-weight:600">ยอดรวมโดยประมาณ</span>
-      <span style="font-size:18px;font-weight:800;color:var(--pr)" id="ef-total-preview">฿0</span>
-    </div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeM('m-edit-fee')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doSaveFee()">💾 บันทึก</button>
-  </div>
-</div></div>
-<!-- MODAL: เพิ่มรถ -->
-
-
-<!-- MODAL: แก้ไขรถ (ลูกบ้าน) -->
-
-
-<!-- MODAL: Admin เพิ่มรถ -->
-<div class="mo" id="m-admin-addcar">
-<div class="md wide">
-  <div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">🚗</div>
-    <div><div class="md-title">เพิ่มรถ (Admin)</div><div class="md-sub">รถที่เพิ่มโดย Admin จะ approved ทันที</div></div>
-  </div>
-  <div class="md-bd">
-    <div class="fg"><label class="fl">บ้านเลขที่ *</label>
-      <select class="fs" id="acar-houseid" onchange="onAdminCarHouseChange(this.value)"><option value="">-- เลือกบ้าน --</option></select>
-      <div id="acar-house-label" style="font-size:11.5px;color:var(--ac);margin-top:4px;font-weight:600"></div>
-    </div>
-    <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทยานพาหนะ *</label>
-        <select class="fs" id="acar-type">
-          <option value="">-- เลือกประเภท --</option>
-          <option value="รถยนต์">🚗 รถยนต์</option>
-          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
-          <option value="รถตู้">🚐 รถตู้</option>
-          <option value="รถกระบะ">🛻 รถกระบะ</option>
-          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select></div>
-      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
-        <input class="fi" id="acar-plate" placeholder="เช่น กข-1234"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ *</label>
-        <select class="fs" id="acar-brand-sel" onchange="_vdBrandChange('acar')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="acar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
-      <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="acar-model" placeholder="เช่น Camry"></div>
-      <div class="fg"><label class="fl">สี *</label>
-        <select class="fs" id="acar-color-sel" onchange="_vdColorChange('acar')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="acar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">จังหวัด *</label>
-        <select class="fs" id="acar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
-      <div class="fg"><label class="fl">ที่จอดรถ</label>
-        <select class="fs" id="acar-park">
-          <option value="ในบ้าน">ในบ้าน</option>
-          <option value="หน้าบ้าน">หน้าบ้าน</option>
-          <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select></div>
-      <div class="fg"><label class="fl">สถานะเริ่มต้น</label>
-        <select class="fs" id="acar-status">
-          <option value="active">ใช้งานปกติ</option>
-          <option value="inactive">ไม่ได้ใช้งาน</option>
-        </select></div>
-    </div>
-    <div style="border-top:1px solid var(--bo);padding-top:12px;margin-top:4px">
-      <div class="sl">📸 รูปภาพยานพาหนะ (สูงสุด 5 รูป)</div>
-      <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:13px;color:var(--tx2)">
-        📷 เลือกรูปภาพ
-        <input type="file" id="acar-img-input" accept="image/*" multiple style="display:none" onchange="onCarImageSelect(this,'acar-')">
-      </label>
-      <div id="acar-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
-    </div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeM('m-admin-addcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doAdminAddCar()">🚗 บันทึก (Approved ทันที)</button>
-  </div>
-</div></div>
-
-<!-- MODAL: Admin แก้ไขรถ -->
-<div class="mo" id="m-admin-editcar">
-<div class="md wide">
-  <div class="md-handle"></div>
-  <div class="md-hd"><div class="md-hd-ico">✏️</div>
-    <div><div class="md-title">แก้ไขข้อมูลรถ</div><div class="md-sub" id="aeditcar-sub">—</div></div>
-  </div>
-  <input type="hidden" id="aeditcar-id">
-  <div class="md-bd">
-    <div class="fr2">
-      <div class="fg"><label class="fl">ประเภทยานพาหนะ</label>
-        <select class="fs" id="aeditcar-type">
-          <option value="รถยนต์">🚗 รถยนต์</option>
-          <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
-          <option value="รถตู้">🚐 รถตู้</option>
-          <option value="รถกระบะ">🛻 รถกระบะ</option>
-          <option value="รถอื่นๆ">🚙 รถอื่นๆ</option>
-        </select></div>
-      <div class="fg"><label class="fl">ทะเบียนรถ *</label>
-        <input class="fi" id="aeditcar-plate" placeholder="กข-1234"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">ยี่ห้อ</label>
-        <select class="fs" id="aeditcar-brand-sel" onchange="_vdBrandChange('aeditcar')"><option value="">-- เลือกยี่ห้อ --</option></select>
-        <input class="fi" id="aeditcar-brand" placeholder="พิมพ์ยี่ห้อ" style="display:none;margin-top:6px"></div>
-      <div class="fg"><label class="fl">รุ่น</label>
-        <input class="fi" id="aeditcar-model" placeholder="เช่น Camry"></div>
-      <div class="fg"><label class="fl">สี</label>
-        <select class="fs" id="aeditcar-color-sel" onchange="_vdColorChange('aeditcar')"><option value="">-- เลือกสี --</option></select>
-        <input class="fi" id="aeditcar-color" placeholder="พิมพ์สี" style="display:none;margin-top:6px"></div>
-    </div>
-    <div class="fr3">
-      <div class="fg"><label class="fl">จังหวัด</label>
-        <select class="fs" id="aeditcar-prov"><option value="">-- เลือกจังหวัด --</option></select></div>
-      <div class="fg"><label class="fl">ที่จอดรถ</label>
-        <select class="fs" id="aeditcar-park">
-          <option value="ในบ้าน">ในบ้าน</option>
-          <option value="หน้าบ้าน">หน้าบ้าน</option>
-          <option value="ส่วนกลาง">ส่วนกลาง</option>
-        </select></div>
-      <div class="fg"><label class="fl">สถานะ</label>
-        <select class="fs" id="aeditcar-status">
-          <option value="active">ใช้งานปกติ</option>
-          <option value="inactive">ไม่ได้ใช้งาน</option>
-          <option value="pending">รออนุมัติ</option>
-        </select></div>
-    </div>
-  </div>
-  <div class="md-ft">
-    <button class="btn btn-g btn-sm" onclick="closeM('m-admin-editcar')">ยกเลิก</button>
-    <button class="btn btn-p btn-sm" onclick="doAdminEditCar()">💾 บันทึก</button>
-  </div>
-</div></div>
-
 </body>
 </html>
