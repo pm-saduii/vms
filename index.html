@@ -1436,6 +1436,19 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <!-- ADMIN: REQUEST (คำขอแก้ไข) -->
       <div id="p-admin-req" class="pane">
         <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">📝</div><div><div class="ph-h1">คำขอแก้ไข</div><div class="ph-sub" id="req-sub">รอการอนุมัติ<div class="ph-acts"><button class="btn-refresh" data-pane="admin-req" data-fn="loadChangeReqPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div></div></div></div>
+        <!-- ── คำขอยานพาหนะ (pending/active/inactive) ── -->
+        <div class="card" style="margin-bottom:12px">
+          <div class="ch"><div class="ch-ico">🚗</div><div class="ct">ยานพาหนะ <span class="bd b-wn" id="badge-veh-req" style="margin-left:6px;display:none"></span></div></div>
+          <div class="tabs" style="margin:4px 0 8px">
+            <button class="tab on"  id="tab-vreq-pending"  onclick="stabVReq('pending',this)">⏳ รออนุมัติ</button>
+            <button class="tab"     id="tab-vreq-active"   onclick="stabVReq('active',this)">✅ อนุมัติแล้ว</button>
+            <button class="tab"     id="tab-vreq-inactive" onclick="stabVReq('inactive',this)">🔴 ไม่ใช้งาน</button>
+          </div>
+          <div id="vreq-pending"  class="vreq-pane"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div>
+          <div id="vreq-active"   class="vreq-pane" style="display:none"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div>
+          <div id="vreq-inactive" class="vreq-pane" style="display:none"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div>
+        </div>
+        <!-- ── คำขอแก้ไขข้อมูลบ้าน ── -->
         <div class="card"><div class="ch"><div class="ch-ico">📝</div><div class="ct">คำขอแก้ไขข้อมูลบ้าน</div></div><div class="cb" id="list-change-reqs"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
       </div>
 
@@ -1640,29 +1653,19 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         <div class="ph"><div class="ph-in">
           <div style="display:flex;align-items:center;gap:13px">
             <div class="ph-ico">🚗</div>
-            <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">จัดการยานพาหนะและการอนุมัติ</div></div>
+            <div><div class="ph-h1">ยานพาหนะ</div><div class="ph-sub">รายการรถที่ลงทะเบียนแล้ว (อนุมัติโดย Admin)</div></div>
           </div>
           <div class="ph-acts">
-            <button class="btn-refresh" data-pane="admin-vehicle" data-fn="loadAdminVehiclePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button>
+            <button class="btn-refresh" id="btn-refresh-vehicle" data-pane="admin-vehicle" data-fn="loadAdminVehiclePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button>
             <button class="btn btn-ghost btn-sm" onclick="openAdminAddCarModal()">🚗 + เพิ่มรถ</button>
           </div>
         </div></div>
-        <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stats" style="grid-template-columns:repeat(3,1fr)">
           <div class="sc"><div class="sc-ico p">🚗</div><div><div class="sc-v" id="stat-veh-total">—</div><div class="sc-l">ทั้งหมด</div></div></div>
-          <div class="sc"><div class="sc-ico w">⏳</div><div><div class="sc-v" id="stat-veh-pending">—</div><div class="sc-l">รออนุมัติ</div></div></div>
-          <div class="sc"><div class="sc-ico a">✅</div><div><div class="sc-v" id="stat-veh-active">—</div><div class="sc-l">อนุมัติแล้ว</div></div></div>
+          <div class="sc"><div class="sc-ico a">✅</div><div><div class="sc-v" id="stat-veh-active">—</div><div class="sc-l">ใช้งาน</div></div></div>
           <div class="sc"><div class="sc-ico d">🔴</div><div><div class="sc-v" id="stat-veh-inactive">—</div><div class="sc-l">ไม่ใช้งาน</div></div></div>
         </div>
-       <div class="tabs">
-          <button class="tab on" onclick="stab('aveh','all',this)">📋 ทั้งหมด</button>
-          <button class="tab" id="tab-aveh-pending" onclick="stab('aveh','pending',this)">⏳ รออนุมัติ</button>
-          <button class="tab" onclick="stab('aveh','active',this)">✅ อนุมัติแล้ว</button>
-          <button class="tab" onclick="stab('aveh','inactive',this)">🔴 ไม่ใช้งาน</button>
-        </div>
-        <div id="aveh-all" class="pane on"><div id="list-vehicles-all"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
-        <div id="aveh-pending" class="pane"><div id="list-vehicles-pending"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
-        <div id="aveh-active" class="pane"><div id="list-vehicles-active"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
-        <div id="aveh-inactive" class="pane"><div id="list-vehicles-inactive"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div id="list-vehicles-registered"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div>
       </div>
 
     </div><!-- end v-admin -->
@@ -4249,7 +4252,8 @@ async function _doRefresh(btn) {
   if (pane) invalidatePageCache(pane);
   if (fn && _refreshFnMap[fn]) {
     btn.disabled = true;
-    try { await _refreshFnMap[fn](); } finally { btn.disabled = false; }
+    showLoader('กำลังโหลดใหม่...');
+    try { await _refreshFnMap[fn](); } finally { btn.disabled = false; hideLoader(); }
   }
 }
 
@@ -5700,150 +5704,6 @@ async function doSubmitEditCar() {
 // ============================================================
 // ADMIN: VEHICLE PAGE
 // ============================================================
-async function loadAdminVehiclePage() {
-  showLoader('\u0e42\u0e2b\u0e25\u0e14\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30...');
-  try {
-    var all = await api('getVehicles');
-    _allVehiclesCache = all;
-    var pending  = all.filter(function(v){ return v.status === 'pending';  });
-    var active   = all.filter(function(v){ return v.status === 'active';   });
-    var inactive = all.filter(function(v){ return v.status === 'inactive'; });
-
-    _setEl('stat-veh-total',    all.length);
-    _setEl('stat-veh-pending',  pending.length);
-    _setEl('stat-veh-active',   active.length);
-    _setEl('stat-veh-inactive', inactive.length);
-
-    var bp = document.getElementById('tab-aveh-pending');
-    if (bp) bp.textContent = '\u23f3 \u0e23\u0e2d\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34' + (pending.length ? ' (' + pending.length + ')' : '');
-
-    var badge = document.getElementById('badge-vehicle');
-    if (badge) badge.textContent = pending.length > 0 ? pending.length : '';
-
-    // Render all tabs
-    _renderAdminVehicleTable('list-vehicles-all',      all,      'all');
-    _renderVehiclesByHouse('list-vehicles-active',     active);
-    _renderAdminVehicleTable('list-vehicles-pending',  pending,  'pending');
-    _renderAdminVehicleTable('list-vehicles-inactive', inactive, 'inactive');
-  } catch(e) {
-    console.warn('loadAdminVehiclePage:', e);
-  } finally { hideLoader(); }
-}
-function _renderVehiclesByHouse(elId, vehicles) {
-  var el = document.getElementById(elId);
-  if (!el) return;
-  if (!vehicles.length) {
-    el.innerHTML = '<p class="text-mu" style="text-align:center;padding:24px;font-size:13px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e16\u0e17\u0e35\u0e48\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34\u0e41\u0e25\u0e49\u0e27</p>';
-    return;
-  }
-  // Group by house_id
-  var byHouse = {};
-  vehicles.forEach(function(v) {
-    var hid = v.house_id || '\u0e44\u0e21\u0e48\u0e23\u0e30\u0e1a\u0e38';
-    if (!byHouse[hid]) byHouse[hid] = [];
-    byHouse[hid].push(v);
-  });
-  var html = Object.keys(byHouse).sort().map(function(hid) {
-    var cars = byHouse[hid];
-    var houseLabel = cars[0].house_no || hid;
-    var ownerLabel = cars[0].owner_name || '';
-    var uid = 'vh-' + hid.replace(/[^a-z0-9]/gi, '_');
-    return '<div class="card" style="margin-bottom:10px">' +
-      '<div class="ch" style="cursor:pointer" onclick="toggleVehicleHouse(\'' + uid + '\')">' +
-        '<div class="ch-ico">\ud83c\udfe0</div>' +
-        '<div class="ct">\u0e1a\u0e49\u0e32\u0e19 ' + houseLabel + (ownerLabel ? ' \u2014 ' + ownerLabel : '') + '</div>' +
-        '<div style="margin-left:auto;display:flex;align-items:center;gap:8px">' +
-          '<span class="bd b-ok">' + cars.length + ' \u0e04\u0e31\u0e19</span>' +
-          '<span id="' + uid + '-ico" style="font-size:13px;color:var(--mu)">\u25bc</span>' +
-        '</div>' +
-      '</div>' +
-      '<div id="' + uid + '" style="display:none;padding:12px 16px">' +
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" class="veh-grid">' +
-          cars.map(function(v) {
-            return '<div class="card-soft" style="padding:10px">' +
-              '<div style="font-size:20px;margin-bottom:4px">' + _vehicleIcon(v.type) + '</div>' +
-              '<div style="font-weight:700;font-size:13.5px">' + (v.plate_number||'\u2014') + '</div>' +
-              '<div style="font-size:11.5px;color:var(--mu);margin-top:2px">' + (v.brand||'') + ' ' + (v.model||'') + '</div>' +
-              '<div style="font-size:11.5px;color:var(--mu)">\u0e2a\u0e35' + (v.color||'') + ' \u00b7 ' + (v.province||'') + '</div>' +
-              '<div style="font-size:11.5px;color:var(--mu)">' + (v.parking_location||'') + '</div>' +
-              '<div style="margin-top:6px;display:flex;gap:4px">' +
-                '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openAdminEditCarModal(this.dataset.vid)">\u270f\ufe0f</button>' +
-              '</div>' +
-            '</div>';
-          }).join('') +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-  el.innerHTML = html;
-}
-
-function toggleVehicleHouse(uid) {
-  var el = document.getElementById(uid);
-  var ico = document.getElementById(uid + '-ico');
-  if (!el) return;
-  var isOpen = el.style.display !== 'none';
-  el.style.display = isOpen ? 'none' : 'block';
-  if (ico) ico.textContent = isOpen ? '\u25bc' : '\u25b2';
-}
-function _vehicleIcon(type) {
-  return {'\u0e23\u0e16\u0e22\u0e19\u0e15\u0e4c':'\ud83d\ude97','\u0e23\u0e16\u0e08\u0e31\u0e01\u0e23\u0e22\u0e32\u0e19\u0e22\u0e19\u0e15\u0e4c':'\ud83c\udfcd\ufe0f','\u0e23\u0e16\u0e15\u0e39\u0e49':'\ud83d\ude90','\u0e23\u0e16\u0e01\u0e23\u0e30\u0e1a\u0e30':'\ud83d\udebb'}[type] || '\ud83d\ude97';
-}
-
-function _renderAdminVehicles(elId, vehicles, showApprove) {
-  var el = document.getElementById(elId);
-  if (!el) return;
-  if (!vehicles.length) {
-    el.innerHTML = '<p class="text-mu" style="text-align:center;padding:24px;font-size:13px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</p>';
-    return;
-  }
-  el.innerHTML = vehicles.map(function(v) {
-    var approveBtn = showApprove
-      ? '<button class="btn btn-xs btn-a" data-vid="' + v.vehicle_id + '" onclick="doApproveVehicle(this.dataset.vid)">\u2713 \u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34</button>' +
-        '<button class="btn btn-xs btn-dg" data-vid="' + v.vehicle_id + '" onclick="doRejectVehicle(this.dataset.vid)">\u2717 \u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18</button>'
-      : '';
-    return '<div class="card" style="margin-bottom:12px"><div class="cb">' +
-      '<div style="display:flex;align-items:flex-start;gap:12px">' +
-        '<div style="font-size:28px">' + _vehicleIcon(v.type) + '</div>' +
-        '<div style="flex:1">' +
-          '<div style="font-weight:700;font-size:14px">' + (v.plate_number||'') + ' <span style="font-size:12px;color:var(--mu)">' + (v.province||'') + '</span></div>' +
-          '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + (v.brand||'') + ' ' + (v.model||'') + ' \u00b7 \u0e2a\u0e35' + (v.color||'') + ' \u00b7 ' + (v.parking_location||'') + '</div>' +
-          '<div style="font-size:11.5px;color:var(--mu);margin-top:3px">\u0e1a\u0e49\u0e32\u0e19: ' + (v.house_id||'') + ' \u00b7 ' + _fmtDate(v.created_at) + '</div>' +
-          '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">' + approveBtn + '</div>' +
-        '</div>' +
-      '</div>' +
-    '</div></div>';
-  }).join('');
-}
-
-async function doApproveVehicle(vehicleId) {
-  showLoader('\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34...');
-  try {
-    await api('updateVehicle', { vehicle_id: vehicleId, status: 'active' });
-    await loadAdminVehiclePage();
-    Swal.fire({ icon:'success', title:'\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:1500, showConfirmButton:false });
-  } catch(e) { Swal.fire({ icon:'error', title:'Error', text:e.message }); }
-  finally { hideLoader(); }
-}
-
-async function doRejectVehicle(vehicleId) {
-  var r = await Swal.fire({
-    title:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e04\u0e33\u0e02\u0e2d?',
-    input:'text', inputPlaceholder:'\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25 (\u0e16\u0e49\u0e32\u0e21\u0e35)',
-    showCancelButton:true, confirmButtonText:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18',
-    cancelButtonText:'\u0e22\u0e01\u0e40\u0e25\u0e34\u0e01',
-    customClass:{ confirmButton:'btn btn-dg', cancelButton:'btn btn-g' }, buttonsStyling:false
-  });
-  if (!r.isConfirmed) return;
-  showLoader('\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18...');
-  try {
-    await api('updateVehicle', { vehicle_id: vehicleId, status: 'rejected', reject_reason: r.value||'' });
-    await loadAdminVehiclePage();
-    Swal.fire({ icon:'success', title:'\u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18\u0e41\u0e25\u0e49\u0e27', timer:1500, showConfirmButton:false });
-  } catch(e) { Swal.fire({ icon:'error', title:'Error', text:e.message }); }
-  finally { hideLoader(); }
-}
-
 // ============================================================
 // RESIDENT: VEHICLE PAGE
 // ============================================================
@@ -5917,6 +5777,7 @@ async function openResEditCarModal(vehicleId) {
 var _allVehiclesCache = [];
 
 async function loadAdminVehiclePage() {
+  showLoader('โหลดยานพาหนะ...');
   try {
     var all = await api('getVehicles');
     _allVehiclesCache = all;
@@ -5924,28 +5785,46 @@ async function loadAdminVehiclePage() {
     var pending  = all.filter(function(v){ return v.status === 'pending';  });
     var active   = all.filter(function(v){ return v.status === 'active';   });
     var inactive = all.filter(function(v){ return v.status === 'inactive'; });
+    var registered = active.concat(inactive); // เฉพาะรถที่ผ่านการอนุมัติแล้ว
 
-    // Stats
-    _setEl('stat-veh-pending',  pending.length);
+    // Stats (หน้ารถ)
+    _setEl('stat-veh-total',    registered.length);
     _setEl('stat-veh-active',   active.length);
     _setEl('stat-veh-inactive', inactive.length);
-    _setEl('stat-veh-total',    all.length);
 
-    // Tab badge
-    var bp = document.getElementById('tab-aveh-pending');
-    if (bp) bp.textContent = '\u23f3 \u0e23\u0e2d\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34' + (pending.length ? ' (' + pending.length + ')' : '');
-
-    // Sidebar badge
+    // Sidebar badge (pending ยังคงแสดงที่ sidebar)
     var badge = document.getElementById('badge-vehicle');
     if (badge) badge.textContent = pending.length > 0 ? pending.length : '';
 
-    // Render all tabs
-    _renderAdminVehicleTable('list-vehicles-pending',  pending,  'pending');
-    _renderAdminVehicleTable('list-vehicles-active',   active,   'active');
-    _renderAdminVehicleTable('list-vehicles-inactive', inactive, 'inactive');
-    _renderAdminVehicleTable('list-vehicles-all',      all,      'all');
+    // Render เฉพาะรถที่ลงทะเบียนแล้ว (active + inactive)
+    _renderAdminVehicleTable('list-vehicles-registered', registered, 'registered');
+
+    // Render vehicle tabs ใน p-admin-req
+    _renderAdminVehicleTable('vreq-pending',  pending,  'pending');
+    _renderAdminVehicleTable('vreq-active',   active,   'active');
+    _renderAdminVehicleTable('vreq-inactive', inactive, 'inactive');
+
+    // badge vehicle tab ใน req pane
+    var bvr = document.getElementById('badge-veh-req');
+    if (bvr) {
+      bvr.textContent = pending.length > 0 ? pending.length + ' รอ' : '';
+      bvr.style.display = pending.length > 0 ? '' : 'none';
+    }
+    var tabPending = document.getElementById('tab-vreq-pending');
+    if (tabPending) tabPending.textContent = '⏳ รออนุมัติ' + (pending.length ? ' (' + pending.length + ')' : '');
 
   } catch(e) { console.warn('loadAdminVehiclePage:', e); }
+  finally { hideLoader(); }
+}
+
+// ── Tab switcher สำหรับ vehicle tabs ใน req pane ──
+function stabVReq(tab, btn) {
+  ['pending','active','inactive'].forEach(function(t) {
+    var pane = document.getElementById('vreq-' + t);
+    var tabEl = document.getElementById('tab-vreq-' + t);
+    if (pane) pane.style.display = t === tab ? '' : 'none';
+    if (tabEl) tabEl.classList.toggle('on', t === tab);
+  });
 }
 
 function _vehicleIcon(type) {

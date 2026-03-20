@@ -176,7 +176,13 @@ var Vehicles = (function() {
       return { success: true, pending: true };
     }
 
-    updateRowById('VEHICLES', 'vehicle_id', vehicle_id, updates);
+    // stringify image_urls ถ้าเป็น Array ก่อนส่ง updateRowById
+    // เพราะ Sheets setValue(Array) จะแปลงเป็น "url1,url2" (comma string) ไม่ใช่ JSON
+    var safeUpdates = Object.assign({}, updates);
+    if (Array.isArray(safeUpdates.image_urls)) {
+      safeUpdates.image_urls = JSON.stringify(safeUpdates.image_urls);
+    }
+    updateRowById('VEHICLES', 'vehicle_id', vehicle_id, safeUpdates);
     return { success: true };
   }
 

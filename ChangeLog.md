@@ -743,3 +743,57 @@ group: village
 - GAS `Vehicles.create` บรรทัด 123: `JSON.stringify(body.image_urls || [])` — ถูกต้องแล้ว ไม่ต้องแก้
 - `onCarImageSelect` ต้องใช้ `toBlob` เท่านั้น — ห้ามเปลี่ยนกลับเป็น `toDataURL`
 - thumbnail URL format: `https://drive.google.com/thumbnail?id=XXX&sz=w800`
+
+---
+
+## ✅ Fix — รูปได้แค่รูปเดียว + Redesign หน้ารถ + Reload Loading
+
+### ข้อ 1: Attach หลายรูปแต่ได้รูปเดียว (อ่านจากโค้ดจริง)
+
+**Root Cause:**
+- `Vehicles.update` (Houses_Vehicles_ChangeReq.gs บรรทัด 179):
+  `updateRowById('VEHICLES', vehicle_id, updates)` — ส่ง `updates.image_urls` เป็น Array ตรงๆ
+- `updateRowById` ใช้ `sh.getRange().setValue(array)` — Google Sheets แปลง Array → `"url1,url2"` (comma string, ไม่ใช่ JSON)
+- ตอน read กลับ: `JSON.parse("url1,url2")` → throw → catch → `imgs = ["url1,url2"]` → แสดงแค่ 1 item
+
+**Fix: `Vehicles.update` ใน Houses_Vehicles_ChangeReq.gs**
+- เพิ่ม `safeUpdates = Object.assign({}, updates)`
+- ถ้า `safeUpdates.image_urls` เป็น Array → `JSON.stringify()` ก่อนส่ง `updateRowById`
+
+### ข้อ 2: Redesign หน้ารถ + ย้าย tabs ไป คำขอแก้ไข
+
+**HTML: `p-admin-vehicle`**
+- ลบ tabs (ทั้งหมด/รออนุมัติ/อนุมัติแล้ว/ไม่ใช้งาน) ออก
+- Stats เหลือ 3 card: ทั้งหมด/ใช้งาน/ไม่ใช้งาน (ไม่นับ pending)
+- แสดง `list-vehicles-registered` เดียว = active + inactive เท่านั้น
+
+**HTML: `p-admin-req`**
+- เพิ่ม card "ยานพาหนะ" พร้อม 3 tabs: ⏳ รออนุมัติ / ✅ อนุมัติแล้ว / 🔴 ไม่ใช้งาน
+- `vreq-pending`, `vreq-active`, `vreq-inactive` — pane divs
+- `badge-veh-req` — แสดงจำนวน pending
+- `tab-vreq-pending/active/inactive` — tab buttons
+
+**JS: `loadAdminVehiclePage()`**
+- `registered = active.concat(inactive)` → render ไปที่ `list-vehicles-registered`
+- render `vreq-pending/active/inactive` ด้วย `_renderAdminVehicleTable` เดิม
+- `stat-veh-total` = `registered.length` (ไม่นับ pending)
+
+**JS: `stabVReq(tab, btn)` — ฟังก์ชันใหม่**
+- switch vreq pane ด้วย `display:none/''`
+- แยกจาก `stab()` เดิม เพราะ vreq ใช้ div ธรรมดา ไม่ใช่ `.pane`
+
+### ข้อ 3: Reload button แสดง Loading
+
+**JS: `loadAdminVehiclePage()`**
+- เพิ่ม `showLoader('โหลดยานพาหนะ...')` ต้นฟังก์ชัน
+- `finally { hideLoader(); }` ปิดทุกกรณี
+
+**JS: `_doRefresh(btn)`**
+- เพิ่ม `showLoader('กำลังโหลดใหม่...')` ก่อนเรียก fn
+- `finally { btn.disabled = false; hideLoader(); }`
+- ทุกปุ่ม รีโหลด ทุกหน้าจะแสดง Loading ทันที
+
+### DO NOT CHANGE
+- `_renderAdminVehicleTable` — ไม่ถูกแตะ ใช้งานทั้ง registered และ vreq tabs
+- `doApproveVehicle` / `doRejectVehicle` — ยังเรียก `loadAdminVehiclePage()` เหมือนเดิม
+- `badge-vehicle` (sidebar) — ยังแสดงจำนวน pending เหมือนเดิม
