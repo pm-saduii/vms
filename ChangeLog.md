@@ -924,3 +924,31 @@ group: village
 - `.login-panel` → `border-radius:0` (ลบโค้งส่วน header)
 - `.login-body` → `border-radius:0` (ลบโค้งส่วน form)
 - ผล: card เต็มจอ ไม่มีรอยโค้ง header กลืนกับ body เป็นเนื้อเดียว
+
+---
+
+## ✅ Fix — รถ Sort / Logo ไม่มีกรอบ / แจ้งกระทำผิด
+
+### ข้อ 1: ข้อมูลรถเรียงตามซอย → บ้านเลขที่ → ประเภทรถ
+- `loadAdminVehiclePage` เพิ่ม `.sort()` บน `registered` array
+- sort key: soi (numeric) → house_no (locale th numeric) → type (locale th)
+
+### ข้อ 2+3: Logo ไม่มีกรอบ
+- `.sb-logo-ico` ลบ `background:rgba(255,255,255,0.15)` และ `border-radius:10px` ออก
+- `applySettings` sidebar img: ลบ `border-radius:8px` ออก
+- `applySettings` login img: ลบ `border-radius:16px` ออก
+- CSS `.login-logo img`: ลบ `border-radius:16px` ออก
+
+### ข้อ 4: แจ้งกระทำผิด
+**4.1 ข้อมูลบ้าน Load ไม่ครบ**
+- `m-newvio` modal เดิมมี static hardcoded options ไม่มี IDs
+- เขียน modal ใหม่ทั้งหมด: เพิ่ม IDs ครบทุก field (`vio-house`, `vio-type`, `vio-title`, `vio-desc`, `vio-deadline`, `vio-penalty`)
+- เพิ่ม `openNewVioModal()` — fetch `_housesCache` → sort ซอย→บ้านเลขที่ → populate `vio-house` select → reset fields → `openM('m-newvio')`
+- ปุ่ม `+ แจ้งใหม่` เปลี่ยนจาก `openM('m-newvio')` → `openNewVioModal()`
+
+**4.2 Reload ไม่ขึ้นข้อความ**
+- `loadViolationsPage` เปลี่ยน `showLoader('...')` → `showLoader('โหลดรายการแจ้งกระทำผิด...')`
+- แก้ empty state และ render text ให้อ่านได้ชัดเจน
+
+**4.3 Breadcrumb ผิด**
+- PT map `'admin-vio'`: แก้จาก `แจ้กระทำผิด — แจ้เตือน` → `แจ้งกระทำผิด — แจ้งเตือน`

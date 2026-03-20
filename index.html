@@ -237,9 +237,8 @@ a{color:var(--pr);text-decoration:none}
 }
 .sb-logo-ico{
   width:38px;height:38px;flex-shrink:0;
-  background:rgba(255,255,255,0.15);border-radius:10px;
   display:flex;align-items:center;justify-content:center;
-  font-size:20px;
+  font-size:24px;
 }
 .sb-logo-name{font-size:14px;font-weight:700;color:var(--sbt);line-height:1.2}
 .sb-logo-ver{font-size:10px;color:var(--sbm);margin-top:2px;font-weight:400}
@@ -982,7 +981,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   display:flex;align-items:center;justify-content:center;
   min-height:80px;
 }
-.login-logo img{width:80px;height:80px;object-fit:contain;border-radius:16px}
+.login-logo img{width:80px;height:80px;object-fit:contain}
 .login-title{font-size:22px;font-weight:800;color:#fff;line-height:1.3;position:relative;z-index:1}
 .login-sub{font-size:13px;color:rgba(255,255,255,.75);margin-top:6px;position:relative;z-index:1}
 .login-body{padding:28px 36px 36px;background:var(--card)}
@@ -1495,7 +1494,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: VIO      <!-- ADMIN: VIO (แจ้งกระทำผิด) -->
       <div id="p-admin-vio" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-vio" data-fn="loadViolationsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openM('m-newvio')">+ แจ้งใหม่</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-vio" data-fn="loadViolationsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openNewVioModal()">+ แจ้งใหม่</button></div></div></div>
         <div class="card">
           <div class="ch"><div class="ch-ico">⚠️</div><div class="ct">รายการแจ้งเตือนทั้งหมด</div></div>
           <div class="cb" id="list-violations">
@@ -2367,22 +2366,34 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">⚠️</div>
-    <div><div class="md-title">แจ้งกระทำผิดกฎหมู่บ้าน</div><div class="md-sub">ส่งการแจ้งเตือนไปยังลูกบ้าน</div></div>
+    <div><div class="md-title">แจ้งกระทำผิด</div><div class="md-sub">ส่งการแจ้งเตือนไปยังลูกบ้าน</div></div>
   </div>
   <div class="md-bd">
-    <div class="fg"><label class="fl">บ้านที่กระทำผิด</label>
-      <select class="fs"><option>10/1 — สมชาย ใจดี</option><option>15/3 — วิไล สุขใจ</option><option>22/7 — ประสิทธิ์ มั่นคง</option></select>
+    <div class="fg"><label class="fl">บ้านที่กระทำผิด *</label>
+      <select class="fs" id="vio-house"><option value="">— กำลังโหลด... —</option></select>
     </div>
     <div class="fg"><label class="fl">ประเภทการกระทำผิด</label>
-      <select class="fs"><option>จอดรถผิดที่</option><option>เผาขยะ</option><option>ส่งเสียงดัง</option><option>สัตว์เลี้ยงรบกวน</option><option>ทำลายทรัพย์สินส่วนกลาง</option><option>อื่นๆ</option></select>
+      <select class="fs" id="vio-type">
+        <option value="จอดรถผิดที่">จอดรถผิดที่</option>
+        <option value="เผาขยะ">เผาขยะ</option>
+        <option value="ส่งเสียงดัง">ส่งเสียงดัง</option>
+        <option value="สัตว์เลี้ยงรบกวน">สัตว์เลี้ยงรบกวน</option>
+        <option value="ทำลายทรัพย์สินส่วนกลาง">ทำลายทรัพย์สินส่วนกลาง</option>
+        <option value="อื่นๆ">อื่นๆ</option>
+      </select>
     </div>
-    <div class="fg"><label class="fl">หัวข้อการแจ้งเตือน</label><input class="fi" placeholder="เช่น จอดรถขวางทางเข้า-ออก"></div>
-    <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" placeholder="อธิบายการกระทำผิดให้ละเอียด สิ่งที่ต้องการให้แก้ไข..."></textarea></div>
-    <div class="fg"><label class="fl">กำหนดให้แก้ไขภายใน</label><input class="fi" type="date"></div>
-    <div class="fg"><label class="fl">รูปหลักฐาน</label>
-      <div class="upl"><div class="upl-ico">📷</div><div class="upl-txt"><strong>อัปโหลดรูปภาพ</strong> หลักฐานประกอบ</div></div>
+    <div class="fg"><label class="fl">หัวข้อการแจ้งเตือน *</label>
+      <input class="fi" id="vio-title" placeholder="เช่น จอดรถขวางทางเข้า-ออก">
     </div>
-    <div class="fg"><label class="fl">ค่าปรับ (ถ้ามี)</label><input class="fi" type="number" placeholder="0" value="0"></div>
+    <div class="fg"><label class="fl">รายละเอียด</label>
+      <textarea class="ft" id="vio-desc" placeholder="อธิบายการกระทำผิดให้ละเอียด สิ่งที่ต้องการให้แก้ไข..."></textarea>
+    </div>
+    <div class="fg"><label class="fl">กำหนดให้แก้ไขภายใน</label>
+      <input class="fi" id="vio-deadline" type="date">
+    </div>
+    <div class="fg"><label class="fl">ค่าปรับ (ถ้ามี)</label>
+      <input class="fi" id="vio-penalty" type="number" placeholder="0" value="0">
+    </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-newvio')">ยกเลิก</button>
@@ -3568,21 +3579,21 @@ function _renderIssueList(elId, items) {
 
 // ── ADMIN: Violations ─────────────────────────────────────────
 async function loadViolationsPage() {
-  showLoader('...');
+  showLoader('โหลดรายการแจ้งกระทำผิด...');
   try {
     const viols = await api('getViolations');
     const el = document.getElementById('list-violations');
     if (!el) return;
-    if (!viols.length) { el.innerHTML = '<div class="empty-state"><div class="es-ico">\u2705</div><div class="es-s">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</div></div>'; return; }
+    if (!viols.length) { el.innerHTML = '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการแจ้งกระทำผิด</div></div>'; return; }
     el.innerHTML = viols.map(function(v) {
       return '<div class="iss mb-12">' +
-        '<div class="iss-h"><span class="iss-t">\u0e1a\u0e49\u0e32\u0e19 ' + v.house_id + ' \u2014 ' + v.title + '</span>' +
+        '<div class="iss-h"><span class="iss-t">บ้าน ' + v.house_id + ' — ' + v.title + '</span>' +
         '<span class="bd b-' + ({pending:'wn',resolved:'ok',acknowledged:'pr',escalated:'dg'}[v.status]||'mu') + '">' + v.status + '</span></div>' +
-        '<div class="iss-m">\ud83d\udcc5 \u0e01\u0e33\u0e2b\u0e19\u0e14: ' + (v.deadline||'\u2014') +
-          (Number(v.penalty_amount)>0 ? ' \u00b7 \u0e04\u0e48\u0e32\u0e1b\u0e23\u0e31\u0e1a: \u0e3f' + Number(v.penalty_amount).toLocaleString() : '') + '</div>' +
+        '<div class="iss-m">📅 กำหนด: ' + (v.deadline||'—') +
+          (Number(v.penalty_amount)>0 ? ' · ค่าปรับ: ฿' + Number(v.penalty_amount).toLocaleString() : '') + '</div>' +
         '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
-          '<button class="btn btn-xs btn-p" onclick="doViolationStatus(\'' + v.vio_id + '\',\'resolved\')">\u2713 \u0e41\u0e01\u0e49\u0e44\u0e02\u0e41\u0e25\u0e49\u0e27</button>' +
-          (Number(v.penalty_amount)===0 ? '<button class="btn btn-xs btn-d" onclick="openAddPenalty(\'' + v.vio_id + '\',\'' + v.house_id + '\')">\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e04\u0e48\u0e32\u0e1b\u0e23\u0e31\u0e1a</button>' : '') +
+          '<button class="btn btn-xs btn-p" onclick="doViolationStatus(\'' + v.vio_id + '\',\'resolved\')">✓ แก้ไขแล้ว</button>' +
+          (Number(v.penalty_amount)===0 ? '<button class="btn btn-xs btn-d" onclick="openAddPenalty(\'' + v.vio_id + '\',\'' + v.house_id + '\')">เพิ่มค่าปรับ</button>' : '') +
         '</div></div>';
     }).join('');
   } finally { hideLoader(); }
@@ -4144,6 +4155,43 @@ async function doSubmitIssue() {
 }
 
 // ── Submit new violation (admin) ──────────────────────────────
+async function openNewVioModal() {
+  showLoader('กำลังเตรียมข้อมูล...');
+  try {
+    // โหลดบ้านจาก cache หรือ API
+    var houses = _housesCache || [];
+    if (!houses.length) {
+      try { houses = await api('getHouses'); _housesCache = houses; } catch(e) {}
+    }
+    // เรียงตามซอย → บ้านเลขที่
+    var sorted = houses.slice().sort(function(a,b) {
+      var sa = parseInt((String(a.soi||'').match(/\d+/)||[0])[0])||0;
+      var sb = parseInt((String(b.soi||'').match(/\d+/)||[0])[0])||0;
+      if (sa !== sb) return sa - sb;
+      return String(a.house_no||'').localeCompare(String(b.house_no||''),'th',{numeric:true});
+    });
+    var sel = document.getElementById('vio-house');
+    if (sel) {
+      sel.innerHTML = '<option value="">— เลือกบ้าน —</option>' +
+        sorted.map(function(h) {
+          var label = _safeHouseNo(h.house_no) + (h.soi ? ' ซอย '+h.soi : '') + ' — ' + (h.owner_name||'');
+          return '<option value="' + h.house_id + '">' + label + '</option>';
+        }).join('');
+    }
+    // reset fields
+    ['vio-title','vio-desc','vio-deadline'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value = '';
+    });
+    var pen = document.getElementById('vio-penalty'); if(pen) pen.value = '0';
+    var typ = document.getElementById('vio-type'); if(typ) typ.selectedIndex = 0;
+    hideLoader();
+    openM('m-newvio');
+  } catch(e) {
+    hideLoader();
+    Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:e.message});
+  }
+}
+
 async function doCreateViolation() {
   const house_id = document.getElementById('vio-house').value;
   const title    = document.getElementById('vio-title').value.trim();
@@ -4298,7 +4346,7 @@ var PT = {
   'admin-houses':      '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19 \u2014 <span class="hl">\u0e08\u0e31\u0e14\u0e01\u0e32\u0e23</span>',
   'admin-fees':        '\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07 \u2014 <span class="hl">\u0e01\u0e32\u0e23\u0e0a\u0e33\u0e23\u0e30</span>',
   'admin-issues':      '\u0e41\u0e08\u0e49\u0e1b\u0e31\u0e0d\u0e2b\u0e32 \u2014 <span class="hl">\u0e08\u0e31\u0e14\u0e01\u0e32\u0e23</span>',
-  'admin-vio':         '\u0e41\u0e08\u0e49\u0e01\u0e23\u0e30\u0e17\u0e33\u0e1c\u0e34\u0e14 \u2014 <span class="hl">\u0e41\u0e08\u0e49\u0e40\u0e15\u0e37\u0e2d\u0e19</span>',
+  'admin-vio':         'แจ้งกระทำผิด — <span class="hl">แจ้งเตือน</span>',
   'admin-req':         '\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02 \u2014 <span class="hl">\u0e23\u0e2d\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34</span>',
   'admin-ann':         '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28 \u2014 <span class="hl">\u0e02\u0e48\u0e32\u0e27\u0e2a\u0e32\u0e23</span>',
   'admin-rep':         '\u0e1c\u0e25\u0e07\u0e32\u0e19\u0e19\u0e34\u0e15\u0e34 \u2014 <span class="hl">\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19</span>',
@@ -4981,7 +5029,7 @@ function applySettings() {
   el = document.getElementById('login-logo');
   if (el) {
     if (vLogo.startsWith('http')) {
-      el.innerHTML = '<img src="' + vLogo + '" style="width:80px;height:80px;object-fit:contain;border-radius:16px">';
+      el.innerHTML = '<img src="' + vLogo + '" style="width:80px;height:80px;object-fit:contain">';
     } else { el.textContent = vLogo; }
   }
   // Use textContent for login elements (avoid XSS + no '—' fallback)
@@ -4994,7 +5042,7 @@ function applySettings() {
   var logoIco = document.getElementById('sb-logo-ico');
   if (logoIco) {
     if (vLogo.startsWith('http')) {
-      logoIco.innerHTML = '<img src="' + vLogo + '" style="width:32px;height:32px;object-fit:contain;border-radius:8px">';
+      logoIco.innerHTML = '<img src="' + vLogo + '" style="width:34px;height:34px;object-fit:contain">';
     } else { logoIco.textContent = vLogo; }
   }
   var snEl = document.getElementById('sb-logo-name');
@@ -5943,6 +5991,17 @@ async function loadAdminVehiclePage() {
     var active   = all.filter(function(v){ return v.status === 'active';   });
     var inactive = all.filter(function(v){ return v.status === 'inactive'; });
     var registered = active.concat(inactive); // เฉพาะรถที่ผ่านการอนุมัติแล้ว
+    // เรียงตามซอย → บ้านเลขที่ → ประเภทรถ
+    registered.sort(function(a, b) {
+      var soiA = parseInt((String(a.soi||'').match(/\d+/)||[0])[0])||0;
+      var soiB = parseInt((String(b.soi||'').match(/\d+/)||[0])[0])||0;
+      if (soiA !== soiB) return soiA - soiB;
+      var hA = String(a.house_no||a.house_id||'');
+      var hB = String(b.house_no||b.house_id||'');
+      var hCmp = hA.localeCompare(hB, 'th', {numeric:true});
+      if (hCmp !== 0) return hCmp;
+      return String(a.type||'').localeCompare(String(b.type||''), 'th');
+    });
 
     // Stats (หน้ารถ)
     _setEl('stat-veh-total',    registered.length);
