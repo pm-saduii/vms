@@ -2593,6 +2593,25 @@ async function api(action, payload = {}) {
   }
 }
 
+// POST variant — ใช้สำหรับ action ที่ส่ง payload ขนาดใหญ่ เช่น uploadImage (base64)
+// ส่งผ่าน request body แทน URL query string เพื่อหลีกเลี่ยง ERR_FAILED จาก URL ที่ยาวเกิน
+async function apiPost(action, payload = {}) {
+  const body = { action, token: APP.token, ...payload };
+  try {
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ payload: JSON.stringify(body) }).toString()
+    });
+    const json = await res.json();
+    if (json.code !== 200) throw new Error(json.data?.error || 'API Error');
+    return json.data;
+  } catch (err) {
+    throw new Error(err.message || 'Network error');
+  }
+}
+
 // ============================================================
 // LOADER
 // ============================================================
@@ -3219,7 +3238,7 @@ async function _uploadCarImages() {
     var base64 = img.dataUrl.split(',')[1];
     var mimeType = img.dataUrl.split(';')[0].replace('data:','');
     try {
-      var res = await api('uploadImage', {filename: img.renamed, base64data: base64, mime_type: mimeType});
+      var res = await apiPost('uploadImage', {filename: img.renamed, base64data: base64, mime_type: mimeType});
       if (res && res.url) urls.push(res.url);
     } catch(e) { console.warn('Upload failed:', img.renamed, e.message); }
   }
