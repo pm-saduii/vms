@@ -797,3 +797,34 @@ group: village
 - `_renderAdminVehicleTable` — ไม่ถูกแตะ ใช้งานทั้ง registered และ vreq tabs
 - `doApproveVehicle` / `doRejectVehicle` — ยังเรียก `loadAdminVehiclePage()` เหมือนเดิม
 - `badge-vehicle` (sidebar) — ยังแสดงจำนวน pending เหมือนเดิม
+
+---
+
+## ✅ Fix — หน้ารถ: เพิ่มรถ / Filter / Columns / ลบรูป
+
+### ข้อ 1+2: ปุ่มเพิ่มรถไม่แสดง Modal + ไม่มี Loading
+- `openAdminAddCarModal` ไม่มี `showLoader` → user กดแล้ว fetch `getHouses` ช้า เหมือนไม่ตอบสนอง
+- **Fix:** เพิ่ม `showLoader('กำลังเตรียมข้อมูล...')` ต้น function + ครอบ try/catch/finally ทั้งหมด + `hideLoader()` ก่อน `openM`
+
+### ข้อ 3: เพิ่ม Search Filter
+- **HTML:** เพิ่ม `<input id="veh-search">` + `<select id="veh-filter-type">` เหนือตาราง
+- **JS:** เพิ่ม `_registeredVehiclesCache` (เก็บ full list) + `_filterVehicleTable()` filter แบบ client-side
+- ค้นหาได้ตาม: ซอย, ทะเบียน, บ้านเลขที่, ยี่ห้อ, จังหวัด
+- **GAS `Vehicles.getAll`:** join `house_no` + `soi` จาก HOUSES sheet ให้ vehicle rows มีข้อมูลพร้อม filter
+
+### ข้อ 4: Columns ใหม่
+`_renderAdminVehicleTable` แก้ columns เป็น:
+บ้านเลขที่ | ซอย | ทะเบียน (จังหวัด) | ประเภท | ยี่ห้อ/รุ่น (สี) | ที่จอด (ค่าจอด/ปี) | สถานะ | ✏️
+
+### ข้อ 5: ลบรูปได้ + sync Drive + Sheet
+- **`_existingCarUrls`** — state เก็บ URLs ที่ยังไม่ถูกลบ (reset ทุกครั้ง openAdminEditCarModal)
+- **`_renderExistingCarImages(wrap)`** — render existing images พร้อมปุ่ม × ลบ
+- **`_deleteExistingCarImage(idx, fileId)`** — splice state → re-render → call `apiPost('deleteImage', {file_id})`
+- **`doAdminEditCar`** — `allUrls = _existingCarUrls.concat(newUrls)` → ส่ง `payload.image_urls = allUrls` เสมอ (แม้จะว่าง)
+- **GAS `Upload.deleteFile`** — `DriveApp.getFileById(id).setTrashed(true)` (idempotent: ถ้าไม่มีไฟล์ return success)
+- **GAS `Code.gs`** — เพิ่ม route `'deleteImage': () => Upload.deleteFile(body, user)`
+
+### DO NOT CHANGE
+- `_registeredVehiclesCache` ถูก set เฉพาะ `mode === 'registered'` เท่านั้น — filter ไม่ overwrite
+- `_existingCarUrls` ต้อง reset เป็น `[]` ทั้งใน `doAdminEditCar` และ `openAdminEditCarModal`
+- `deleteImage` ใช้ `apiPost` (POST) เนื่องจาก token ยาว

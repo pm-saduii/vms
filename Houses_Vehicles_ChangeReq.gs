@@ -191,6 +191,17 @@ var Vehicles = (function() {
     let rows = sheetToObjects('VEHICLES');
     if (body.house_id) rows = rows.filter(r => r.house_id === body.house_id);
     if (body.status)   rows = rows.filter(r => r.status   === body.status);
+    // Join house_no และ soi จาก HOUSES เพื่อให้ frontend filter/แสดงได้
+    const houses = sheetToObjects('HOUSES');
+    const houseMap = {};
+    houses.forEach(h => { houseMap[h.house_id] = h; });
+    rows = rows.map(r => {
+      const h = houseMap[r.house_id] || {};
+      return Object.assign({}, r, {
+        house_no: h.house_no || r.house_id,
+        soi:      h.soi      || ''
+      });
+    });
     return rows.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   }
 

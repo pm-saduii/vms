@@ -376,7 +376,22 @@ var Upload = (function() {
     const url     = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
     return { url, file_id: fileId };
   }
-  return { base64 };
+
+  function deleteFile(body, user) {
+    const { file_id } = body;
+    if (!file_id) throw new Error('file_id required');
+    try {
+      const file = DriveApp.getFileById(file_id);
+      file.setTrashed(true);
+      return { success: true, file_id };
+    } catch(e) {
+      // ถ้าไฟล์ไม่มีอยู่แล้ว ถือว่าสำเร็จ (idempotent)
+      Logger.log('deleteFile: ' + e.message + ' file_id=' + file_id);
+      return { success: true, file_id, note: 'file not found or already deleted' };
+    }
+  }
+
+  return { base64, deleteFile };
 })();
 
 

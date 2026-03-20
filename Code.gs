@@ -108,6 +108,7 @@ function _route(body) {
       'getLoginLogs':          () => LoginLogs.getAll(body, user),
       /* UPLOAD */
       'uploadImage':           () => Upload.base64(body, user),
+      'deleteImage':           () => Upload.deleteFile(body, user),
       /* BOOT (single-request startup) */
       'getBoot':               () => Boot.load(body, user),
       /* DASHBOARD */

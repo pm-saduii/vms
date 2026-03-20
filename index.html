@@ -1665,7 +1665,20 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <div class="sc"><div class="sc-ico a">✅</div><div><div class="sc-v" id="stat-veh-active">—</div><div class="sc-l">ใช้งาน</div></div></div>
           <div class="sc"><div class="sc-ico d">🔴</div><div><div class="sc-v" id="stat-veh-inactive">—</div><div class="sc-l">ไม่ใช้งาน</div></div></div>
         </div>
-        <div id="list-vehicles-registered"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div>
+        <div class="card" style="margin-top:8px">
+          <div class="ch"><div class="ch-ico">🚗</div><div class="ct">รายการรถที่ลงทะเบียนแล้ว <span style="font-size:11px;font-weight:400;color:var(--mu)">(เฉพาะที่ Admin อนุมัติแล้ว)</span></div></div>
+          <div style="padding:8px 16px 4px;display:flex;gap:8px;flex-wrap:wrap">
+            <input class="fi" id="veh-search" placeholder="🔍 ค้นหา ซอย / ทะเบียน / บ้านเลขที่ / ยี่ห้อ" style="flex:1;min-width:180px" oninput="_filterVehicleTable()">
+            <select class="fs" id="veh-filter-type" style="width:150px;flex-shrink:0" onchange="_filterVehicleTable()">
+              <option value="">ทุกประเภท</option>
+              <option value="รถยนต์">🚗 รถยนต์</option>
+              <option value="รถจักรยานยนต์">🏍️ รถจักรยานยนต์</option>
+              <option value="รถตู้">🚐 รถตู้</option>
+              <option value="รถกระบะ">🛻 รถกระบะ</option>
+            </select>
+          </div>
+          <div class="cb" id="list-vehicles-registered"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div>
+        </div>
       </div>
 
     </div><!-- end v-admin -->
@@ -5843,43 +5856,99 @@ var _statusBadgeVeh = {
   rejected: '<span class="bd b-dg">\u2717 \u0e1b\u0e0f\u0e34\u0e40\u0e2a\u0e18</span>'
 };
 
+// เก็บ registered vehicles สำหรับ client-side filter
+var _registeredVehiclesCache = [];
+
 function _renderAdminVehicleTable(elId, vehicles, mode) {
   var el = document.getElementById(elId);
   if (!el) return;
+  // เก็บ full cache เฉพาะตอน load ใหม่จาก API (ไม่ใช่ตอน filter)
+  if (elId === 'list-vehicles-registered' && mode === 'registered') {
+    _registeredVehiclesCache = vehicles;
+  }
   if (!vehicles.length) {
-    el.innerHTML = '<p class="text-mu" style="text-align:center;padding:24px;font-size:13px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23</p>';
+    el.innerHTML = '<p class="text-mu" style="text-align:center;padding:24px;font-size:13px">ไม่มีรายการ</p>';
     return;
   }
-  // Table view
   var rows = vehicles.map(function(v) {
     var approveBtn = mode === 'pending'
-      ? '<button class="btn btn-xs btn-a" data-vid="' + v.vehicle_id + '" onclick="doApproveVehicle(this.dataset.vid)">\u2713 \u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34</button>' +
-        '<button class="btn btn-xs btn-dg" data-vid="' + v.vehicle_id + '" onclick="doRejectVehicle(this.dataset.vid)">\u2717 \u0e1b\u0e0f\u0e34</button>'
+      ? '<button class="btn btn-xs btn-a" data-vid="' + v.vehicle_id + '" onclick="doApproveVehicle(this.dataset.vid)">✓ อนุมัติ</button>' +
+        '<button class="btn btn-xs btn-dg" data-vid="' + v.vehicle_id + '" onclick="doRejectVehicle(this.dataset.vid)">✗ ปฏิ</button>'
       : '';
     var badge = _statusBadgeVeh[v.status] || '<span class="bd b-mu">' + v.status + '</span>';
+    var feeStr = Number(v.fee_amount||0) > 0
+      ? '<br><span style="font-size:10.5px;color:var(--mu)">฿' + Number(v.fee_amount).toLocaleString() + '/ปี</span>'
+      : '';
     return '<tr>' +
-      '<td>' + _vehicleIcon(v.type) + ' <strong>' + (v.plate_number||'') + '</strong><br><span style="font-size:11px;color:var(--mu)">' + (v.province||'') + '</span></td>' +
+      '<td><strong>' + (v.house_no||v.house_id||'') + '</strong></td>' +
+      '<td>' + (v.soi||'—') + '</td>' +
+      '<td>' + _vehicleIcon(v.type) + ' <strong>' + (v.plate_number||'') + '</strong>' +
+        '<br><span style="font-size:10.5px;color:var(--mu)">' + (v.province||'') + '</span></td>' +
       '<td>' + (v.type||'') + '</td>' +
-      '<td>' + (v.brand||'') + ' ' + (v.model||'') + '<br><span style="font-size:11px;color:var(--mu)">\u0e2a\u0e35' + (v.color||'') + '</span></td>' +
-      '<td>' + (v.house_id||'') + '</td>' +
-      '<td>' + (v.parking_location||'') + '</td>' +
+      '<td>' + (v.brand||'') + ' ' + (v.model||'') +
+        '<br><span style="font-size:10.5px;color:var(--mu)">สี' + (v.color||'') + '</span></td>' +
+      '<td>' + (v.parking_location||'') + feeStr + '</td>' +
       '<td>' + badge + '</td>' +
-      '<td>' + _fmtDate(v.created_at) + '</td>' +
       '<td style="display:flex;gap:4px;flex-wrap:wrap">' +
         approveBtn +
-        '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openAdminEditCarModal(this.dataset.vid)">\u270f\ufe0f</button>' +
+        '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openAdminEditCarModal(this.dataset.vid)">✏️</button>' +
       '</td>' +
     '</tr>';
   }).join('');
   el.innerHTML = '<div class="tw"><table>' +
     '<thead><tr>' +
-      '<th>\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19</th><th>\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17</th>' +
-      '<th>\u0e22\u0e35\u0e48\u0e2b\u0e49\u0e2d / \u0e23\u0e38\u0e48\u0e19</th><th>\u0e1a\u0e49\u0e32\u0e19</th>' +
-      '<th>\u0e17\u0e35\u0e48\u0e08\u0e2d\u0e14</th><th>\u0e2a\u0e16\u0e32\u0e19\u0e30</th>' +
-      '<th>\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48</th><th></th>' +
+      '<th>บ้านเลขที่</th><th>ซอย</th><th>ทะเบียน</th>' +
+      '<th>ประเภท</th><th>ยี่ห้อ/รุ่น</th>' +
+      '<th>ที่จอด</th><th>สถานะ</th><th></th>' +
     '</tr></thead>' +
     '<tbody>' + rows + '</tbody>' +
     '</table></div>';
+}
+
+// ── Client-side filter สำหรับหน้ารถ ──
+function _filterVehicleTable() {
+  var q    = (document.getElementById('veh-search')||{}).value||'';
+  var type = (document.getElementById('veh-filter-type')||{}).value||'';
+  q = q.toLowerCase().trim();
+  var filtered = _registeredVehiclesCache.filter(function(v) {
+    var matchQ = !q || [
+      String(v.house_no||''), String(v.soi||''),
+      String(v.plate_number||''), String(v.brand||''),
+      String(v.model||''), String(v.province||'')
+    ].some(function(s){ return s.toLowerCase().includes(q); });
+    var matchType = !type || v.type === type;
+    return matchQ && matchType;
+  });
+  // render โดยไม่ reset _registeredVehiclesCache (ส่ง mode ว่างเพื่อไม่ trigger cache save)
+  var el = document.getElementById('list-vehicles-registered');
+  if (!el) return;
+  if (!filtered.length) {
+    el.innerHTML = '<p class="text-mu" style="text-align:center;padding:24px;font-size:13px">ไม่พบรายการที่ค้นหา</p>';
+    return;
+  }
+  // เรียก render ผ่าน mode='filter' เพื่อไม่ overwrite cache
+  var tmpMode = 'filter';
+  var rows = filtered.map(function(v) {
+    var badge = _statusBadgeVeh[v.status] || '<span class="bd b-mu">' + v.status + '</span>';
+    var feeStr = Number(v.fee_amount||0) > 0
+      ? '<br><span style="font-size:10.5px;color:var(--mu)">฿' + Number(v.fee_amount).toLocaleString() + '/ปี</span>'
+      : '';
+    return '<tr>' +
+      '<td><strong>' + (v.house_no||v.house_id||'') + '</strong></td>' +
+      '<td>' + (v.soi||'—') + '</td>' +
+      '<td>' + _vehicleIcon(v.type) + ' <strong>' + (v.plate_number||'') + '</strong>' +
+        '<br><span style="font-size:10.5px;color:var(--mu)">' + (v.province||'') + '</span></td>' +
+      '<td>' + (v.type||'') + '</td>' +
+      '<td>' + (v.brand||'') + ' ' + (v.model||'') +
+        '<br><span style="font-size:10.5px;color:var(--mu)">สี' + (v.color||'') + '</span></td>' +
+      '<td>' + (v.parking_location||'') + feeStr + '</td>' +
+      '<td>' + badge + '</td>' +
+      '<td><button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openAdminEditCarModal(this.dataset.vid)">✏️</button></td>' +
+    '</tr>';
+  }).join('');
+  el.innerHTML = '<div class="tw"><table>' +
+    '<thead><tr><th>บ้านเลขที่</th><th>ซอย</th><th>ทะเบียน</th><th>ประเภท</th><th>ยี่ห้อ/รุ่น</th><th>ที่จอด</th><th>สถานะ</th><th></th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table></div>';
 }
 
 async function doApproveVehicle(vehicleId) {
@@ -5914,37 +5983,43 @@ async function doRejectVehicle(vehicleId) {
 
 // ── Admin Add Car (auto-approved) ──
 async function openAdminAddCarModal() {
-  // Populate house dropdown
-  var hSel = document.getElementById('acar-houseid');
-  if (hSel) {
-    var houses = _housesCache || [];
-    if (!houses.length) {
-      try { houses = await api('getHouses'); _housesCache = houses; } catch(e) {}
+  showLoader('กำลังเตรียมข้อมูล...');
+  try {
+    // Populate house dropdown
+    var hSel = document.getElementById('acar-houseid');
+    if (hSel) {
+      var houses = _housesCache || [];
+      if (!houses.length) {
+        try { houses = await api('getHouses'); _housesCache = houses; } catch(e) {}
+      }
+      var sorted = houses.slice().sort(function(a, b) {
+        var na = parseInt((String(a.soi||'').match(/\d+/)||[0])[0])||0;
+        var nb = parseInt((String(b.soi||'').match(/\d+/)||[0])[0])||0;
+        if (na !== nb) return na - nb;
+        return String(a.house_no||'').localeCompare(String(b.house_no||''),'th',{numeric:true});
+      });
+      hSel.innerHTML = '<option value="">-- เลือกบ้าน --</option>' +
+        sorted.map(function(h) {
+          var label = _safeHouseNo(h.house_no) + (h.soi ? ' ซอย '+h.soi : '') + ' — ' + (h.owner_name||'');
+          return '<option value="' + h.house_id + '">' + label + '</option>';
+        }).join('');
     }
-    // Sort by soi numeric + house_no
-    var sorted = houses.slice().sort(function(a, b) {
-      var na = parseInt((String(a.soi||'').match(/\d+/)||[0])[0])||0;
-      var nb = parseInt((String(b.soi||'').match(/\d+/)||[0])[0])||0;
-      if (na !== nb) return na - nb;
-      return String(a.house_no||'').localeCompare(String(b.house_no||''),'th',{numeric:true});
+    _initVehicleDropdowns('acar-');
+    ['acar-plate','acar-model'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value = '';
     });
-    hSel.innerHTML = '<option value="">-- \u0e40\u0e25\u0e37\u0e2d\u0e01\u0e1a\u0e49\u0e32\u0e19 --</option>' +
-      sorted.map(function(h) {
-        var label = _safeHouseNo(h.house_no) + (h.soi ? ' \u0e0b\u0e2d\u0e22 '+h.soi : '') + ' — ' + (h.owner_name||'');
-        return '<option value="' + h.house_id + '">' + label + '</option>';
-      }).join('');
+    if (hSel) hSel.value = '';
+    var t = document.getElementById('acar-type'); if(t) t.value = '';
+    var p = document.getElementById('acar-park'); if(p) p.value = 'ในบ้าน';
+    var s = document.getElementById('acar-status'); if(s) s.value = 'active';
+    var f = document.getElementById('acar-fee'); if(f) f.value = '0';
+    _resetCarImages('acar-');
+    hideLoader();
+    openM('m-admin-addcar');
+  } catch(e) {
+    hideLoader();
+    Swal.fire({icon:'error', title:'เกิดข้อผิดพลาด', text: e.message});
   }
-  _initVehicleDropdowns('acar-');
-  ['acar-plate','acar-model'].forEach(function(id){
-    var el = document.getElementById(id); if(el) el.value = '';
-  });
-  if (hSel) hSel.value = '';
-  var t = document.getElementById('acar-type'); if(t) t.value = '';
-  var p = document.getElementById('acar-park'); if(p) p.value = '\u0e43\u0e19\u0e1a\u0e49\u0e32\u0e19';
-  var s = document.getElementById('acar-status'); if(s) s.value = 'active';
-  var bi = document.getElementById('acar-brand'); if(bi) bi.style.display='none';
-  var ci = document.getElementById('acar-color'); if(ci) ci.style.display='none';
-  openM('m-admin-addcar');
 }
 function searchHouseForCar(q) {
   var sg = document.getElementById('acar-house-suggest');
@@ -6030,22 +6105,50 @@ function openAdminEditCarModal(vehicleId) {
   var pv = document.getElementById('aeditcar-prov'); if(pv) pv.value = v.province || '';
 
   // Show existing images
+  // Show existing images with delete buttons
   var imgWrap = document.getElementById('aeditcar-current-imgs');
   if (imgWrap) {
     var imgs = [];
     try { imgs = JSON.parse(v.image_urls || '[]'); } catch(e) { if(v.image_urls) imgs = [v.image_urls]; }
-    if (imgs.length) {
-      imgWrap.innerHTML = '<div class="sl" style="margin-bottom:6px">\U0001f4f8 \u0e23\u0e39\u0e1b\u0e1b\u0e31\u0e08\u0e08\u0e38\u0e1a\u0e31\u0e19</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
-        imgs.map(function(url) {
-          return '<img src="' + url + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">';
-        }).join('') + '</div>';
-    } else {
-      imgWrap.innerHTML = '';
-    }
+    // เก็บ existing URLs ไว้ใน state เพื่อให้ doAdminEditCar merge กับรูปใหม่
+    _existingCarUrls = imgs.slice();
+    _renderExistingCarImages(imgWrap);
   }
-  _setEl('aeditcar-sub', '\u0e1a\u0e49\u0e32\u0e19 ' + (v.house_id||'') + ' \u00b7 ' + (v.plate_number||''));
+  _setEl('aeditcar-sub', 'บ้าน ' + (v.house_id||'') + ' · ' + (v.plate_number||''));
   openM('m-admin-editcar');
+}
+
+// State: existing URLs ของรถที่กำลังแก้ไข (ลบได้)
+var _existingCarUrls = [];
+
+function _renderExistingCarImages(wrap) {
+  if (!wrap) return;
+  if (!_existingCarUrls.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = '<div class="sl" style="margin-bottom:6px">📸 รูปปัจจุบัน</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
+    _existingCarUrls.map(function(url, idx) {
+      // ดึง file_id จาก thumbnail URL: thumbnail?id=XXX&sz=w800
+      var fid = url.match(/[?&]id=([^&]+)/);
+      var fileId = fid ? fid[1] : '';
+      return '<div style="position:relative;display:inline-block">' +
+        '<img src="' + url + '" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
+        '<button onclick="_deleteExistingCarImage(' + idx + ',\'' + fileId + '\')" ' +
+          'style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;' +
+          'background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:11px;line-height:20px;text-align:center;padding:0"' +
+        '>&times;</button>' +
+      '</div>';
+    }).join('') + '</div>';
+}
+
+async function _deleteExistingCarImage(idx, fileId) {
+  // ลบออกจาก state ก่อน (UI ตอบสนองทันที)
+  _existingCarUrls.splice(idx, 1);
+  var wrap = document.getElementById('aeditcar-current-imgs');
+  _renderExistingCarImages(wrap);
+  // ลบจาก Drive ถ้ามี fileId
+  if (fileId) {
+    try { await apiPost('deleteImage', { file_id: fileId }); } catch(e) { console.warn('deleteImage:', e.message); }
+  }
 }
 async function doAdminEditCar() {
   var vid    = (document.getElementById('aeditcar-id')||{}).value||'';
@@ -6060,19 +6163,23 @@ async function doAdminEditCar() {
   var fee    = parseFloat((document.getElementById('aeditcar-fee')||{}).value||0) || 0;
   if (!plate) { Swal.fire({icon:'warning',title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19'}); return; }
 
-  showLoader('\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01...');
+  showLoader('บันทึก...');
   try {
     // Upload new images if any
     var newUrls = await _uploadCarImages();
+    // Merge: existing (ที่ไม่ถูกลบ) + new uploads
+    var allUrls = _existingCarUrls.concat(newUrls);
     var payload = { vehicle_id:vid, type, plate_number:plate, brand, model,
       color, province:prov, parking_location:park, status:stat, fee_amount:fee };
-    if (newUrls.length) payload.image_urls = newUrls;
+    // ส่ง image_urls เสมอ (แม้ว่าจะว่าง เพื่อ clear รูปที่ถูกลบออก)
+    payload.image_urls = allUrls;
     await api('updateVehicle', payload);
     _resetCarImages('aeditcar-');
+    _existingCarUrls = [];
     closeM('m-admin-editcar');
     invalidatePageCache('admin-vehicle');
     await loadAdminVehiclePage();
-    Swal.fire({icon:'success',title:'\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08',timer:1500,showConfirmButton:false});
+    Swal.fire({icon:'success',title:'บันทึกสำเร็จ',timer:1500,showConfirmButton:false});
   } catch(e) { Swal.fire({icon:'error',title:'Error',text:e.message}); }
   finally { hideLoader(); }
 }
