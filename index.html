@@ -1822,21 +1822,17 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: HOUSE -->
       <div id="p-res-house" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">บ้าน — ซอย —</span></div></div></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">กำลังโหลด...</span></div></div></div></div></div>
 
         <!-- Status Bar -->
-        <div class="card" style="margin-bottom:16px">
+        <div class="card" style="margin-bottom:12px">
           <div class="cb">
             <div style="font-size:10.5px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:11px">สถานะบ้านของฉัน</div>
             <div class="hs-bar">
-              <div class="hs-bar-step hsb-ok active">● ปกติ</div>
-              <div class="hs-bar-step hsb-warn">⚠ ค้างชำระ</div>
-              <div class="hs-bar-step hsb-suspend">🔴 ระงับกรมที่ดิน</div>
-              <div class="hs-bar-step hsb-legal">⚖️ ฟ้องร้อง</div>
-            </div>
-            <div style="margin-top:11px">
-              <span class="hs-badge hs-ok">● สถานะปัจจุบัน: ปกติ</span>
-              <p style="font-size:12px;color:var(--mu);margin-top:7px;line-height:1.5">บ้านของท่านอยู่ในสถานะปกติ กรุณาชำระค่าส่วนกลางให้ตรงเวลาเพื่อรักษาสถานะ</p>
+              <div class="hs-bar-step hsb-ok" id="hs-step-normal">● ปกติ</div>
+              <div class="hs-bar-step hsb-warn" id="hs-step-overdue">⚠ ค้างชำระ</div>
+              <div class="hs-bar-step hsb-suspend" id="hs-step-suspended">🔴 ระงับ</div>
+              <div class="hs-bar-step hsb-legal" id="hs-step-legal">⚖️ ฟ้องร้อง</div>
             </div>
           </div>
         </div>
@@ -1846,95 +1842,14 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <button class="tab" onclick="stab('rh','cars',this)">🚗 ข้อมูลรถ</button>
         </div>
 
-        <!-- TAB: ข้อมูลบ้าน -->
+        <!-- TAB: ข้อมูลบ้าน — render โดย loadResHousePage() -->
         <div id="rh-info" class="pane on">
-          <div class="card">
-            <div class="ch">
-              <div class="ch-ico">🏠</div>
-              <div class="ct">ข้อมูลบ้านทั้งหมด</div>
-              <button class="btn btn-sm btn-o" onclick="openM('m-edithouse')">✏️ ขอแก้ไข</button>
-            </div>
-            <div class="cb">
-              <div class="sl">📍 ที่อยู่ (แก้ไขไม่ได้)</div>
-              <div class="ig">
-                <div class="ii"><div class="ik">บ้านเลขที่</div><div class="iv" id="res-h-houseno">10/1</div></div>
-                <div class="ii"><div class="ik">ซอย</div><div class="iv" id="res-h-soi">ซอย 3</div></div>
-                <div class="ii"><div class="ik">ถนน</div><div class="iv" id="res-h-road">ถนนใหญ่ 1</div></div>
-                <div class="ii"><div class="ik">จังหวัด</div><div class="iv" id="res-h-province">กรุงเทพมหานคร</div></div>
-                <div class="ii"><div class="ik">ขนาดพื้นที่</div><div class="iv" id="res-h-area">52 ตร.ว.</div></div>
-                <div class="ii"><div class="ik">ประเภทบ้าน</div><div class="iv">บ้านเดี่ยว 2 ชั้น</div></div>
-              </div>
-              <div class="divider"></div>
-              <div class="sl">💰 ค่าธรรมเนียม (แก้ไขไม่ได้)</div>
-              <div class="ig">
-                <div class="ii"><div class="ik">ค่าส่วนกลาง/ปี</div><div class="iv text-pr fw-8" id="res-h-fee">฿—</div></div>
-                <div class="ii"><div class="ik">ค่าจอดรถ/ปี</div><div class="iv text-pr fw-7" id="res-h-parking">฿—</div></div>
-                <div class="ii"><div class="ik">ค่าขยะ/งวด</div><div class="iv text-pr fw-7">฿200</div></div>
-                <div class="ii"><div class="ik">รูปแบบชำระ</div><div class="iv">ปีละ 2 ครั้ง</div></div>
-              </div>
-              <div class="divider"></div>
-              <div class="sl">👤 ผู้อาศัย (ขอแก้ไขได้)</div>
-              <div class="ig">
-                <div class="ii"><div class="ik">เจ้าของกรรมสิทธิ์</div><div class="iv" id="res-h-owner">สมชาย ใจดี</div></div>
-                <div class="ii"><div class="ik">ผู้เช่า/ผู้อาศัย</div><div class="iv">—</div></div>
-                <div class="ii"><div class="ik">เบอร์โทรศัพท์</div><div class="iv" id="res-h-phone">081-234-5678</div></div>
-                <div class="ii"><div class="ik">อีเมล</div><div class="iv" style="font-size:12px"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5724383a343f363e17323a363e3b7934383a">[email&#160;protected]</a></div></div>
-                <div class="ii"><div class="ik">ประเภทการใช้</div><div class="iv" id="res-h-usage">อยู่เอง</div></div>
-                <div class="ii"><div class="ik">สถานะบ้าน</div><div class="iv"><span class="hs-badge hs-ok" style="font-size:11px;padding:3px 10px">● ปกติ</span></div></div>
-              </div>
-              <div class="divider"></div>
-              <div class="sl">📋 ประวัติคำขอแก้ไข</div>
-              <div style="border:1.5px solid var(--bo);border-radius:10px;padding:12px;margin-bottom:8px">
-                <div class="flex-between mb-4"><strong style="font-size:12.5px">แก้ไข Email</strong><span class="bd b-wn">รออนุมัติ</span></div>
-                <div style="font-size:11.5px;color:var(--mu)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="acdfc3c1cfc4cdc582c2c9dbecc9c1cdc5c082cfc3c1">[email&#160;protected]</a> · 14 มี.ค. 2568</div>
-              </div>
-              <div style="border:1.5px solid var(--bo);border-radius:10px;padding:12px">
-                <div class="flex-between mb-4"><strong style="font-size:12.5px">แก้ไขเบอร์โทร</strong><span class="bd b-ok">อนุมัติแล้ว</span></div>
-                <div style="font-size:11.5px;color:var(--mu)">5 มี.ค. 2568</div>
-              </div>
-            </div>
-          </div>
+          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
         </div>
 
-        <!-- TAB: ข้อมูลรถ -->
+        <!-- TAB: ข้อมูลรถ — render โดย loadResHousePage() -->
         <div id="rh-cars" class="pane">
-          <div class="card">
-            <div class="ch"><div class="ch-ico">🚗</div><div class="ct">รถที่ลงทะเบียน</div><button class="btn btn-sm btn-p" onclick="openM('m-addcar')">+ ขอเพิ่มรถ</button></div>
-            <div class="cb">
-              <div class="vc">
-                <div class="vc-ico">🚗</div>
-                <div style="flex:1;min-width:0">
-                  <div class="vc-pl">กข-1234 กรุงเทพ</div>
-                  <div class="vc-dt">Toyota Camry · สีขาว · หน้าบ้าน</div>
-                  <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">
-                    <span class="bd b-ok">ใช้งาน</span>
-                    <span class="bd b-mu">ไม่เสียค่าจอด</span>
-                  </div>
-                </div>
-                <button class="btn btn-xs btn-o" onclick="openM('m-editcar')">✏️ ขอแก้ไข</button>
-              </div>
-              <div class="vc">
-                <div class="vc-ico">🏍️</div>
-                <div style="flex:1;min-width:0">
-                  <div class="vc-pl">ขค-5678 กรุงเทพ</div>
-                  <div class="vc-dt">Honda PCX · สีดำ · ในบ้าน</div>
-                  <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">
-                    <span class="bd b-ok">ใช้งาน</span>
-                  </div>
-                </div>
-                <button class="btn btn-xs btn-o" onclick="openM('m-editcar')">✏️ ขอแก้ไข</button>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="ch"><div class="ch-ico">📋</div><div class="ct">ประวัติคำขอรถ</div></div>
-            <div class="cb">
-              <div style="border:1.5px solid var(--bo);border-radius:10px;padding:12px">
-                <div class="flex-between mb-4"><strong style="font-size:12.5px">ขอเพิ่มรถใหม่ Toyota Camry</strong><span class="bd b-wn">รออนุมัติ</span></div>
-                <div style="font-size:11.5px;color:var(--mu)">กข-9999 กรุงเทพ · 15 มี.ค. 2568</div>
-              </div>
-            </div>
-          </div>
+          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
         </div>
       </div>
 
@@ -3048,6 +2963,8 @@ function renderResidentHomeFromBoot(boot) {
   window._bootIssues = boot.issues || [];
   window._bootAnns   = boot.anns   || [];
   _pageCache['res-dash'] = { ts: Date.now() };
+  // โหลดการแจ้งเตือนทันทีหลัง boot เพื่อไม่ให้ค้าง "กำลังโหลด..."
+  loadResNotifPage();
 }
 // ============================================================
 // ADMIN — DASHBOARD
@@ -3771,41 +3688,89 @@ async function loadLogsPage() {
 // ── RESIDENT: My House ────────────────────────────────────────
 async function loadResHousePage() {
   try {
-    const house = APP.house || await api('getHouseByUser');
-    if (!house) return;
+    // clear cache ทุกครั้ง เพื่อให้ดึงข้อมูลใหม่จาก API ตาม user.house_id จริง
+    APP.house = null;
+    const house = await api('getHouseByUser');
+    if (!house) {
+      var hEl = document.getElementById('rh-info');
+      if (hEl) hEl.innerHTML = '<div class="al al-e">ไม่พบข้อมูลบ้าน กรุณาติดต่อนิติบุคคล</div>';
+      return;
+    }
     APP.house = house;
-    // Status bar
-    const statuses = ['normal','overdue','suspended','legal'];
-    statuses.forEach(function(s) {
-      const el = document.getElementById('hs-step-' + s);
+
+    // Status bar — hs-step-* elements
+    var statusMap = {normal:'ปกติ', overdue:'ค้างชำระ', suspended:'ระงับ', legal:'ฟ้องร้อง'};
+    var statusBadgeMap = {normal:'hs-ok', overdue:'hs-warn', suspended:'hs-suspend', legal:'hs-legal'};
+    ['normal','overdue','suspended','legal'].forEach(function(s) {
+      var el = document.getElementById('hs-step-' + s);
       if (el) el.classList.toggle('active', s === house.status);
     });
-    // Fill info
-    _setEl('res-h-houseno',    house.house_no);
-    _setEl('res-h-soi',        house.soi||'\u2014');
-    _setEl('res-h-owner',      house.owner_name||'\u2014');
-    _setEl('res-h-phone',      house.phone||'\u2014');
-    _setEl('res-h-email',      house.email||'\u2014');
-    _setEl('res-h-area',       (house.area_sqm||0) + ' \u0e15\u0e23.\u0e27.');
-    _setEl('res-h-fee',        '\u0e3f' + Number(house.fee_per_year||0).toLocaleString());
-    _setEl('res-h-parking',    '\u0e3f' + Number(house.parking_fee_year||0).toLocaleString());
-    _setEl('res-h-usage',      house.usage_type||'\u2014');
+
+    // Subtitle
+    _setEl('res-house-subtitle', 'บ้านเลขที่ ' + (house.house_no||'—') + (house.soi ? ' ซอย ' + house.soi : ''));
+
+    // เขียน rh-info ใหม่ทั้งหมด (แทน mockup เดิม)
+    var statusBadgeCls = statusBadgeMap[house.status] || 'hs-ok';
+    var statusLabel    = statusMap[house.status] || house.status || 'ปกติ';
+    var infoHtml =
+      '<div class="card">' +
+        '<div class="ch"><div class="ch-ico">🏠</div><div class="ct">ข้อมูลบ้านทั้งหมด</div>' +
+          '<button class="btn btn-sm btn-o" onclick="openM(\'m-edithouse\')">✏️ ขอแก้ไข</button>' +
+        '</div>' +
+        '<div class="cb">' +
+          '<div class="sl">📍 ที่อยู่</div>' +
+          '<div class="ig">' +
+            '<div class="ii"><div class="ik">บ้านเลขที่</div><div class="iv" id="res-h-houseno">'+(house.house_no||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">ซอย</div><div class="iv" id="res-h-soi">'+(house.soi||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">ที่อยู่</div><div class="iv">'+(house.address||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">ขนาดพื้นที่</div><div class="iv" id="res-h-area">'+(house.area_sqm||0)+' ตร.ว.</div></div>' +
+            '<div class="ii"><div class="ik">ประเภทบ้าน</div><div class="iv">'+({single_house:'บ้านเดี่ยว',townhouse:'ทาวน์เฮาส์',condo:'คอนโด',commercial:'พาณิชย์'}[house.house_type]||house.house_type||'—')+'</div></div>' +
+          '</div>' +
+          '<div class="divider"></div>' +
+          '<div class="sl">💰 ค่าธรรมเนียม</div>' +
+          '<div class="ig">' +
+            '<div class="ii"><div class="ik">ค่าส่วนกลาง/ปี</div><div class="iv text-pr fw-8" id="res-h-fee">฿'+Number(house.fee_per_year||0).toLocaleString()+'</div></div>' +
+            '<div class="ii"><div class="ik">ค่าจอดรถ/ปี</div><div class="iv text-pr fw-7" id="res-h-parking">฿'+Number(house.parking_fee_year||0).toLocaleString()+'</div></div>' +
+            '<div class="ii"><div class="ik">ค่าขยะ/งวด</div><div class="iv">฿'+Number(house.trash_fee_period||0).toLocaleString()+'</div></div>' +
+          '</div>' +
+          '<div class="divider"></div>' +
+          '<div class="sl">👤 ผู้อาศัย</div>' +
+          '<div class="ig">' +
+            '<div class="ii"><div class="ik">เจ้าของกรรมสิทธิ์</div><div class="iv" id="res-h-owner">'+(house.owner_name||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">ผู้เช่า/ผู้อาศัย</div><div class="iv">'+(house.renter_name||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">เบอร์โทรศัพท์</div><div class="iv" id="res-h-phone">'+(house.phone||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">อีเมล</div><div class="iv" id="res-h-email" style="font-size:12px">'+(house.email||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">ประเภทการใช้</div><div class="iv" id="res-h-usage">'+({owner:'อยู่เอง',rent:'เช่า',vacant:'ว่าง'}[house.usage_type]||house.usage_type||'—')+'</div></div>' +
+            '<div class="ii"><div class="ik">สถานะบ้าน</div><div class="iv"><span class="hs-badge '+statusBadgeCls+'" style="font-size:11px;padding:3px 10px">● '+statusLabel+'</span></div></div>' +
+          '</div>' +
+          '<div class="divider"></div>' +
+          '<div class="sl">📋 ประวัติคำขอแก้ไข</div>' +
+          '<div id="list-my-reqs"><p class="text-mu" style="font-size:13px;text-align:center;padding:12px">กำลังโหลด...</p></div>' +
+        '</div>' +
+      '</div>';
+    var infoEl = document.getElementById('rh-info');
+    if (infoEl) infoEl.innerHTML = infoHtml;
+
     // Load vehicles
     const vehicles = await api('getVehiclesByHouse');
-    const vEl = document.getElementById('list-my-vehicles');
-    if (vEl) {
-      vEl.innerHTML = vehicles.filter(function(v){ return v.status!=='pending'; }).map(function(v) {
+    var carsCard = '<div class="card"><div class="ch"><div class="ch-ico">🚗</div><div class="ct">รถที่ลงทะเบียน</div>' +
+      '<button class="btn btn-sm btn-p" onclick="openM(\'m-addcar\')">+ ขอเพิ่มรถ</button></div><div class="cb">' +
+      (vehicles.filter(function(v){ return v.status!=='pending'; }).map(function(v) {
         return '<div class="vc">' +
-          '<div class="vc-ico">' + (v.type==='motorcycle'?'\ud83c\udfcd\ufe0f':'\ud83d\ude97') + '</div>' +
+          '<div class="vc-ico">' + (v.type==='รถจักรยานยนต์'?'🏍️':'🚗') + '</div>' +
           '<div style="flex:1;min-width:0">' +
             '<div class="vc-pl">' + v.plate_number + ' ' + v.province + '</div>' +
-            '<div class="vc-dt">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
-            '<div style="margin-top:6px"><span class="bd b-ok">\u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19</span>' +
-              (v.fee_required ? '<span class="bd b-wn" style="margin-left:5px">\u0e40\u0e2a\u0e35\u0e22\u0e04\u0e48\u0e32\u0e08\u0e2d\u0e14</span>' : '') +
+            '<div class="vc-dt">' + v.brand + ' ' + v.model + ' · สี' + v.color + ' · ' + v.parking_location + '</div>' +
+            '<div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">' +
+              '<span class="bd b-ok">ใช้งาน</span>' +
+              (v.fee_required ? '<span class="bd b-wn" style="margin-left:5px">เสียค่าจอด</span>' : '') +
             '</div></div>' +
-          '<button class="btn btn-xs btn-o" onclick="openEditCarModal(\'' + v.vehicle_id + '\')">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button></div>';
-      }).join('') || '<p class="text-mu" style="font-size:13px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30</p>';
-    }
+          '<button class="btn btn-xs btn-o" onclick="openEditCarModal(\'' + v.vehicle_id + '\')">✏️ ขอแก้ไข</button></div>';
+      }).join('') || '<p class="text-mu" style="font-size:13px">ยังไม่มียานพาหนะ</p>') +
+      '</div></div>';
+    var carsEl = document.getElementById('rh-cars');
+    if (carsEl) carsEl.innerHTML = carsCard;
+
     // My change requests
     const reqs = await api('getMyChangeRequests');
     const reqEl = document.getElementById('list-my-reqs');
@@ -3815,11 +3780,15 @@ async function loadResHousePage() {
           '<div class="flex-between mb-4"><strong style="font-size:12.5px">' + r.target_type + '</strong>' +
           '<span class="bd b-' + ({pending:'wn',approved:'ok',rejected:'dg'}[r.status]||'mu') + '">' + r.status + '</span></div>' +
           '<div style="font-size:11.5px;color:var(--mu)">' + _fmtDate(r.created_at) + '</div>' +
-          (r.reject_reason ? '<div style="font-size:11.5px;color:var(--dg);margin-top:4px">\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25: ' + r.reject_reason + '</div>' : '') +
+          (r.reject_reason ? '<div style="font-size:11.5px;color:var(--dg);margin-top:4px">เหตุผล: ' + r.reject_reason + '</div>' : '') +
         '</div>';
-      }).join('') || '<p class="text-mu" style="font-size:13px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e33\u0e02\u0e2d</p>';
+      }).join('') || '<p class="text-mu" style="font-size:13px">ไม่มีคำขอ</p>';
     }
-  } catch(e) { console.warn(e); }
+  } catch(e) {
+    console.warn('loadResHousePage:', e);
+    var hEl = document.getElementById('rh-info');
+    if (hEl) hEl.innerHTML = '<div class="al al-e">โหลดข้อมูลไม่สำเร็จ: ' + e.message + '</div>';
+  }
 }
 
 // ── RESIDENT: Fees ────────────────────────────────────────────

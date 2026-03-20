@@ -1084,3 +1084,36 @@ group: village
 - `Code.gs` — _DATE_FIELDS + sheetToObjects
 - `Houses_Vehicles_ChangeReq.gs` — getByUser + getByHouse fallback
 - `Fees_Issues_Violations.gs` — Violations.getAll join + getMine fallback + Fees/Issues fallback
+
+---
+
+## ✅ Fix — updateViolation / การแจ้งเตือน / หน้าบ้านลูกบ้าน
+
+### 1. Unknown action: updateViolation
+- **Root cause:** `cp /home/claude/Code.gs /tmp/Code.gs` ในรอบที่แล้ว overwrite ไฟล์ที่เคยเพิ่ม routes ไว้
+- **Fix:** เพิ่ม routes กลับครบ: `updateViolation`, `violationResidentAction`, `getMyViolations`
+
+### 2+3. ลูกบ้านการแจ้งเตือนไม่โหลด / ค้าง "กำลังโหลด..."
+- **Root cause:** `loadResNotifPage()` ถูกเรียกเมื่อ navigate ไปหน้า `res-notif` เท่านั้น (บรรทัด 3249) ไม่ถูกเรียกตอน boot → `list-my-notifs` ค้างเป็น "กำลังโหลด..." ตลอด
+- **Fix:** เพิ่ม `loadResNotifPage()` ใน `renderResidentHomeFromBoot()` หลัง set `_pageCache`
+
+### 4. หน้าบ้านลูกบ้านแสดงข้อมูลผิด (H001 แทน H004)
+- **Root cause:** `loadResHousePage()` ใช้ `APP.house || api('getHouseByUser')` — ถ้า `APP.house` ถูก cache จาก boot ที่ใช้ `user.house_id` ผิดจาก JWT token เก่า → แสดงบ้านผิด
+- **Fix:** `loadResHousePage()` clear `APP.house = null` ก่อน `await api('getHouseByUser')` ทุกครั้ง
+
+### 5. หน้าบ้านลูกบ้าน — Coding ใหม่ทั้งหมด
+- **Root cause:** HTML มี hardcode "10/1", "ซอย 3", "สมชาย ใจดี", email mock, change request mock — `loadResHousePage` fill ได้แค่บาง element ที่มี id
+- **Fix:** เขียน `loadResHousePage()` ใหม่ทั้งหมด — render `rh-info` และ `rh-cars` ด้วย innerHTML จาก API data 100%:
+  - `rh-info`: address, fees (fee/parking/trash), ผู้อาศัย (owner/renter/phone/email/usage/status), ประวัติคำขอ (จาก `getMyChangeRequests`)
+  - `rh-cars`: รถที่ active (จาก `getVehiclesByHouse`)
+  - ทุก field แปลงค่า enum เป็นภาษาไทย (house_type, usage_type, status)
+- ลบ HTML mockup เดิมออกทั้งหมด เหลือแค่ skeleton `<p>กำลังโหลด...</p>`
+
+### GAS Boot.load — fallback house_id
+- ถ้า `user.house_id` ว่าง → lookup จาก USERS sheet ด้วย `user_id`
+- ครอบคลุม: houses, fees, issues, violations ทั้งหมดใน boot
+
+### ⚠️ Deploy GAS:
+- `Code.gs` — routes ครบ
+- `Services.gs` — Boot.load fallback
+- `Houses_Vehicles_ChangeReq.gs`, `Fees_Issues_Violations.gs` — fallbacks (ของรอบก่อน)

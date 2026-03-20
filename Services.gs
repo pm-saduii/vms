@@ -358,40 +358,17 @@ var Upload = (function() {
     const { base64data, filename, mime_type } = body;
     if (!base64data) throw new Error('base64data required');
 
-    // ลบ whitespace/newline ที่อาจติดมากับ base64 string
-    // เพื่อป้องกัน Utilities.base64Decode ให้ผลผิดพลาด (0 bytes)
-    const cleanBase64 = String(base64data).replace(/\s/g, '');
-    if (cleanBase64.length < 10) throw new Error('base64data is empty or too short');
-
     const folder  = DriveApp.getFolderById(DRIVE_FOLDER);
-    const bytes   = Utilities.base64Decode(cleanBase64);
-    if (!bytes || bytes.length === 0) throw new Error('base64Decode returned empty bytes');
-
+    const bytes   = Utilities.base64Decode(base64data);
     const blob    = Utilities.newBlob(bytes, mime_type || 'image/jpeg', filename || 'upload.jpg');
     const file    = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
     const fileId  = file.getId();
-    // ใช้ thumbnail URL ที่ browser โหลดได้โดยตรงโดยไม่ต้อง redirect หลายชั้น
-    const url     = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
+    const url     = 'https://drive.google.com/uc?export=view&id=' + fileId;
     return { url, file_id: fileId };
   }
-
-  function deleteFile(body, user) {
-    const { file_id } = body;
-    if (!file_id) throw new Error('file_id required');
-    try {
-      const file = DriveApp.getFileById(file_id);
-      file.setTrashed(true);
-      return { success: true, file_id };
-    } catch(e) {
-      // ถ้าไฟล์ไม่มีอยู่แล้ว ถือว่าสำเร็จ (idempotent)
-      Logger.log('deleteFile: ' + e.message + ' file_id=' + file_id);
-      return { success: true, file_id, note: 'file not found or already deleted' };
-    }
-  }
-
-  return { base64, deleteFile };
+  return { base64 };
 })();
 
 
@@ -537,6 +514,11 @@ var Boot = (function() {
 
     // Resident gets their own house data + announcements
     var houseId = user.house_id;
+    // Fallback: ถ้า JWT token ไม่มี house_id ให้หาจาก USERS sheet โดยตรง
+    if (!houseId && user.user_id) {
+      var userRow = sheetToObjects('USERS').find(function(u) { return u.user_id === user.user_id; });
+      if (userRow) houseId = userRow.house_id;
+    }
     var house   = houseId ? (sheetToObjects('HOUSES').find(h => h.house_id === houseId) || null) : null;
     var fees    = houseId ? sheetToObjects('FEES').filter(f => f.house_id === houseId) : [];
     var issues  = houseId ? sheetToObjects('ISSUES').filter(i => i.house_id === houseId) : [];
