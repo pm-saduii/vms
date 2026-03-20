@@ -74,11 +74,13 @@ function _route(body) {
       'updateIssueStatus':     () => Issues.updateStatus(body, user),
       'rateIssue':             () => Issues.rate(body, user),
       /* VIOLATIONS */
-      'getViolations':         () => Violations.getAll(body, user),
-      'getMyViolations':       () => Violations.getMine(body, user),
-      'createViolation':       () => Violations.create(body, user),
-      'updateViolationStatus': () => Violations.updateStatus(body, user),
-      'acknowledgeViolation':  () => Violations.acknowledge(body, user),
+      'getViolations':              () => Violations.getAll(body, user),
+      'getMyViolations':            () => Violations.getMine(body, user),
+      'createViolation':            () => Violations.create(body, user),
+      'updateViolation':            () => Violations.update(body, user),
+      'updateViolationStatus':      () => Violations.updateStatus(body, user),
+      'acknowledgeViolation':       () => Violations.acknowledge(body, user),
+      'violationResidentAction':    () => Violations.residentAction(body, user),
       /* ANNOUNCEMENTS */
       'getAnnouncements':      () => Announcements.getAll(body, user),
       'createAnnouncement':    () => Announcements.create(body, user),
@@ -108,7 +110,6 @@ function _route(body) {
       'getLoginLogs':          () => LoginLogs.getAll(body, user),
       /* UPLOAD */
       'uploadImage':           () => Upload.base64(body, user),
-      'deleteImage':           () => Upload.deleteFile(body, user),
       /* BOOT (single-request startup) */
       'getBoot':               () => Boot.load(body, user),
       /* DASHBOARD */

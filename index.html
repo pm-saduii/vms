@@ -2394,6 +2394,13 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     <div class="fg"><label class="fl">ค่าปรับ (ถ้ามี)</label>
       <input class="fi" id="vio-penalty" type="number" placeholder="0" value="0">
     </div>
+    <div class="fg"><label class="fl">📷 รูปหลักฐาน (ไม่เกิน 5 รูป, resize อัตโนมัติ ≤150KB)</label>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--tx2)">
+        📎 เลือกรูปภาพ
+        <input type="file" id="vio-img-input" accept="image/*" multiple style="display:none" onchange="onVioImageSelect(this,'vio-')">
+      </label>
+      <div id="vio-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    </div>
   </div>
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-newvio')">ยกเลิก</button>
@@ -3578,26 +3585,6 @@ function _renderIssueList(elId, items) {
 }
 
 // ── ADMIN: Violations ─────────────────────────────────────────
-async function loadViolationsPage() {
-  showLoader('โหลดรายการแจ้งกระทำผิด...');
-  try {
-    const viols = await api('getViolations');
-    const el = document.getElementById('list-violations');
-    if (!el) return;
-    if (!viols.length) { el.innerHTML = '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการแจ้งกระทำผิด</div></div>'; return; }
-    el.innerHTML = viols.map(function(v) {
-      return '<div class="iss mb-12">' +
-        '<div class="iss-h"><span class="iss-t">บ้าน ' + v.house_id + ' — ' + v.title + '</span>' +
-        '<span class="bd b-' + ({pending:'wn',resolved:'ok',acknowledged:'pr',escalated:'dg'}[v.status]||'mu') + '">' + v.status + '</span></div>' +
-        '<div class="iss-m">📅 กำหนด: ' + (v.deadline||'—') +
-          (Number(v.penalty_amount)>0 ? ' · ค่าปรับ: ฿' + Number(v.penalty_amount).toLocaleString() : '') + '</div>' +
-        '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
-          '<button class="btn btn-xs btn-p" onclick="doViolationStatus(\'' + v.vio_id + '\',\'resolved\')">✓ แก้ไขแล้ว</button>' +
-          (Number(v.penalty_amount)===0 ? '<button class="btn btn-xs btn-d" onclick="openAddPenalty(\'' + v.vio_id + '\',\'' + v.house_id + '\')">เพิ่มค่าปรับ</button>' : '') +
-        '</div></div>';
-    }).join('');
-  } finally { hideLoader(); }
-}
 
 // ── ADMIN: Change Requests ────────────────────────────────────
 async function loadChangeReqPage() {
@@ -3854,26 +3841,6 @@ async function loadResIssuePage() {
   } catch(e) {}
 }
 
-// ── RESIDENT: Notifications / Violations ─────────────────────
-async function loadResNotifPage() {
-  try {
-    const viols = await api('getMyViolations');
-    const el = document.getElementById('list-my-notifs');
-    var el2=document.getElementById('list-my-violations');
-    var _html=(function(){
-    return viols.map(function(v) {
-      return '<div class="vio-card">' +
-        '<div class="vio-t">\u26a0\ufe0f ' + v.title + '</div>' +
-        '<div class="vio-d">' + (v.description||'') + '</div>' +
-        (v.deadline ? '<div class="vio-dl">\u23f0 \u0e01\u0e33\u0e2b\u0e19\u0e14: ' + v.deadline + '</div>' : '') +
-        (Number(v.penalty_amount)>0 ? '<div style="margin-top:8px;font-size:12.5px;color:var(--dg)">\ud83d\udcb0 \u0e04\u0e48\u0e32\u0e1b\u0e23\u0e31\u0e1a: \u0e3f' + Number(v.penalty_amount).toLocaleString() + '</div>' : '') +
-        (v.status === 'pending' ? '<button class="btn btn-sm btn-o" style="margin-top:12px" onclick="doAckViolation(\'' + v.vio_id + '\')">\u2713 \u0e23\u0e31\u0e1a\u0e17\u0e23\u0e32\u0e1a</button>' : '') +
-      '</div>';
-    }).join('')||'<div class="empty-state"><div class="es-ico">\u2705</div><div class="es-s">\u0e44\u0e21\u0e48\u0e21\u0e35</div></div>';})();
-    if(el)el.innerHTML=_html;
-    if(el2)el2.innerHTML=_html;
-  } catch(e) {}
-}
 
 // ── RESIDENT: News ────────────────────────────────────────────
 async function loadResNewsPage() {
@@ -3974,24 +3941,385 @@ async function doRejectReq(req_id) {
 }
 
 // ── Violation status ──────────────────────────────────────────
-async function doViolationStatus(vio_id, status) {
-  showLoader('...');
-  try {
-    await api('updateViolationStatus', { vio_id, status });
-    hideLoader(); loadViolationsPage();
-  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+// ============================================================
+// VIO IMAGE SYSTEM
+// ============================================================
+// state: prefix → array of {dataUrl, renamed}
+var _vioImages = {};
+
+function onVioImageSelect(input, prefix) {
+  if (!_vioImages[prefix]) _vioImages[prefix] = [];
+  var files = Array.from(input.files || []);
+  var remaining = 5 - _vioImages[prefix].length;
+  if (remaining <= 0) { Swal.fire({icon:'warning',title:'แนบได้สูงสุด 5 รูป',timer:1500,showConfirmButton:false}); return; }
+  files = files.slice(0, remaining);
+  input.value = '';
+  files.forEach(function(file, fi) {
+    var now = new Date();
+    var pad = function(n){return String(n).padStart(2,'0');};
+    var dt = now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate())+'_'+pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds())+(fi>0?'_'+fi:'');
+    var renamed = prefix.replace(/-$/,'') + '_' + dt + '.jpg';
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onerror = function(){ console.warn('vio img load error'); };
+      img.onload = function() {
+        var MAX = 800, w = img.width, h = img.height;
+        if (w > MAX || h > MAX) { if (w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle='#FFF'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
+        // target ≤150KB → quality ลดลงจนผ่าน
+        var tryQuality = function(q) {
+          canvas.toBlob(function(blob) {
+            if (!blob) return;
+            if (blob.size > 150000 && q > 0.3) { tryQuality(q - 0.1); return; }
+            var br = new FileReader();
+            br.onload = function(ev) {
+              var dataUrl = ev.target.result;
+              var b64 = dataUrl.split(',')[1];
+              if (!b64 || b64.length < 10) return;
+              _vioImages[prefix].push({dataUrl:dataUrl, renamed:renamed});
+              _renderVioImagePreviews(prefix);
+            };
+            br.readAsDataURL(blob);
+          }, 'image/jpeg', q);
+        };
+        tryQuality(0.8);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
-// ── Acknowledge violation ─────────────────────────────────────
-async function doAckViolation(vio_id) {
-  showLoader('...');
-  try {
-    await api('acknowledgeViolation', { vio_id });
-    hideLoader();
-    Swal.fire({ icon:'success', title:'\u0e23\u0e31\u0e1a\u0e17\u0e23\u0e32\u0e1a\u0e41\u0e25\u0e49\u0e27', timer:2000, showConfirmButton:false });
-    loadResNotifPage();
-  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+function _renderVioImagePreviews(prefix) {
+  var wrap = document.getElementById(prefix + 'img-previews');
+  if (!wrap) return;
+  var imgs = _vioImages[prefix] || [];
+  wrap.innerHTML = imgs.map(function(img, idx) {
+    return '<div style="position:relative;display:inline-block">' +
+      '<img src="'+img.dataUrl+'" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
+      '<button onclick="_removeVioImage(\''+prefix+'\','+idx+')" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:10px;line-height:18px;text-align:center;padding:0">&times;</button>' +
+    '</div>';
+  }).join('');
 }
+
+function _removeVioImage(prefix, idx) {
+  if (_vioImages[prefix]) { _vioImages[prefix].splice(idx,1); _renderVioImagePreviews(prefix); }
+}
+
+function _resetVioImages(prefix) {
+  _vioImages[prefix] = [];
+  _renderVioImagePreviews(prefix);
+  var inp = document.getElementById(prefix+'img-input');
+  if (inp) inp.value = '';
+}
+
+async function _uploadVioImages(prefix, vioId) {
+  var imgs = _vioImages[prefix] || [];
+  if (!imgs.length) return [];
+  var urls = [];
+  for (var i = 0; i < imgs.length; i++) {
+    var img = imgs[i];
+    var b64 = img.dataUrl.split(',')[1];
+    if (!b64 || b64.length < 10) continue;
+    // ใส่ vio_id ใน filename เสมอ
+    var prefix2 = prefix === 'vr-' ? 'H-' : '';
+    var filename = prefix2 + (vioId||'VIO') + '_' + (i+1) + '_' + Date.now() + '.jpg';
+    try {
+      var res = await apiPost('uploadImage', {filename:filename, base64data:b64, mime_type:'image/jpeg'});
+      if (res && res.url) urls.push(res.url);
+    } catch(e) { console.warn('vio upload fail', e.message); }
+  }
+  return urls;
+}
+
+// ============================================================
+// VIO EXISTING IMAGES (Admin edit)
+// ============================================================
+var _veExistingUrls = [];
+
+function _renderVeExistingImgs() {
+  var wrap = document.getElementById('ve-existing-imgs');
+  if (!wrap) return;
+  if (!_veExistingUrls.length) { wrap.innerHTML='<span style="font-size:12px;color:var(--mu)">ไม่มีรูป</span>'; return; }
+  wrap.innerHTML = _veExistingUrls.map(function(url, idx) {
+    var fid = (url.match(/[?&]id=([^&]+)/)||[])[1]||'';
+    return '<div style="position:relative;display:inline-block">' +
+      '<img src="'+url+'" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)" onclick="window.open(\''+url+'\',\'_blank\')">' +
+      '<button onclick="_deleteVeImg('+idx+',\''+fid+'\')" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:10px;line-height:18px;text-align:center;padding:0">&times;</button>' +
+    '</div>';
+  }).join('');
+}
+
+async function _deleteVeImg(idx, fileId) {
+  _veExistingUrls.splice(idx, 1);
+  _renderVeExistingImgs();
+  if (fileId) {
+    try { await apiPost('deleteImage', {file_id:fileId}); } catch(e) { console.warn('deleteImg', e.message); }
+  }
+}
+
+async function openNewVioModal() {
+  showLoader('กำลังเตรียมข้อมูล...');
+  try {
+    var houses = _housesCache || [];
+    if (!houses.length) { try { houses = await api('getHouses'); _housesCache = houses; } catch(e) {} }
+    var sorted = houses.slice().sort(function(a,b) {
+      var sa=parseInt((String(a.soi||'').match(/\d+/)||[0])[0])||0;
+      var sb=parseInt((String(b.soi||'').match(/\d+/)||[0])[0])||0;
+      if (sa!==sb) return sa-sb;
+      return String(a.house_no||'').localeCompare(String(b.house_no||''),'th',{numeric:true});
+    });
+    var sel = document.getElementById('vio-house');
+    if (sel) {
+      sel.innerHTML = '<option value="">— เลือกบ้าน —</option>' +
+        sorted.map(function(h) {
+          return '<option value="'+h.house_id+'">'+_safeHouseNo(h.house_no)+(h.soi?' ซอย '+h.soi:'')+' — '+(h.owner_name||'')+'</option>';
+        }).join('');
+    }
+    ['vio-title','vio-desc','vio-deadline'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    var pen=document.getElementById('vio-penalty'); if(pen) pen.value='0';
+    var typ=document.getElementById('vio-type'); if(typ) typ.selectedIndex=0;
+    _resetVioImages('vio-');
+    hideLoader();
+    openM('m-newvio');
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:e.message}); }
+}
+
+async function doCreateViolation() {
+  const house_id = document.getElementById('vio-house').value;
+  const title    = document.getElementById('vio-title').value.trim();
+  const desc     = document.getElementById('vio-desc').value.trim();
+  const deadline = document.getElementById('vio-deadline').value;
+  const penalty  = Number(document.getElementById('vio-penalty').value || 0);
+  const vtype    = document.getElementById('vio-type').value;
+  if (!house_id || !title) { Swal.fire({icon:'warning',title:'กรุณาระบุข้อมูลให้ครบ'}); return; }
+  showLoader('กำลังสร้างการแจ้งเตือน...');
+  try {
+    // สร้างก่อน เพื่อได้ vio_id
+    const result = await api('createViolation', {house_id, title, description:desc, deadline, penalty_amount:penalty, vio_type:vtype});
+    const vio_id = result.vio_id;
+    // upload รูปพร้อม vio_id ใน filename
+    const imgUrls = await _uploadVioImages('vio-', vio_id);
+    if (imgUrls.length) {
+      await api('updateViolation', {vio_id, image_urls: imgUrls});
+    }
+    _resetVioImages('vio-');
+    closeM('m-newvio');
+    hideLoader();
+    Swal.fire({icon:'success',title:'ส่งการแจ้งเตือนแล้ว',timer:2000,showConfirmButton:false});
+    loadViolationsPage(); loadAdminDashboard();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+}
+
+async function loadViolationsPage() {
+  showLoader('โหลดรายการแจ้งกระทำผิด...');
+  try {
+    const viols = await api('getViolations');
+    const el = document.getElementById('list-violations');
+    if (!el) return;
+    if (!viols.length) { el.innerHTML='<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการแจ้งกระทำผิด</div></div>'; return; }
+    const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว',escalated:'ส่งต่อ'};
+    const statusBadge = {pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu',escalated:'b-dg'};
+    el.innerHTML = viols.map(function(v) {
+      var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
+      var rImgs=[]; try{rImgs=JSON.parse(v.resident_image_urls||'[]');}catch(e){}
+      var badge='<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
+      var hasResImg = rImgs.length > 0;
+      return '<div class="iss mb-12">' +
+        '<div class="iss-h">' +
+          '<span class="iss-t">บ้าน '+v.house_id+' — '+v.title+'</span>' +
+          badge +
+          (hasResImg ? '<span class="bd b-ok" style="font-size:10px">🏠 มีรูปจากลูกบ้าน</span>' : '') +
+        '</div>' +
+        '<div class="iss-m">📅 กำหนด: '+(v.deadline||'—')+(Number(v.penalty_amount)>0?' · ค่าปรับ: ฿'+Number(v.penalty_amount).toLocaleString():'')+
+        (imgs.length?' · 📷 '+imgs.length+' รูป':'')+
+        '</div>' +
+        '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
+          '<button class="btn btn-xs btn-p" onclick="openVioDetail(\''+v.vio_id+'\')">🔍 รายละเอียด</button>' +
+          '<button class="btn btn-xs btn-o" onclick="openVioEdit(\''+v.vio_id+'\')">✏️ แก้ไข</button>' +
+          (v.status!=='resolved'?'<button class="btn btn-xs btn-a" onclick="doViolationStatus(\''+v.vio_id+'\',\'resolved\')">✓ ปิดเรื่อง</button>':'') +
+          (Number(v.penalty_amount)===0?'<button class="btn btn-xs btn-d" onclick="openAddPenalty(\''+v.vio_id+'\',\''+v.house_id+'\')">+ ค่าปรับ</button>':'') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } finally { hideLoader(); }
+}
+
+// ── ดูรายละเอียด ──
+var _vioDetailId = null;
+function openVioDetail(vio_id) {
+  var v = (_allViolationsCache||[]).find(function(x){return x.vio_id===vio_id;});
+  if (!v) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูล'}); return; }
+  _vioDetailId = vio_id;
+  _setEl('vd-title', v.title);
+  _setEl('vd-house', 'บ้าน '+v.house_id);
+  _setEl('vd-type', v.vio_type||'—');
+  var sbMap={pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
+  var slMap={pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
+  var sdEl=document.getElementById('vd-status');
+  if(sdEl) sdEl.innerHTML='<span class="bd '+(sbMap[v.status]||'b-mu')+'">'+(slMap[v.status]||v.status)+'</span>';
+  _setEl('vd-deadline', v.deadline||'—');
+  _setEl('vd-penalty', Number(v.penalty_amount)>0?'฿'+Number(v.penalty_amount).toLocaleString():'ไม่มี');
+  _setEl('vd-desc', v.description||'—');
+  // รูปนิติ
+  var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
+  var imgEl=document.getElementById('vd-imgs');
+  if(imgEl) imgEl.innerHTML = imgs.length ? imgs.map(function(url){
+    return '<img src="'+url+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo);cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')">';
+  }).join('') : '<span style="font-size:12px;color:var(--mu)">ไม่มีรูป</span>';
+  // รูปลูกบ้าน
+  var rImgs=[]; try{rImgs=JSON.parse(v.resident_image_urls||'[]');}catch(e){}
+  var rWrap=document.getElementById('vd-res-imgs-wrap');
+  var rEl=document.getElementById('vd-res-imgs');
+  if(rWrap) rWrap.style.display = rImgs.length?'':'none';
+  if(rEl) rEl.innerHTML = rImgs.map(function(url){
+    return '<img src="'+url+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo);cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')">';
+  }).join('');
+  openM('m-vio-detail');
+}
+
+async function doVioResolveFromDetail() {
+  if (!_vioDetailId) return;
+  showLoader('กำลังปิดเรื่อง...');
+  try {
+    await api('updateViolationStatus', {vio_id:_vioDetailId, status:'resolved'});
+    hideLoader(); closeM('m-vio-detail');
+    Swal.fire({icon:'success',title:'ปิดเรื่องแล้ว',timer:1500,showConfirmButton:false});
+    invalidatePageCache('admin-vio'); loadViolationsPage();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+}
+
+function openVioEditFromDetail() { closeM('m-vio-detail'); openVioEdit(_vioDetailId); }
+
+// ── แก้ไข ──
+var _allViolationsCache = [];
+async function openVioEdit(vio_id) {
+  // โหลด cache ถ้าไม่มี
+  if (!_allViolationsCache.length) {
+    showLoader('โหลดข้อมูล...');
+    try { _allViolationsCache = await api('getViolations'); } catch(e) {}
+    hideLoader();
+  }
+  var v = (_allViolationsCache||[]).find(function(x){return x.vio_id===vio_id;});
+  if (!v) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูล'}); return; }
+  document.getElementById('ve-vio-id').value = vio_id;
+  _setEl('ve-sub','บ้าน '+v.house_id+' · '+v.vio_id);
+  var t=document.getElementById('ve-title'); if(t) t.value=v.title||'';
+  var d=document.getElementById('ve-desc'); if(d) d.value=v.description||'';
+  var dl=document.getElementById('ve-deadline'); if(dl) dl.value=v.deadline||'';
+  var pe=document.getElementById('ve-penalty'); if(pe) pe.value=v.penalty_amount||0;
+  // existing images
+  _veExistingUrls=[]; try{_veExistingUrls=JSON.parse(v.image_urls||'[]');}catch(e){}
+  _renderVeExistingImgs();
+  _resetVioImages('ve-');
+  openM('m-vio-edit');
+}
+
+async function doSaveVioEdit() {
+  var vio_id = document.getElementById('ve-vio-id').value;
+  var title  = (document.getElementById('ve-title')||{}).value||'';
+  var desc   = (document.getElementById('ve-desc')||{}).value||'';
+  var dl     = (document.getElementById('ve-deadline')||{}).value||'';
+  var pen    = Number((document.getElementById('ve-penalty')||{}).value||0);
+  if (!vio_id||!title.trim()) { Swal.fire({icon:'warning',title:'กรุณาระบุหัวข้อ'}); return; }
+  showLoader('กำลังบันทึก...');
+  try {
+    var newUrls = await _uploadVioImages('ve-', vio_id);
+    var allUrls = _veExistingUrls.concat(newUrls);
+    await api('updateViolation', {vio_id, title:title.trim(), description:desc, deadline:dl, penalty_amount:pen, image_urls:allUrls});
+    _resetVioImages('ve-');
+    closeM('m-vio-edit');
+    hideLoader();
+    Swal.fire({icon:'success',title:'บันทึกสำเร็จ',timer:1500,showConfirmButton:false});
+    invalidatePageCache('admin-vio'); loadViolationsPage();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+}
+
+async function doViolationStatus(vio_id, status) {
+  showLoader('กำลังอัปเดตสถานะ...');
+  try {
+    await api('updateViolationStatus', {vio_id, status});
+    hideLoader(); invalidatePageCache('admin-vio'); loadViolationsPage();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+}
+
+// ── ลูกบ้าน: เปิด modal แจ้งแก้ไขแล้ว ──
+function openResidentVioAction(vio_id, title) {
+  document.getElementById('vr-vio-id').value = vio_id;
+  _setEl('vr-sub', title||'');
+  _resetVioImages('vr-');
+  openM('m-vio-resident');
+}
+
+async function doResidentVioAction() {
+  var vio_id = document.getElementById('vr-vio-id').value;
+  showLoader('กำลังส่งข้อมูล...');
+  try {
+    var imgUrls = await _uploadVioImages('vr-', vio_id);
+    await api('violationResidentAction', {vio_id, action:'fix_submitted', resident_image_urls: imgUrls});
+    _resetVioImages('vr-');
+    closeM('m-vio-resident');
+    hideLoader();
+    Swal.fire({icon:'success',title:'แจ้งแก้ไขแล้ว',text:'นิติจะตรวจสอบและปิดเรื่องให้',timer:2500,showConfirmButton:false});
+    loadResNotifPage();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+}
+
+async function doAckViolation(vio_id) {
+  showLoader('กำลังรับทราบ...');
+  try {
+    await api('acknowledgeViolation', {vio_id});
+    hideLoader();
+    Swal.fire({icon:'success',title:'รับทราบแล้ว',timer:2000,showConfirmButton:false});
+    loadResNotifPage();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+}
+
+// ── RESIDENT: Notifications / Violations ─────────────────────
+async function loadResNotifPage() {
+  try {
+    const viols = await api('getMyViolations');
+    const statusLabel={pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
+    const statusBadge={pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
+    const _html = viols.map(function(v) {
+      var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
+      var imgHtml = imgs.length ? '<div class="vio-imgs">'+imgs.map(function(url){
+        return '<img class="vio-img" src="'+url+'" onclick="window.open(\''+url+'\',\'_blank\')" style="cursor:pointer">';
+      }).join('')+'</div>' : '';
+      var badge='<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
+      var actions = '';
+      if (v.status==='pending') {
+        actions = '<button class="btn btn-sm btn-o" style="margin-top:10px;margin-right:6px" onclick="doAckViolation(\''+v.vio_id+'\')">✓ รับทราบ</button>';
+      }
+      if (v.status==='pending'||v.status==='acknowledged') {
+        actions += '<button class="btn btn-sm btn-a" style="margin-top:10px" onclick="openResidentVioAction(\''+v.vio_id+'\',\''+v.title.replace(/'/g,'')+'\')">✅ แจ้งว่าแก้ไขแล้ว</button>';
+      }
+      return '<div class="vio-card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">' +
+          '<div class="vio-t">⚠️ '+v.title+'</div>' + badge +
+        '</div>' +
+        '<div class="vio-d">'+(v.description||'')+'</div>' +
+        (v.deadline?'<div class="vio-dl">⏰ กำหนด: '+v.deadline+'</div>':'') +
+        (Number(v.penalty_amount)>0?'<div style="margin-top:6px;font-size:12.5px;color:var(--dg)">💰 ค่าปรับ: ฿'+Number(v.penalty_amount).toLocaleString()+'</div>':'') +
+        imgHtml +
+        (actions?'<div style="margin-top:8px">'+actions+'</div>':'') +
+      '</div>';
+    }).join('') || '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีการแจ้งเตือน</div></div>';
+    var el=document.getElementById('list-my-notifs'); if(el) el.innerHTML=_html;
+    var el2=document.getElementById('list-my-violations'); if(el2) el2.innerHTML=_html;
+  } catch(e) { console.warn('loadResNotifPage', e); }
+}
+
+// loadViolationsPage cache update after api call
+var _origLoadVioPage = loadViolationsPage;
+loadViolationsPage = async function() {
+  await _origLoadVioPage();
+  try { _allViolationsCache = await api('getViolations'); } catch(e) {}
+};
 
 // ── Toggle announcement ───────────────────────────────────────
 async function doToggleAnn(ann_id) {
@@ -4154,60 +4482,6 @@ async function doSubmitIssue() {
   } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
 }
 
-// ── Submit new violation (admin) ──────────────────────────────
-async function openNewVioModal() {
-  showLoader('กำลังเตรียมข้อมูล...');
-  try {
-    // โหลดบ้านจาก cache หรือ API
-    var houses = _housesCache || [];
-    if (!houses.length) {
-      try { houses = await api('getHouses'); _housesCache = houses; } catch(e) {}
-    }
-    // เรียงตามซอย → บ้านเลขที่
-    var sorted = houses.slice().sort(function(a,b) {
-      var sa = parseInt((String(a.soi||'').match(/\d+/)||[0])[0])||0;
-      var sb = parseInt((String(b.soi||'').match(/\d+/)||[0])[0])||0;
-      if (sa !== sb) return sa - sb;
-      return String(a.house_no||'').localeCompare(String(b.house_no||''),'th',{numeric:true});
-    });
-    var sel = document.getElementById('vio-house');
-    if (sel) {
-      sel.innerHTML = '<option value="">— เลือกบ้าน —</option>' +
-        sorted.map(function(h) {
-          var label = _safeHouseNo(h.house_no) + (h.soi ? ' ซอย '+h.soi : '') + ' — ' + (h.owner_name||'');
-          return '<option value="' + h.house_id + '">' + label + '</option>';
-        }).join('');
-    }
-    // reset fields
-    ['vio-title','vio-desc','vio-deadline'].forEach(function(id){
-      var el = document.getElementById(id); if(el) el.value = '';
-    });
-    var pen = document.getElementById('vio-penalty'); if(pen) pen.value = '0';
-    var typ = document.getElementById('vio-type'); if(typ) typ.selectedIndex = 0;
-    hideLoader();
-    openM('m-newvio');
-  } catch(e) {
-    hideLoader();
-    Swal.fire({icon:'error',title:'เกิดข้อผิดพลาด',text:e.message});
-  }
-}
-
-async function doCreateViolation() {
-  const house_id = document.getElementById('vio-house').value;
-  const title    = document.getElementById('vio-title').value.trim();
-  const desc     = document.getElementById('vio-desc').value.trim();
-  const deadline = document.getElementById('vio-deadline').value;
-  const penalty  = Number(document.getElementById('vio-penalty').value || 0);
-  const vtype    = document.getElementById('vio-type').value;
-  if (!house_id || !title) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e43\u0e2b\u0e49\u0e04\u0e23\u0e1a' }); return; }
-  showLoader('...');
-  try {
-    await api('createViolation', { house_id, title, description:desc, deadline, penalty_amount:penalty, vio_type:vtype });
-    hideLoader(); closeM('m-newvio');
-    Swal.fire({ icon:'success', title:'\u0e2a\u0e48\u0e07\u0e41\u0e08\u0e49\u0e40\u0e15\u0e37\u0e2d\u0e19\u0e41\u0e25\u0e49\u0e27', timer:2000, showConfirmButton:false });
-    loadViolationsPage(); loadAdminDashboard();
-  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
-}
 
 // ── Submit announcement (admin) ───────────────────────────────
 async function doCreateAnn() {
@@ -6939,6 +7213,97 @@ function _openInvoiceWindow(f, isFullYear) {
     <button class="btn btn-g btn-sm" onclick="closeForgotModal()">ยกเลิก</button>
     <button class="btn btn-p btn-sm" id="forgot-btn-verify" onclick="doForgotVerify()">ยืนยันตัวตน</button>
     <button class="btn btn-a btn-sm" id="forgot-btn-save" style="display:none" onclick="doForgotSave()">💾 บันทึกรหัสผ่านใหม่</button>
+  </div>
+</div></div>
+<!-- MODAL: ดูรายละเอียดการแจ้งกระทำผิด -->
+<div class="mo" id="m-vio-detail" onclick="omOut(event,'m-vio-detail')">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">⚠️</div>
+    <div><div class="md-title" id="vd-title">รายละเอียดการแจ้ง</div><div class="md-sub" id="vd-house"></div></div>
+  </div>
+  <div class="md-bd">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div><div class="sl">ประเภท</div><div id="vd-type" style="font-size:13px"></div></div>
+      <div><div class="sl">สถานะ</div><div id="vd-status"></div></div>
+      <div><div class="sl">กำหนดแก้ไข</div><div id="vd-deadline" style="font-size:13px"></div></div>
+      <div><div class="sl">ค่าปรับ</div><div id="vd-penalty" style="font-size:13px"></div></div>
+    </div>
+    <div class="fg"><div class="sl">รายละเอียด</div><div id="vd-desc" style="font-size:13px;color:var(--tx);line-height:1.6;white-space:pre-wrap"></div></div>
+    <!-- รูปจากนิติ -->
+    <div id="vd-imgs-wrap" style="margin-top:12px">
+      <div class="sl">📷 รูปหลักฐาน (นิติ)</div>
+      <div id="vd-imgs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div>
+    </div>
+    <!-- รูปจากลูกบ้าน -->
+    <div id="vd-res-imgs-wrap" style="margin-top:12px;display:none">
+      <div class="sl">🏠 รูปหลักฐานจากลูกบ้าน</div>
+      <div id="vd-res-imgs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-vio-detail')">ปิด</button>
+    <button class="btn btn-o btn-sm" id="vd-btn-edit" onclick="openVioEditFromDetail()">✏️ แก้ไข</button>
+    <button class="btn btn-a btn-sm" id="vd-btn-resolve" onclick="doVioResolveFromDetail()">✓ ปิดเรื่อง</button>
+  </div>
+</div></div>
+
+<!-- MODAL: แก้ไขการแจ้งกระทำผิด (Admin) -->
+<div class="mo" id="m-vio-edit" onclick="omOut(event,'m-vio-edit')">
+<div class="md wide">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">✏️</div>
+    <div><div class="md-title">แก้ไขการแจ้งกระทำผิด</div><div class="md-sub" id="ve-sub"></div></div>
+  </div>
+  <div class="md-bd">
+    <input type="hidden" id="ve-vio-id">
+    <div class="fg"><label class="fl">หัวข้อ</label><input class="fi" id="ve-title"></div>
+    <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="ve-desc"></textarea></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">กำหนดแก้ไข</label><input class="fi" id="ve-deadline" type="date"></div>
+      <div class="fg"><label class="fl">ค่าปรับ</label><input class="fi" id="ve-penalty" type="number"></div>
+    </div>
+    <!-- รูปปัจจุบัน + ลบ -->
+    <div class="fg"><div class="sl">📷 รูปปัจจุบัน (คลิก × เพื่อลบ)</div>
+      <div id="ve-existing-imgs" style="display:flex;flex-wrap:wrap;gap:8px;margin:6px 0"></div>
+    </div>
+    <!-- เพิ่มรูปใหม่ -->
+    <div class="fg"><label class="fl">เพิ่มรูปใหม่</label>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--tx2)">
+        📎 เลือกรูปภาพ
+        <input type="file" id="ve-img-input" accept="image/*" multiple style="display:none" onchange="onVioImageSelect(this,'ve-')">
+      </label>
+      <div id="ve-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-vio-edit')">ยกเลิก</button>
+    <button class="btn btn-p btn-sm" onclick="doSaveVioEdit()">💾 บันทึก</button>
+  </div>
+</div></div>
+
+<!-- MODAL: ลูกบ้าน Action (แก้ไขแล้ว + แนบรูป) -->
+<div class="mo" id="m-vio-resident" onclick="omOut(event,'m-vio-resident')">
+<div class="md">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">🏠</div>
+    <div><div class="md-title">แจ้งว่าแก้ไขแล้ว</div><div class="md-sub" id="vr-sub"></div></div>
+  </div>
+  <div class="md-bd">
+    <input type="hidden" id="vr-vio-id">
+    <div class="al al-i" style="margin-bottom:12px">📸 แนบรูปหลักฐานว่าได้แก้ไขแล้ว (ไม่เกิน 5 รูป)</div>
+    <label style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--tx2)">
+      📎 เลือกรูปภาพ
+      <input type="file" id="vr-img-input" accept="image/*" multiple style="display:none" onchange="onVioImageSelect(this,'vr-')">
+    </label>
+    <div id="vr-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-vio-resident')">ยกเลิก</button>
+    <button class="btn btn-a btn-sm" onclick="doResidentVioAction()">✓ ยืนยันแก้ไขแล้ว</button>
   </div>
 </div></div>
 

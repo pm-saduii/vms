@@ -485,6 +485,48 @@ var Violations = (function() {
     const { vio_id, status, admin_note } = body;
     const updates = { status, admin_note: admin_note || '' };
     if (status === 'resolved') updates.resolved_at = now();
+    // อัปเดต image_urls ถ้ามี
+    if (body.image_urls !== undefined) {
+      updates.image_urls = Array.isArray(body.image_urls)
+        ? JSON.stringify(body.image_urls)
+        : body.image_urls;
+    }
+    updateRowById('VIOLATIONS', 'vio_id', vio_id, updates);
+    return { success: true };
+  }
+
+  // Admin แก้ไขข้อมูลการแจ้งกระทำผิด (title, desc, deadline, penalty, image_urls)
+  function update(body, user) {
+    requireAdmin(user);
+    const { vio_id, ...updates } = body;
+    if (!vio_id) throw new Error('vio_id required');
+    const safeUpdates = Object.assign({}, updates);
+    if (Array.isArray(safeUpdates.image_urls)) {
+      safeUpdates.image_urls = JSON.stringify(safeUpdates.image_urls);
+    }
+    updateRowById('VIOLATIONS', 'vio_id', vio_id, safeUpdates);
+    return { success: true };
+  }
+
+  // ลูกบ้าน action: รับทราบ + แนบรูปหลักฐานว่าแก้ไขแล้ว
+  function residentAction(body, user) {
+    const { vio_id, action, resident_image_urls } = body;
+    const vio = findRow('VIOLATIONS', 'vio_id', vio_id);
+    if (!vio) throw new Error('ไม่พบการแจ้งเตือน');
+    if (user.role !== 'admin' && vio.house_id !== user.house_id) throw new Error('ไม่มีสิทธิ์');
+    const updates = {};
+    if (action === 'acknowledge') {
+      updates.status = 'acknowledged';
+      updates.resident_ack_at = now();
+    } else if (action === 'fix_submitted') {
+      updates.status = 'fix_submitted';
+      updates.resident_ack_at = now();
+    }
+    if (resident_image_urls !== undefined) {
+      updates.resident_image_urls = Array.isArray(resident_image_urls)
+        ? JSON.stringify(resident_image_urls)
+        : resident_image_urls;
+    }
     updateRowById('VIOLATIONS', 'vio_id', vio_id, updates);
     return { success: true };
   }
@@ -521,5 +563,5 @@ var Violations = (function() {
     }
   }
 
-  return { getAll, getMine, create, updateStatus, acknowledge };
+  return { getAll, getMine, create, update, updateStatus, acknowledge, residentAction };
 })();

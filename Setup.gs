@@ -50,7 +50,7 @@ function setupAllSheets() {
     ],
     'VIOLATIONS': [
       'vio_id','house_id','notified_by','vio_type','title',
-      'description','image_urls','deadline','penalty_amount',
+      'description','image_urls','resident_image_urls','deadline','penalty_amount',
       'fee_id','status','resident_ack_at','resolved_at',
       'admin_note','created_at'
     ],
@@ -163,7 +163,6 @@ function _seedSettings(ss) {
     ['village_phone',       '',                            'เบอร์โทรนิติ',              'village'],
     ['village_email',       '',                            'อีเมลนิติ',                 'village'],
     ['village_logo',        '🏘️',                         'Logo (Emoji หรือ URL รูป)', 'village'],
-    ['app_version',         '5.0',                         'เวอร์ชันโปรแกรม',           'village'],
     // group: payment
     ['bank_name',           '',                            'ชื่อธนาคาร',                'payment'],
     ['bank_account_no',     '',                            'เลขบัญชี',                  'payment'],

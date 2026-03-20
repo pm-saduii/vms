@@ -952,3 +952,63 @@ group: village
 
 **4.3 Breadcrumb ผิด**
 - PT map `'admin-vio'`: แก้จาก `แจ้กระทำผิด — แจ้เตือน` → `แจ้งกระทำผิด — แจ้งเตือน`
+
+---
+
+## ✅ Feature — แจ้งกระทำผิด: รูปภาพ / รายละเอียด / แก้ไข / ลูกบ้าน Action
+
+### GAS: Fees_Issues_Violations.gs
+- `Violations.updateStatus` — รองรับ `image_urls` ใน update
+- `Violations.update` (ใหม่) — Admin แก้ไข title/desc/deadline/penalty/image_urls (stringify array)
+- `Violations.residentAction` (ใหม่) — ลูกบ้าน action: `acknowledge` หรือ `fix_submitted` + บันทึก `resident_image_urls`
+
+### GAS: Code.gs
+- เพิ่ม route `updateViolation` → `Violations.update`
+- เพิ่ม route `violationResidentAction` → `Violations.residentAction`
+
+### GAS: Setup.gs
+- เพิ่ม column `resident_image_urls` ใน VIOLATIONS sheet schema
+- ⚠️ ถ้า Sheet มีข้อมูลอยู่แล้ว ต้องเพิ่ม column นี้ใน Sheet ด้วยตนเอง
+
+### index.html
+
+**Image System (`_vioImages`, `onVioImageSelect`, `_uploadVioImages`)**
+- `_vioImages[prefix]` — state แยกตาม prefix (vio-, ve-, vr-)
+- resize ≤150KB: `tryQuality(0.8)` ลด quality ซ้ำจนขนาดผ่าน
+- filename: `{prefix}_{vio_id}_{index}_{timestamp}.jpg` — นิติใช้ prefix vio/ve, ลูกบ้านใช้ `H-{vio_id}`
+
+**Modal: `m-newvio` (แจ้งใหม่)**
+- เพิ่ม image upload section: `vio-img-input`, `vio-img-previews`
+- `doCreateViolation` — สร้างก่อนได้ `vio_id` → upload รูปพร้อม vio_id ใน filename → `updateViolation`
+
+**Modal: `m-vio-detail` (ดูรายละเอียด + รูปลูกบ้าน)**
+- `openVioDetail(vio_id)` — แสดง title, type, status badge, deadline, penalty, desc
+- แสดงรูปนิติ + รูปลูกบ้าน (แยก section) คลิกขยายได้
+- ปุ่ม: ปิด / ✏️ แก้ไข / ✓ ปิดเรื่อง
+
+**Modal: `m-vio-edit` (แก้ไข Admin)**
+- `openVioEdit(vio_id)` — โหลดข้อมูล, แสดงรูปเดิม + ปุ่ม ×
+- `_deleteVeImg(idx, fileId)` — splice state + `apiPost('deleteImage')` ลบจาก Drive
+- `doSaveVioEdit` — merge existing + new urls → `updateViolation`
+- showLoader: `'กำลังบันทึก...'`
+
+**Modal: `m-vio-resident` (ลูกบ้าน แจ้งแก้ไขแล้ว)**
+- `openResidentVioAction(vio_id, title)` — เปิด modal แนบรูป
+- `doResidentVioAction` — upload รูป prefix `H-` → `violationResidentAction`
+- showLoader: `'กำลังส่งข้อมูล...'`
+
+**`loadViolationsPage` (ปรับปรุง)**
+- status badge ครบ: pending/acknowledged/fix_submitted/resolved
+- แสดง badge `มีรูปจากลูกบ้าน` ถ้า `resident_image_urls` มีข้อมูล
+- ปุ่ม: 🔍 รายละเอียด / ✏️ แก้ไข / ✓ ปิดเรื่อง / + ค่าปรับ
+- showLoader: `'โหลดรายการแจ้งกระทำผิด...'`
+
+**`loadResNotifPage` (ปรับปรุง)**
+- แสดงรูปนิติ (คลิกขยาย)
+- ปุ่ม `✓ รับทราบ` (pending) + ปุ่ม `✅ แจ้งว่าแก้ไขแล้ว` (pending/acknowledged)
+- ลูกบ้านที่แก้ไขแล้ว status = `fix_submitted` → นิติเห็นและกด ✓ ปิดเรื่องได้
+
+### DO NOT CHANGE
+- `_vioImages` prefix แยกกันชัดเจน: `vio-` นิติใหม่, `ve-` นิติแก้, `vr-` ลูกบ้าน
+- filename ลูกบ้านต้องขึ้นต้นด้วย `H-` เสมอ
+- `_allViolationsCache` update ทุกครั้งหลัง `loadViolationsPage`
