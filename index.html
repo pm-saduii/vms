@@ -1822,35 +1822,13 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: HOUSE -->
       <div id="p-res-house" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">กำลังโหลด...</span></div></div></div></div></div>
-
-        <!-- Status Bar -->
-        <div class="card" style="margin-bottom:12px">
-          <div class="cb">
-            <div style="font-size:10.5px;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:11px">สถานะบ้านของฉัน</div>
-            <div class="hs-bar">
-              <div class="hs-bar-step hsb-ok" id="hs-step-normal">● ปกติ</div>
-              <div class="hs-bar-step hsb-warn" id="hs-step-overdue">⚠ ค้างชำระ</div>
-              <div class="hs-bar-step hsb-suspend" id="hs-step-suspended">🔴 ระงับ</div>
-              <div class="hs-bar-step hsb-legal" id="hs-step-legal">⚖️ ฟ้องร้อง</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tabs">
-          <button class="tab on" onclick="stab('rh','info',this)">🏠 ข้อมูลบ้าน</button>
-          <button class="tab" onclick="stab('rh','cars',this)">🚗 ข้อมูลรถ</button>
-        </div>
-
-        <!-- TAB: ข้อมูลบ้าน — render โดย loadResHousePage() -->
-        <div id="rh-info" class="pane on">
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏠</div><div><div class="ph-h1">ข้อมูลบ้านของฉัน</div><div class="ph-sub"><span id="res-house-subtitle">กำลังโหลด...</span></div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="res-house" data-fn="loadResHousePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button></div></div></div>
+        <!-- ข้อมูลบ้าน — render โดย loadResHousePage() -->
+        <div id="rh-info">
           <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
         </div>
-
-        <!-- TAB: ข้อมูลรถ — render โดย loadResHousePage() -->
-        <div id="rh-cars" class="pane">
-          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
-        </div>
+        <!-- ข้อมูลรถ — render โดย loadResHousePage() -->
+        <div id="rh-cars"></div>
       </div>
 
       <!-- RES: FEE -->
@@ -3691,108 +3669,146 @@ async function loadLogsPage() {
 
 // ── RESIDENT: My House ────────────────────────────────────────
 async function loadResHousePage() {
+  showLoader('โหลดข้อมูลบ้าน...');
   try {
-    // clear cache ทุกครั้ง เพื่อให้ดึงข้อมูลใหม่จาก API ตาม user.house_id จริง
     APP.house = null;
     const house = await api('getHouseByUser');
     if (!house) {
-      var hEl = document.getElementById('rh-info');
-      if (hEl) hEl.innerHTML = '<div class="al al-e">ไม่พบข้อมูลบ้าน กรุณาติดต่อนิติบุคคล</div>';
+      document.getElementById('rh-info').innerHTML = '<div class="al al-e">ไม่พบข้อมูลบ้าน กรุณาติดต่อนิติบุคคล</div>';
       return;
     }
     APP.house = house;
 
-    // Status bar — hs-step-* elements
-    var statusMap = {normal:'ปกติ', overdue:'ค้างชำระ', suspended:'ระงับ', legal:'ฟ้องร้อง'};
-    var statusBadgeMap = {normal:'hs-ok', overdue:'hs-warn', suspended:'hs-suspend', legal:'hs-legal'};
-    ['normal','overdue','suspended','legal'].forEach(function(s) {
-      var el = document.getElementById('hs-step-' + s);
-      if (el) el.classList.toggle('active', s === house.status);
-    });
+    const statusMap  = {normal:'ปกติ',overdue:'ค้างชำระ',suspended:'ระงับ',legal:'ฟ้องร้อง'};
+    const statusCls  = {normal:'hs-ok',overdue:'hs-warn',suspended:'hs-suspend',legal:'hs-legal'};
+    const houseTypeTH= {single_house:'บ้านเดี่ยว',townhouse:'ทาวน์เฮาส์',condo:'คอนโด',commercial:'พาณิชย์'};
+    const usageTH    = {owner:'อยู่เอง',rent:'ให้เช่า',vacant:'ว่าง'};
+    const st         = house.status||'normal';
+    const stLbl      = statusMap[st]||st;
+    const stCls      = statusCls[st]||'hs-ok';
 
     // Subtitle
-    _setEl('res-house-subtitle', 'บ้านเลขที่ ' + (house.house_no||'—') + (house.soi ? ' ซอย ' + house.soi : ''));
+    _setEl('res-house-subtitle', 'บ้านเลขที่ '+(house.house_no||'—')+(house.soi?' ซอย '+house.soi:''));
 
-    // เขียน rh-info ใหม่ทั้งหมด (แทน mockup เดิม)
-    var statusBadgeCls = statusBadgeMap[house.status] || 'hs-ok';
-    var statusLabel    = statusMap[house.status] || house.status || 'ปกติ';
-    var infoHtml =
-      '<div class="card">' +
-        '<div class="ch"><div class="ch-ico">🏠</div><div class="ct">ข้อมูลบ้านทั้งหมด</div>' +
-          '<button class="btn btn-sm btn-o" onclick="openResEditHouseModal()">✏️ ขอแก้ไข</button>' +
+    // rh-info: กระชับ 2-column grid
+    document.getElementById('rh-info').innerHTML =
+      '<div class="card" style="margin-bottom:8px">' +
+        '<div class="ch"><div class="ch-ico">🏠</div><div class="ct">ข้อมูลบ้าน</div>' +
+          '<span class="hs-badge '+stCls+'" style="font-size:11px;padding:3px 10px">● '+stLbl+'</span>' +
+          '<button class="btn btn-sm btn-o" onclick="openResEditHouseModal()" style="margin-left:8px">✏️ ขอแก้ไข</button>' +
         '</div>' +
         '<div class="cb">' +
-          '<div class="sl">📍 ที่อยู่</div>' +
-          '<div class="ig">' +
-            '<div class="ii"><div class="ik">บ้านเลขที่</div><div class="iv" id="res-h-houseno">'+(house.house_no||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">ซอย</div><div class="iv" id="res-h-soi">'+(house.soi||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">ที่อยู่</div><div class="iv">'+(house.address||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">ขนาดพื้นที่</div><div class="iv" id="res-h-area">'+(house.area_sqm||0)+' ตร.ว.</div></div>' +
-            '<div class="ii"><div class="ik">ประเภทบ้าน</div><div class="iv">'+({single_house:'บ้านเดี่ยว',townhouse:'ทาวน์เฮาส์',condo:'คอนโด',commercial:'พาณิชย์'}[house.house_type]||house.house_type||'—')+'</div></div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px">' +
+            _ii('บ้านเลขที่', house.house_no||'—') +
+            _ii('ซอย', house.soi||'—') +
+            _ii('ขนาด', (house.area_sqm||0)+' ตร.ว.') +
+            _ii('ประเภท', houseTypeTH[house.house_type]||house.house_type||'—') +
+            _ii('เจ้าของ', house.owner_name||'—') +
+            _ii('ผู้เช่า', house.renter_name||'—') +
+            _ii('เบอร์โทร', house.phone||'—') +
+            _ii('อีเมล', house.email||'—') +
+            _ii('การใช้', usageTH[house.usage_type]||house.usage_type||'—') +
+            _ii('ค่าส่วนกลาง/ปี', '฿'+Number(house.fee_per_year||0).toLocaleString()) +
+            _ii('ค่าจอดรถ/ปี', '฿'+Number(house.parking_fee_year||0).toLocaleString()) +
+            _ii('ค่าขยะ/งวด', '฿'+Number(house.trash_fee_period||0).toLocaleString()) +
           '</div>' +
-          '<div class="divider"></div>' +
-          '<div class="sl">💰 ค่าธรรมเนียม</div>' +
-          '<div class="ig">' +
-            '<div class="ii"><div class="ik">ค่าส่วนกลาง/ปี</div><div class="iv text-pr fw-8" id="res-h-fee">฿'+Number(house.fee_per_year||0).toLocaleString()+'</div></div>' +
-            '<div class="ii"><div class="ik">ค่าจอดรถ/ปี</div><div class="iv text-pr fw-7" id="res-h-parking">฿'+Number(house.parking_fee_year||0).toLocaleString()+'</div></div>' +
-            '<div class="ii"><div class="ik">ค่าขยะ/งวด</div><div class="iv">฿'+Number(house.trash_fee_period||0).toLocaleString()+'</div></div>' +
-          '</div>' +
-          '<div class="divider"></div>' +
-          '<div class="sl">👤 ผู้อาศัย</div>' +
-          '<div class="ig">' +
-            '<div class="ii"><div class="ik">เจ้าของกรรมสิทธิ์</div><div class="iv" id="res-h-owner">'+(house.owner_name||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">ผู้เช่า/ผู้อาศัย</div><div class="iv">'+(house.renter_name||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">เบอร์โทรศัพท์</div><div class="iv" id="res-h-phone">'+(house.phone||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">อีเมล</div><div class="iv" id="res-h-email" style="font-size:12px">'+(house.email||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">ประเภทการใช้</div><div class="iv" id="res-h-usage">'+({owner:'อยู่เอง',rent:'เช่า',vacant:'ว่าง'}[house.usage_type]||house.usage_type||'—')+'</div></div>' +
-            '<div class="ii"><div class="ik">สถานะบ้าน</div><div class="iv"><span class="hs-badge '+statusBadgeCls+'" style="font-size:11px;padding:3px 10px">● '+statusLabel+'</span></div></div>' +
-          '</div>' +
-          '<div class="divider"></div>' +
-          '<div class="sl">📋 ประวัติคำขอแก้ไข</div>' +
-          '<div id="list-my-reqs"><p class="text-mu" style="font-size:13px;text-align:center;padding:12px">กำลังโหลด...</p></div>' +
         '</div>' +
       '</div>';
-    var infoEl = document.getElementById('rh-info');
-    if (infoEl) infoEl.innerHTML = infoHtml;
 
-    // Load vehicles
-    const vehicles = await api('getVehiclesByHouse');
-    var carsCard = '<div class="card"><div class="ch"><div class="ch-ico">🚗</div><div class="ct">รถที่ลงทะเบียน</div>' +
-      '<button class="btn btn-sm btn-p" onclick="openM(\'m-addcar\')">+ ขอเพิ่มรถ</button></div><div class="cb">' +
-      (vehicles.filter(function(v){ return v.status!=='pending'; }).map(function(v) {
-        return '<div class="vc">' +
-          '<div class="vc-ico">' + (v.type==='รถจักรยานยนต์'?'🏍️':'🚗') + '</div>' +
-          '<div style="flex:1;min-width:0">' +
-            '<div class="vc-pl">' + v.plate_number + ' ' + v.province + '</div>' +
-            '<div class="vc-dt">' + v.brand + ' ' + v.model + ' · สี' + v.color + ' · ' + v.parking_location + '</div>' +
-            '<div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">' +
-              '<span class="bd b-ok">ใช้งาน</span>' +
-              (v.fee_required ? '<span class="bd b-wn" style="margin-left:5px">เสียค่าจอด</span>' : '') +
-            '</div></div>' +
-          '<button class="btn btn-xs btn-o" onclick="openEditCarModal(\'' + v.vehicle_id + '\')">✏️ ขอแก้ไข</button></div>';
-      }).join('') || '<p class="text-mu" style="font-size:13px">ยังไม่มียานพาหนะ</p>') +
-      '</div></div>';
-    var carsEl = document.getElementById('rh-cars');
-    if (carsEl) carsEl.innerHTML = carsCard;
+    // โหลดรถและ change requests พร้อมกัน
+    const [vehicles, reqs] = await Promise.all([
+      api('getVehiclesByHouse'),
+      api('getMyChangeRequests')
+    ]);
 
-    // My change requests
-    const reqs = await api('getMyChangeRequests');
-    const reqEl = document.getElementById('list-my-reqs');
-    if (reqEl) {
-      reqEl.innerHTML = reqs.slice(0,5).map(function(r) {
-        return '<div style="border:1.5px solid var(--bo);border-radius:10px;padding:12px;margin-bottom:8px">' +
-          '<div class="flex-between mb-4"><strong style="font-size:12.5px">' + r.target_type + '</strong>' +
-          '<span class="bd b-' + ({pending:'wn',approved:'ok',rejected:'dg'}[r.status]||'mu') + '">' + r.status + '</span></div>' +
-          '<div style="font-size:11.5px;color:var(--mu)">' + _fmtDate(r.created_at) + '</div>' +
-          (r.reject_reason ? '<div style="font-size:11.5px;color:var(--dg);margin-top:4px">เหตุผล: ' + r.reject_reason + '</div>' : '') +
-        '</div>';
-      }).join('') || '<p class="text-mu" style="font-size:13px">ไม่มีคำขอ</p>';
+    // rh-cars: ตาราง + ปุ่มเพิ่ม
+    var active = vehicles.filter(function(v){ return v.status!=='pending'; });
+    var pending = vehicles.filter(function(v){ return v.status==='pending'; });
+    var carsHtml = '<div class="card" style="margin-bottom:8px">' +
+      '<div class="ch"><div class="ch-ico">🚗</div><div class="ct">ยานพาหนะ ('+(active.length)+')</div>' +
+        '<button class="btn btn-sm btn-p" onclick="openResAddCarModal()">+ ขอเพิ่มรถ</button>' +
+      '</div>' +
+      '<div class="cb">';
+    if (pending.length) {
+      carsHtml += '<div class="al al-i" style="margin-bottom:8px">⏳ มี '+pending.length+' รายการรออนุมัติ</div>';
     }
+    if (active.length) {
+      carsHtml += '<div class="tw"><table><thead><tr>' +
+        '<th>ทะเบียน</th><th>ประเภท/ยี่ห้อ</th><th>ที่จอด</th><th></th>' +
+        '</tr></thead><tbody>' +
+        active.map(function(v) {
+          return '<tr>' +
+            '<td><strong>'+v.plate_number+'</strong><br><span style="font-size:10.5px;color:var(--mu)">'+v.province+'</span></td>' +
+            '<td>'+_vehicleIcon(v.type)+' '+v.brand+' '+v.model+'<br><span style="font-size:10.5px;color:var(--mu)">สี'+v.color+'</span></td>' +
+            '<td>'+v.parking_location+(Number(v.fee_amount||0)>0?'<br><span style="font-size:10px;color:var(--dg)">฿'+Number(v.fee_amount).toLocaleString()+'/ปี</span>':'')+'</td>' +
+            '<td><button class="btn btn-xs btn-o" onclick="openResEditCarModal('+JSON.stringify(v).replace(/"/g,"'").replace(/'/g,'"')+')">✏️</button></td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    } else {
+      carsHtml += '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ยังไม่มียานพาหนะที่ลงทะเบียน</p>';
+    }
+    carsHtml += '</div></div>';
+
+    // change requests compact
+    carsHtml += '<div class="card">' +
+      '<div class="ch"><div class="ch-ico">📋</div><div class="ct">ประวัติคำขอแก้ไข</div></div>' +
+      '<div class="cb">';
+    if (reqs.length) {
+      carsHtml += reqs.slice(0,5).map(function(r) {
+        var stMap = {pending:'b-wn',approved:'b-ok',rejected:'b-dg'};
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bo)">' +
+          '<div><div style="font-size:12.5px;font-weight:600">'+r.target_type+'</div>' +
+          '<div style="font-size:11px;color:var(--mu)">'+_fmtDate(r.created_at)+'</div></div>' +
+          '<span class="bd b-'+(stMap[r.status]||'mu')+'">'+r.status+'</span>' +
+        '</div>';
+      }).join('');
+    } else {
+      carsHtml += '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีคำขอ</p>';
+    }
+    carsHtml += '</div></div>';
+    document.getElementById('rh-cars').innerHTML = carsHtml;
+
   } catch(e) {
     console.warn('loadResHousePage:', e);
-    var hEl = document.getElementById('rh-info');
-    if (hEl) hEl.innerHTML = '<div class="al al-e">โหลดข้อมูลไม่สำเร็จ: ' + e.message + '</div>';
-  }
+    document.getElementById('rh-info').innerHTML = '<div class="al al-e">โหลดข้อมูลไม่สำเร็จ: '+e.message+'</div>';
+  } finally { hideLoader(); }
+}
+
+// helper สร้าง info item 2-column
+function _ii(label, val) {
+  return '<div style="padding:5px 0;border-bottom:0.5px solid var(--bo)">' +
+    '<div style="font-size:10.5px;color:var(--mu)">'+label+'</div>' +
+    '<div style="font-size:13px;font-weight:600;color:var(--tx)">'+val+'</div>' +
+  '</div>';
+}
+
+// เปิด modal เพิ่มรถ (resident)
+function openResAddCarModal() {
+  _initVehicleDropdowns('car-');
+  _resetCarImages('car-');
+  ['car-plate','car-model'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var t=document.getElementById('car-type'); if(t) t.value='';
+  var p=document.getElementById('car-park'); if(p) p.value='ในบ้าน';
+  openM('m-addcar');
+}
+
+// เปิด modal แก้ไขรถ (resident) — รับ vehicle object
+function openResEditCarModal(v) {
+  _initVehicleDropdowns('editcar-');
+  _resetCarImages('editcar-');
+  var f=function(id,val){ var el=document.getElementById(id); if(el) el.value=val||''; };
+  f('editcar-id',     v.vehicle_id);
+  f('editcar-plate',  v.plate_number);
+  f('editcar-model',  v.model);
+  var typeEl=document.getElementById('editcar-type'); if(typeEl) typeEl.value=v.type||'รถยนต์';
+  _setSelectOrCustom('editcar-brand-sel','editcar-brand', v.brand||'');
+  _setSelectOrCustom('editcar-color-sel','editcar-color', v.color||'');
+  var provEl=document.getElementById('editcar-prov'); if(provEl) provEl.value=v.province||'';
+  var parkEl=document.getElementById('editcar-park'); if(parkEl) parkEl.value=v.parking_location||'ในบ้าน';
+  var statEl=document.getElementById('editcar-status'); if(statEl) statEl.value=(v.status==='inactive'?'inactive':'active');
+  _setEl('editcar-sub', (v.plate_number||'')+'  · '+(v.brand||'')+' '+(v.model||''));
+  openM('m-editcar');
 }
 
 // ── RESIDENT: Fees ────────────────────────────────────────────
@@ -4776,7 +4792,8 @@ var _refreshFnMap = {
   'loadIssuesPage':       function(){ return loadIssuesPage(); },
   'loadChangeReqPage':    function(){ return loadChangeReqPage(); },
   'loadMarketPage':       function(){ return loadMarketPage(); },
-  'loadLoginLogsPage':    function(){ return loadLoginLogsPage(); }
+  'loadLoginLogsPage':    function(){ return loadLoginLogsPage(); },
+  'loadResHousePage':     function(){ return loadResHousePage(); }
 };
 async function _doRefresh(btn) {
   var pane = btn.getAttribute('data-pane');
@@ -6344,7 +6361,7 @@ async function loadResVehiclePage() {
               '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
               '<div style="margin-top:6px;display:flex;gap:6px;align-items:center">' +
                 '<span class="bd ' + (isActive ? 'b-ok' : 'b-mu') + '">' + (isActive ? '\u2713 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19' : '\u23f8 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e49') + '</span>' +
-                '<button class="btn btn-xs btn-o" data-vid="' + v.vehicle_id + '" onclick="openResEditCarModal(this.dataset.vid)">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button>' +
+                '<button class="btn btn-xs btn-o" onclick="openResEditCarModal(' + JSON.stringify(v).replace(/"/g,"'").replace(/'/g,'"') + ')">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button>' +
               '</div>' +
             '</div>' +
           '</div>';
@@ -6352,18 +6369,6 @@ async function loadResVehiclePage() {
       }
     }
   } catch(e) { console.warn('loadResVehiclePage:', e); }
-}
-
-// Open edit car from resident page (by vehicle_id, look up from cache)
-async function openResEditCarModal(vehicleId) {
-  showLoader('...');
-  try {
-    var vehicles = await api('getVehiclesByHouse');
-    var v = vehicles.find(function(x){ return x.vehicle_id === vehicleId; });
-    hideLoader();
-    if (!v) return;
-    openEditCarModal(v);
-  } catch(e) { hideLoader(); }
 }
 
 // ============================================================

@@ -1147,3 +1147,30 @@ group: village
 
 ### Fix: admin `openEditHouseModal`
 - เปลี่ยน `_setEl('edithouse-sub',...)` → `_setEl('admin-edithouse-sub',...)` เพื่อไม่ชนกับ resident modal
+
+---
+
+## ✅ Redesign — หน้าบ้านลูกบ้าน: กระชับ / เปิดทันที / Modal จริง / Tab รถ
+
+### ข้อ 1+2: Compact Design ไม่มี Tab เปิดรายละเอียดทันที
+- ลบ `.tabs` (ข้อมูลบ้าน / ข้อมูลรถ) ออก
+- ลบ Status Bar แยก card ออก — รวมเป็น badge ใน card header
+- `rh-info` + `rh-cars` แสดงพร้อมกันเลย ไม่ต้องกด
+- ข้อมูลบ้านใช้ 2-column grid ด้วย helper `_ii(label, val)`
+- `loadResHousePage` ใช้ `Promise.all([getVehiclesByHouse, getMyChangeRequests])` — โหลดพร้อมกัน
+- เพิ่มปุ่ม refresh ที่ page header
+
+### ข้อ 3: Modal แก้ไขบ้าน populate ข้อมูลจริง
+- `openResEditHouseModal()` (แก้รอบก่อน) populate ทุก field จาก `APP.house`
+- ยืนยันว่า `doSubmitHouseEditReq` ใช้ `edit-usage` ตรงกับ modal
+
+### ข้อ 4: Tab รถ — ตาราง + ปุ่ม Coding จริง
+- แสดงรถเป็นตาราง: ทะเบียน / ประเภท-ยี่ห้อ / ที่จอด / ปุ่ม ✏️
+- ปุ่ม "+ ขอเพิ่มรถ" เรียก `openResAddCarModal()` — init dropdowns + reset images
+- ปุ่ม ✏️ เรียก `openResEditCarModal(v)` รับ vehicle object จริง (แก้ bug เดิมที่ส่ง id string)
+- แสดง pending badge ถ้ามีรออนุมัติ
+
+### Fix Bug: duplicate openResEditCarModal
+- ลบ `async function openResEditCarModal(vehicleId)` เก่าออก (บรรทัด 6375 เดิม)
+- เหลือแค่ `function openResEditCarModal(v)` ที่รับ vehicle object
+- ปุ่มใน loadResVehiclePage (resident vehicle tab) ก็แก้ให้ส่ง object แทน id string
