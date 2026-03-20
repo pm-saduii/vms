@@ -828,3 +828,83 @@ group: village
 - `_registeredVehiclesCache` ถูก set เฉพาะ `mode === 'registered'` เท่านั้น — filter ไม่ overwrite
 - `_existingCarUrls` ต้อง reset เป็น `[]` ทั้งใน `doAdminEditCar` และ `openAdminEditCarModal`
 - `deleteImage` ใช้ `apiPost` (POST) เนื่องจาก token ยาว
+
+---
+
+## ✅ Fix — m-forgot Modal หายไป (ลืมรหัสผ่าน Freeze)
+
+### Root Cause (อ่านจากโค้ดจริง)
+- `id="m-forgot"` ไม่มีในไฟล์ HTML ทั้ง version ปัจจุบันและ uploads เดิม
+- `openForgotModal()` เรียก `openM('m-forgot')` → `document.getElementById('m-forgot')` = `null`
+- `.classList.add('open')` บน null → `TypeError: Cannot read properties of null (reading 'classList')`
+- หน้า Login freeze ทันที
+
+### Fix: สร้าง modal `m-forgot` กลับคืน
+- Reconstruct จาก element IDs ที่ JS functions ใช้ทั้งหมด:
+  - `forgot-step1` / `forgot-step2` — 2 ขั้นตอน (verify → set password)
+  - `forgot-house-no` / `forgot-phone` / `forgot-email` — input step 1
+  - `forgot-newpw` / `forgot-confirmpw` — input step 2
+  - `forgot-btn-verify` / `forgot-btn-save` — action buttons
+  - `forgot-err` / `forgot-pw-err` — error message divs
+- เพิ่มก่อน `</body>` ต่อจาก modal สุดท้าย
+
+### Fix: เพิ่ม `var _housesCache = []` declaration
+- `_housesCache` ถูกใช้งานทั่วทั้งโค้ดแต่ไม่มี `var` declaration
+- มีแต่ `_housesAllCache` ที่ declare — ทำให้ `_housesCache is not defined` เมื่อ openAdminAddCarModal
+- เพิ่ม `var _housesCache = [];` บรรทัด 4425 ติดกับ `_housesAllCache`
+
+### DO NOT CHANGE
+- `openForgotModal`, `doForgotVerify`, `doForgotSave`, `closeForgotModal` — ไม่ถูกแตะ
+- modal `m-forgot` ต้องมี `onclick="omOut(event,'m-forgot')"` บน `.mo` div
+
+---
+
+## ✅ Redesign — Login Screen (Split Desktop + Full BG Mobile)
+
+### Root Cause ปัญหาเดิม
+- `#login-screen` ใช้ `align-items:center; justify-content:center; padding:20px`
+- `.login-box` มี `max-width:400px` → card ลอยกลางจอ มีพื้นที่ว่างรอบข้างมาก
+- Mobile: card เล็กกลางจอ ไม่เต็มหน้าจอ ดูไม่ professional
+
+### Design ที่เลือก: ผสม Split (Desktop) + Full BG (Mobile)
+
+**Desktop / Tablet ≥ 768px — Split Layout**
+- `#login-screen` เปลี่ยนเป็น `align-items:stretch` เต็มจอ
+- `.login-box` เป็น `flex row; width:100%; height:100%`
+- `.login-panel` (42%) — brand panel ซ้าย: logo + ชื่อหมู่บ้าน บน gradient background
+- `.login-body` (flex:1) — form panel ขวา: เข้าสู่ระบบ บน `var(--card)` background
+- `login-body-inner` จำกัด `max-width:360px` เพื่อ readability บน widescreen
+
+**Mobile < 768px — Full Background**
+- `#login-screen` background เป็น `var(--hg)` gradient เต็มจอ
+- `.login-panel` flex:1 โตเต็มพื้นที่ด้านบน (brand area)
+- `.login-body` `flex:0 0 auto` เป็น bottom sheet `border-radius:24px 24px 0 0` + `box-shadow:0 -8px 40px`
+
+### สิ่งที่ไม่ถูกแตะ (DO NOT CHANGE)
+- IDs ทั้งหมด: `login-logo`, `login-title`, `login-sub`, `login-err`, `inp-username`, `inp-password`
+- `applySettings()` populate `login-logo`, `login-title`, `login-sub` เหมือนเดิม
+- `doLogin()`, `openForgotModal()` ไม่ถูกแตะ
+- ไฟล์อื่นทั้งหมดไม่ถูกแตะ
+
+---
+
+## ✅ Redesign Login v2 + Logo Upload
+
+### Login: Full BG Card (ทั้ง Desktop และ Mobile)
+- `#login-screen` — `background:var(--hg)` เต็มจอ, `align-items:center; justify-content:center`
+- `.login-box` — `max-width:520px` card ใหญ่ขึ้น, `border-radius:24px`, `box-shadow` ลึก
+- `.login-panel` — gradient header พร้อม decorative circles
+- `.login-logo` — `font-size:72px`, `min-height:80px`, img `80×80px` + `border-radius:16px`
+- **Mobile <480px:** `#login-screen align-items:flex-start; padding:0` → card ชิดบน, `border-radius:0 0 24px 24px`
+
+### Settings: Logo Upload (1 ไฟล์)
+- แทนที่ text input เดิมด้วย: text input (emoji/URL) + preview div + upload button
+- `<input type="file" id="cfg-logo-upload" accept="image/*">` hidden input
+- `doUploadLogo(input)` — resize เป็น max 256×256px, canvas fillRect white (PNG alpha), `apiPost('uploadImage')`, update `cfg-inp-village_logo` + `updateLogoPreview` + `APP.settings` cache + `applySettings()` ทันที
+- แจ้งให้กด "บันทึกทั้งหมด" เพื่อ save URL ลง SETTINGS sheet
+- `applySettings` login-logo img เปลี่ยนเป็น `80×80px border-radius:16px`
+
+### DO NOT CHANGE
+- IDs: `login-logo`, `login-title`, `login-sub`, `login-err`, `inp-username`, `inp-password`
+- `cfg-inp-village_logo` — ยังมีอยู่ (text input สำหรับ URL ด้วย), `doSaveSettings` ยังเก็บค่านี้
+- `doUploadLogo` ใช้ `apiPost` (POST) เหมือน uploadImage ทั่วไป
