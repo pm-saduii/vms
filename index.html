@@ -2094,8 +2094,9 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     <div class="sl">👤 ผู้อาศัย (แก้ไขได้)</div>
     <div class="fr2">
       <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์</label><input class="fi" id="eh-owner" value="" disabled></div>
-      <div class="fg"><label class="fl">ผู้เช่า/ผู้อาศัย</label><input class="fi" id="edit-renter" placeholder="(ไม่มี)"></div>
+      <div class="fg"><label class="fl">ผู้เช่า/ผู้อาศัย ✏️</label><input class="fi" id="edit-renter" placeholder="(ไม่มี)"></div>
     </div>
+    <div class="fg"><label class="fl">ผู้ติดต่อ ✏️</label><input class="fi" id="edit-contact" placeholder="ชื่อผู้ติดต่อ"></div>
     <div class="fg"><label class="fl">เบอร์โทรศัพท์ ✏️</label><input class="fi" id="edit-phone" oninput="this.value=_fmtPhone(this.value)"></div>
     <div class="fg"><label class="fl">อีเมล ✏️</label><input class="fi" id="edit-email"></div>
     <div class="fg"><label class="fl">ประเภทการใช้ ✏️</label>
@@ -3705,6 +3706,7 @@ async function loadResHousePage() {
             _ii('ประเภท', houseTypeTH[house.house_type]||house.house_type||'—') +
             _ii('เจ้าของ', house.owner_name||'—') +
             _ii('ผู้เช่า', house.renter_name||'—') +
+            _ii('ผู้ติดต่อ', house.contact_person||'—') +
             _ii('เบอร์โทร', house.phone||'—') +
             _ii('อีเมล', house.email||'—') +
             _ii('การใช้', usageTH[house.usage_type]||house.usage_type||'—') +
@@ -3724,8 +3726,10 @@ async function loadResHousePage() {
     // rh-cars: ตาราง + ปุ่มเพิ่ม
     var active = vehicles.filter(function(v){ return v.status!=='pending'; });
     var pending = vehicles.filter(function(v){ return v.status==='pending'; });
+    // เก็บ vehicle list ใน cache เพื่อให้ปุ่มส่ง index แทน JSON object (ป้องกัน SyntaxError)
+    var _resVehiclesCache_local = active;
     var carsHtml = '<div class="card" style="margin-bottom:8px">' +
-      '<div class="ch"><div class="ch-ico">🚗</div><div class="ct">ยานพาหนะ ('+(active.length)+')</div>' +
+      '<div class="ch"><div class="ch-ico">🚗</div><div class="ct">ยานพาหนะ ('+active.length+')</div>' +
         '<button class="btn btn-sm btn-p" onclick="openResAddCarModal()">+ ขอเพิ่มรถ</button>' +
       '</div>' +
       '<div class="cb">';
@@ -3733,15 +3737,17 @@ async function loadResHousePage() {
       carsHtml += '<div class="al al-i" style="margin-bottom:8px">⏳ มี '+pending.length+' รายการรออนุมัติ</div>';
     }
     if (active.length) {
+      // เก็บ cache ไว้ใน window scope
+      window._resVehiclesCache = active;
       carsHtml += '<div class="tw"><table><thead><tr>' +
         '<th>ทะเบียน</th><th>ประเภท/ยี่ห้อ</th><th>ที่จอด</th><th></th>' +
         '</tr></thead><tbody>' +
-        active.map(function(v) {
+        active.map(function(v, idx) {
           return '<tr>' +
             '<td><strong>'+v.plate_number+'</strong><br><span style="font-size:10.5px;color:var(--mu)">'+v.province+'</span></td>' +
             '<td>'+_vehicleIcon(v.type)+' '+v.brand+' '+v.model+'<br><span style="font-size:10.5px;color:var(--mu)">สี'+v.color+'</span></td>' +
             '<td>'+v.parking_location+(Number(v.fee_amount||0)>0?'<br><span style="font-size:10px;color:var(--dg)">฿'+Number(v.fee_amount).toLocaleString()+'/ปี</span>':'')+'</td>' +
-            '<td><button class="btn btn-xs btn-o" onclick="openResEditCarModal('+JSON.stringify(v).replace(/"/g,"'").replace(/'/g,'"')+')">✏️</button></td>' +
+            '<td><button class="btn btn-xs btn-o" onclick="openResEditCarModal('+idx+')">✏️</button></td>' +
           '</tr>';
         }).join('') +
         '</tbody></table></div>';
@@ -3793,21 +3799,23 @@ function openResAddCarModal() {
   openM('m-addcar');
 }
 
-// เปิด modal แก้ไขรถ (resident) — รับ vehicle object
-function openResEditCarModal(v) {
+// เปิด modal แก้ไขรถ (resident) — รับ index จาก window._resVehiclesCache
+function openResEditCarModal(idx) {
+  var v = (window._resVehiclesCache || [])[idx];
+  if (!v) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูลรถ'}); return; }
   _initVehicleDropdowns('editcar-');
   _resetCarImages('editcar-');
-  var f=function(id,val){ var el=document.getElementById(id); if(el) el.value=val||''; };
-  f('editcar-id',     v.vehicle_id);
-  f('editcar-plate',  v.plate_number);
-  f('editcar-model',  v.model);
+  var f = function(id,val){ var el=document.getElementById(id); if(el) el.value=val||''; };
+  f('editcar-id',    v.vehicle_id);
+  f('editcar-plate', v.plate_number);
+  f('editcar-model', v.model);
   var typeEl=document.getElementById('editcar-type'); if(typeEl) typeEl.value=v.type||'รถยนต์';
   _setSelectOrCustom('editcar-brand-sel','editcar-brand', v.brand||'');
   _setSelectOrCustom('editcar-color-sel','editcar-color', v.color||'');
   var provEl=document.getElementById('editcar-prov'); if(provEl) provEl.value=v.province||'';
   var parkEl=document.getElementById('editcar-park'); if(parkEl) parkEl.value=v.parking_location||'ในบ้าน';
   var statEl=document.getElementById('editcar-status'); if(statEl) statEl.value=(v.status==='inactive'?'inactive':'active');
-  _setEl('editcar-sub', (v.plate_number||'')+'  · '+(v.brand||'')+' '+(v.model||''));
+  _setEl('editcar-sub', (v.plate_number||'')+' · '+(v.brand||'')+' '+(v.model||''));
   openM('m-editcar');
 }
 
@@ -4617,8 +4625,9 @@ function openResEditHouseModal() {
   f('eh-fee',     '฿' + Number(house.fee_per_year||0).toLocaleString());
   f('eh-owner',   house.owner_name);
   // populate editable fields
-  f('edit-renter', house.renter_name);
-  f('edit-phone',  house.phone);
+  f('edit-renter',  house.renter_name);
+  f('edit-contact', house.contact_person);
+  f('edit-phone',   house.phone);
   f('edit-email',  house.email);
   f('edit-note',   '');
   var uEl = document.getElementById('edit-usage');
@@ -4630,18 +4639,20 @@ function openResEditHouseModal() {
 }
 
 async function doSubmitHouseEditReq() {
-  const phone  = (document.getElementById('edit-phone')||{}).value?.trim()||'';
-  const email  = (document.getElementById('edit-email')||{}).value?.trim()||'';
-  const usage  = (document.getElementById('edit-usage')||{}).value||'';
-  const renter = (document.getElementById('edit-renter')||{}).value?.trim()||'';
-  const note   = (document.getElementById('edit-note')||{}).value?.trim()||'';
-  const house  = APP.house;
+  const phone   = (document.getElementById('edit-phone')||{}).value?.trim()||'';
+  const email   = (document.getElementById('edit-email')||{}).value?.trim()||'';
+  const usage   = (document.getElementById('edit-usage')||{}).value||'';
+  const renter  = (document.getElementById('edit-renter')||{}).value?.trim()||'';
+  const contact = (document.getElementById('edit-contact')||{}).value?.trim()||'';
+  const note    = (document.getElementById('edit-note')||{}).value?.trim()||'';
+  const house   = APP.house;
   if (!house) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูลบ้าน'}); return; }
   const changes = {};
-  if (phone  !== (house.phone||''))       changes.phone      = { old: house.phone||'',      new: phone  };
-  if (email  !== (house.email||''))       changes.email      = { old: house.email||'',      new: email  };
-  if (usage  !== (house.usage_type||''))  changes.usage_type = { old: house.usage_type||'', new: usage  };
-  if (renter !== (house.renter_name||'')) changes.renter_name= { old: house.renter_name||'',new: renter };
+  if (phone   !== (house.phone||''))          changes.phone        = { old: house.phone||'',         new: phone   };
+  if (email   !== (house.email||''))          changes.email        = { old: house.email||'',         new: email   };
+  if (usage   !== (house.usage_type||''))     changes.usage_type   = { old: house.usage_type||'',    new: usage   };
+  if (renter  !== (house.renter_name||''))    changes.renter_name  = { old: house.renter_name||'',   new: renter  };
+  if (contact !== (house.contact_person||'')) changes.contact_person={ old: house.contact_person||'', new: contact };
   if (!Object.keys(changes).length) {
     Swal.fire({icon:'info',title:'ไม่มีสิ่งที่เปลี่ยนแปลง'}); return;
   }
@@ -6352,7 +6363,9 @@ async function loadResVehiclePage() {
       if (!allShown.length) {
         aEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:16px">\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30</p>';
       } else {
-        aEl.innerHTML = allShown.map(function(v) {
+        // เก็บ cache สำหรับ openResEditCarModal
+        window._resVehiclesCache = allShown;
+        aEl.innerHTML = allShown.map(function(v, idx) {
           var isActive = v.status === 'active';
           return '<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--bo)">' +
             '<div style="font-size:28px">' + _vehicleIcon(v.type) + '</div>' +
@@ -6361,7 +6374,7 @@ async function loadResVehiclePage() {
               '<div style="font-size:12.5px;color:var(--tx2);margin-top:2px">' + v.brand + ' ' + v.model + ' \u00b7 \u0e2a\u0e35' + v.color + ' \u00b7 ' + v.parking_location + '</div>' +
               '<div style="margin-top:6px;display:flex;gap:6px;align-items:center">' +
                 '<span class="bd ' + (isActive ? 'b-ok' : 'b-mu') + '">' + (isActive ? '\u2713 \u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19' : '\u23f8 \u0e44\u0e21\u0e48\u0e43\u0e0a\u0e49') + '</span>' +
-                '<button class="btn btn-xs btn-o" onclick="openResEditCarModal(' + JSON.stringify(v).replace(/"/g,"'").replace(/'/g,'"') + ')">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button>' +
+                '<button class="btn btn-xs btn-o" onclick="openResEditCarModal(' + idx + ')">\u270f\ufe0f \u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02</button>' +
               '</div>' +
             '</div>' +
           '</div>';

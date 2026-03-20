@@ -1174,3 +1174,21 @@ group: village
 - ลบ `async function openResEditCarModal(vehicleId)` เก่าออก (บรรทัด 6375 เดิม)
 - เหลือแค่ `function openResEditCarModal(v)` ที่รับ vehicle object
 - ปุ่มใน loadResVehiclePage (resident vehicle tab) ก็แก้ให้ส่ง object แทน id string
+
+---
+
+## ✅ Fix — contact_person / ปุ่มแก้ไขรถ SyntaxError
+
+### ปัญหา 1: contact_person ไม่แสดง
+- เพิ่ม `_ii('ผู้ติดต่อ', house.contact_person||'—')` ใน `rh-info` grid
+- เพิ่ม `<input id="edit-contact">` ใน modal `m-edithouse` (label: ผู้ติดต่อ ✏️)
+- `openResEditHouseModal()` populate `edit-contact` จาก `house.contact_person`
+- `doSubmitHouseEditReq()` detect change `contact_person` และใส่ใน changes object
+
+### ปัญหา 2: SyntaxError ปุ่มแก้ไขรถ
+- **Root cause:** `JSON.stringify(v).replace(/"/g,"'").replace(/'/g,'"')` — ถ้า value มี apostrophe (เช่น ชื่อไทย) → JS syntax error
+- **Fix:** ใช้ `window._resVehiclesCache` array + ส่ง index แทน object
+  - `loadResHousePage` set `window._resVehiclesCache = active` ก่อน render ตาราง
+  - ปุ่ม `onclick="openResEditCarModal('+idx+')"` ส่ง index
+  - `openResEditCarModal(idx)` lookup `window._resVehiclesCache[idx]`
+  - `loadResVehiclePage` แก้เช่นเดียวกัน set `window._resVehiclesCache = allShown`
