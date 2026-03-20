@@ -995,22 +995,29 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   padding:10px 13px;border-radius:9px;font-size:12.5px;
   margin-bottom:14px;display:none;
 }
-/* ── Mobile < 480px: content push to top, card full-width ── */
-@media(max-width:480px){
+/* ── Mobile ≤ 600px: full-width seamless card, no curves ── */
+@media(max-width:600px){
   #login-screen{
     align-items:flex-start;
     padding:0;
+    background:var(--hg);
   }
   .login-box{
     max-width:100%;width:100%;
-    border-radius:0 0 24px 24px;
-    box-shadow:0 12px 48px rgba(0,0,0,.22);
+    border-radius:0;
+    box-shadow:none;
   }
-  .login-panel{padding:36px 24px 28px}
+  .login-panel{
+    border-radius:0;
+    padding:40px 24px 28px;
+  }
   .login-logo{font-size:64px;min-height:70px}
   .login-logo img{width:70px;height:70px}
   .login-title{font-size:20px}
-  .login-body{padding:22px 24px 32px}
+  .login-body{
+    border-radius:0;
+    padding:24px 24px 36px;
+  }
   .login-body-title{font-size:17px}
   .login-body-sub{margin-bottom:18px}
 }

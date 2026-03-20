@@ -908,3 +908,19 @@ group: village
 - IDs: `login-logo`, `login-title`, `login-sub`, `login-err`, `inp-username`, `inp-password`
 - `cfg-inp-village_logo` — ยังมีอยู่ (text input สำหรับ URL ด้วย), `doSaveSettings` ยังเก็บค่านี้
 - `doUploadLogo` ใช้ `apiPost` (POST) เหมือน uploadImage ทั่วไป
+
+---
+
+## ✅ Fix — Login Mobile: ไม่มีโค้ง กลืนกันเป็นเนื้อเดียว
+
+### Root Cause
+- breakpoint เดิม `max-width:480px` แคบเกินไป — จอที่เห็นในรูปกว้างกว่า 480px
+- `.login-box` มี `border-radius:0 0 24px 24px` → ยังมีโค้งด้านล่าง
+- card ลอยกลางจอ ไม่ชิดขอบ ทำให้เห็นพื้น bg รอบข้าง
+
+### Fix (CSS เท่านั้น — 1 media query)
+- ขยาย breakpoint จาก `max-width:480px` → `max-width:600px`
+- `.login-box` → `border-radius:0; box-shadow:none; max-width:100%`
+- `.login-panel` → `border-radius:0` (ลบโค้งส่วน header)
+- `.login-body` → `border-radius:0` (ลบโค้งส่วน form)
+- ผล: card เต็มจอ ไม่มีรอยโค้ง header กลืนกับ body เป็นเนื้อเดียว
