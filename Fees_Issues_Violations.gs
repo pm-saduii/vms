@@ -27,8 +27,13 @@ var Fees = (function() {
   }
 
   function getByHouse(body, user) {
-    const hid = body.house_id || user.house_id;
-    if (user.role !== 'admin' && user.house_id !== hid)
+    let userHouseId = user.house_id;
+    if (!userHouseId && user.user_id) {
+      const u = sheetToObjects('USERS').find(r => r.user_id === user.user_id);
+      if (u) userHouseId = u.house_id;
+    }
+    const hid = body.house_id || userHouseId;
+    if (user.role !== 'admin' && userHouseId !== hid)
       throw new Error('ไม่มีสิทธิ์');
     let rows = sheetToObjects('FEES').filter(r => r.house_id === hid);
     if (body.year) rows = rows.filter(r => String(r.year) === String(body.year));
@@ -374,8 +379,14 @@ var Issues = (function() {
   }
 
   function getMine(body, user) {
+    let houseId = user.house_id;
+    if (!houseId && user.user_id) {
+      const u = sheetToObjects('USERS').find(r => r.user_id === user.user_id);
+      if (u) houseId = u.house_id;
+    }
+    if (!houseId) return [];
     return sheetToObjects('ISSUES')
-      .filter(r => r.house_id === user.house_id)
+      .filter(r => r.house_id === houseId)
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
@@ -440,12 +451,29 @@ var Violations = (function() {
     let rows = sheetToObjects('VIOLATIONS');
     if (body.status)   rows = rows.filter(r => r.status === body.status);
     if (body.house_id) rows = rows.filter(r => r.house_id === body.house_id);
+    // join house_no + soi จาก HOUSES เพื่อแสดงแทน house_id
+    const houses = sheetToObjects('HOUSES');
+    const houseMap = {};
+    houses.forEach(h => { houseMap[h.house_id] = h; });
+    rows = rows.map(r => {
+      const h = houseMap[r.house_id] || {};
+      return Object.assign({}, r, {
+        house_no: h.house_no || r.house_id,
+        soi:      h.soi      || ''
+      });
+    });
     return rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
   function getMine(body, user) {
+    let houseId = user.house_id;
+    if (!houseId && user.user_id) {
+      const u = sheetToObjects('USERS').find(r => r.user_id === user.user_id);
+      if (u) houseId = u.house_id;
+    }
+    if (!houseId) return [];
     return sheetToObjects('VIOLATIONS')
-      .filter(r => r.house_id === user.house_id)
+      .filter(r => r.house_id === houseId)
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 

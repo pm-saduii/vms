@@ -74,13 +74,11 @@ function _route(body) {
       'updateIssueStatus':     () => Issues.updateStatus(body, user),
       'rateIssue':             () => Issues.rate(body, user),
       /* VIOLATIONS */
-      'getViolations':              () => Violations.getAll(body, user),
-      'getMyViolations':            () => Violations.getMine(body, user),
-      'createViolation':            () => Violations.create(body, user),
-      'updateViolation':            () => Violations.update(body, user),
-      'updateViolationStatus':      () => Violations.updateStatus(body, user),
-      'acknowledgeViolation':       () => Violations.acknowledge(body, user),
-      'violationResidentAction':    () => Violations.residentAction(body, user),
+      'getViolations':         () => Violations.getAll(body, user),
+      'getMyViolations':       () => Violations.getMine(body, user),
+      'createViolation':       () => Violations.create(body, user),
+      'updateViolationStatus': () => Violations.updateStatus(body, user),
+      'acknowledgeViolation':  () => Violations.acknowledge(body, user),
       /* ANNOUNCEMENTS */
       'getAnnouncements':      () => Announcements.getAll(body, user),
       'createAnnouncement':    () => Announcements.create(body, user),
@@ -141,6 +139,11 @@ function getSheet(name) {
 
 // ── sheetToObjects ───────────────────────────────────────────
 const _STR_FIELDS = ['house_no','plate_number','phone','contact_phone','key','value'];
+// date-string fields: Sheets parse เป็น Date object → แปลงเป็น ISO date string
+const _DATE_FIELDS = [
+  'deadline','created_at','updated_at','resolved_at','resident_ack_at',
+  'approved_at','slip_submitted_at','last_login','due_date','login_at'
+];
 function sheetToObjects(name) {
   const sh   = getSheet(name);
   const data = sh.getDataRange().getValues();
@@ -152,8 +155,18 @@ function sheetToObjects(name) {
       const o = {};
       hdrs.forEach((h, i) => {
         let val = r[i];
-        if (_STR_FIELDS.includes(h) && val instanceof Date)
-          val = val.getDate() + '/' + (val.getMonth() + 1);
+        if (val instanceof Date) {
+          if (_STR_FIELDS.includes(h)) {
+            // house_no, plate_number etc → day/month format (legacy)
+            val = val.getDate() + '/' + (val.getMonth() + 1);
+          } else if (_DATE_FIELDS.includes(h)) {
+            // deadline, created_at etc → ISO date string "YYYY-MM-DD"
+            const y = val.getFullYear();
+            const m = String(val.getMonth() + 1).padStart(2, '0');
+            const d = String(val.getDate()).padStart(2, '0');
+            val = y + '-' + m + '-' + d;
+          }
+        }
         o[h] = val === '' ? '' : val;
       });
       return o;

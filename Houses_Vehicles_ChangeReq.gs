@@ -28,8 +28,15 @@ var Houses = (function() {
   }
 
   function getByUser(body, user) {
-    if (!user.house_id) return null;
-    return findRow('HOUSES', 'house_id', user.house_id);
+    // ใช้ house_id จาก JWT token ก่อน
+    let houseId = user.house_id;
+    // Fallback: ถ้า token ไม่มี house_id ให้หาจาก USERS sheet โดยตรง
+    if (!houseId && user.user_id) {
+      const u = sheetToObjects('USERS').find(r => r.user_id === user.user_id);
+      if (u) houseId = u.house_id;
+    }
+    if (!houseId) return null;
+    return findRow('HOUSES', 'house_id', houseId);
   }
 
   function create(body, user) {
@@ -96,8 +103,13 @@ var Houses = (function() {
 var Vehicles = (function() {
 
   function getByHouse(body, user) {
-    const hid = body.house_id || user.house_id;
-    if (user.role !== 'admin' && user.house_id !== hid)
+    let houseId = user.house_id;
+    if (!houseId && user.user_id) {
+      const u = sheetToObjects('USERS').find(r => r.user_id === user.user_id);
+      if (u) houseId = u.house_id;
+    }
+    const hid = body.house_id || houseId;
+    if (user.role !== 'admin' && houseId !== hid)
       throw new Error('ไม่มีสิทธิ์');
     return sheetToObjects('VEHICLES').filter(r => r.house_id === hid);
   }
@@ -176,13 +188,7 @@ var Vehicles = (function() {
       return { success: true, pending: true };
     }
 
-    // stringify image_urls ถ้าเป็น Array ก่อนส่ง updateRowById
-    // เพราะ Sheets setValue(Array) จะแปลงเป็น "url1,url2" (comma string) ไม่ใช่ JSON
-    var safeUpdates = Object.assign({}, updates);
-    if (Array.isArray(safeUpdates.image_urls)) {
-      safeUpdates.image_urls = JSON.stringify(safeUpdates.image_urls);
-    }
-    updateRowById('VEHICLES', 'vehicle_id', vehicle_id, safeUpdates);
+    updateRowById('VEHICLES', 'vehicle_id', vehicle_id, updates);
     return { success: true };
   }
 
@@ -191,17 +197,6 @@ var Vehicles = (function() {
     let rows = sheetToObjects('VEHICLES');
     if (body.house_id) rows = rows.filter(r => r.house_id === body.house_id);
     if (body.status)   rows = rows.filter(r => r.status   === body.status);
-    // Join house_no และ soi จาก HOUSES เพื่อให้ frontend filter/แสดงได้
-    const houses = sheetToObjects('HOUSES');
-    const houseMap = {};
-    houses.forEach(h => { houseMap[h.house_id] = h; });
-    rows = rows.map(r => {
-      const h = houseMap[r.house_id] || {};
-      return Object.assign({}, r, {
-        house_no: h.house_no || r.house_id,
-        soi:      h.soi      || ''
-      });
-    });
     return rows.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   }
 

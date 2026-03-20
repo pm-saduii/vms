@@ -1043,3 +1043,44 @@ group: village
 - guard `viols && viols.length` แทน `.map` ตรง (กัน `null`/`undefined`)
 - เพิ่ม error display ใน `list-my-notifs` เมื่อ catch
 - **Note:** root cause จริงคือ `user.house_id` ต้องมีค่าใน USERS sheet — ตรวจสอบว่า user ของลูกบ้านมี house_id ตรงกับ VIOLATIONS.house_id
+
+---
+
+## ✅ Fix — Deadline / Modal / house_no / กระดิ่ง / ลูกบ้าน
+
+### 1. Deadline ไม่แสดง (อ่านจาก sheetToObjects บรรทัด 141)
+- **Root cause:** `_STR_FIELDS` ไม่มี `deadline` → Google Sheets auto-parse วันที่เป็น `Date object` → `JSON.stringify(Date)` = `{}` → แสดงว่าง
+- **Fix (Code.gs):** เพิ่ม `_DATE_FIELDS = ['deadline','created_at','updated_at',...]`
+- แก้ `sheetToObjects`: ถ้า field อยู่ใน `_DATE_FIELDS` และเป็น `Date object` → แปลงเป็น ISO `"YYYY-MM-DD"` (ไม่ใช่ day/month format)
+
+### 2. ประเภทต้องมาก่อนหัวเรื่อง (m-vio-edit)
+- สลับตำแหน่ง `ve-type` (select) ให้มาก่อน `ve-title` (input) ใน `fr2` grid
+
+### 3. modal รายละเอียด: ปิดเฉพาะปุ่ม
+- ลบ `onclick="omOut(event,'m-vio-detail')"` ออกจาก `<div class="mo" id="m-vio-detail">`
+
+### 4. บ้าน HSE-004 → บ้านเลขที่
+- **GAS Violations.getAll:** join HOUSES → เพิ่ม `house_no` + `soi` ใน response (เหมือน Vehicles.getAll)
+- **_renderVioList:** ใช้ `v.house_no + soi` แทน `v.house_id`
+- **openVioDetail:** แสดง `บ้านเลขที่ {house_no} ซอย {soi}`
+
+### 5. กระดิ่งไม่มีอะไร
+- **Root cause:** HTML `id="notif-panel"` และ `id="notif-backdrop"` **ไม่มีในไฟล์**
+- **Fix:** เพิ่ม HTML panel หลัง topbar พร้อม tabs ทั้งหมด/ยังไม่อ่าน/สลิปรอ + `id="notif-panel-list"`
+
+### ลูกบ้าง: ข้อความผิด
+- `ไม่มีการแจ้เตือน` → `ไม่มีการแจ้งเตือน`
+
+### ลูกบ้าน: ไม่เห็นรายการ / หน้าบ้านผิด
+- **Root cause (อ่านจาก Auth.gs บรรทัด 40):** `user.house_id` มาจาก JWT token ซึ่งถ้า USERS sheet ไม่มี `house_id` จะได้ token ที่ `house_id = ''`
+- **Fix:** เพิ่ม fallback ใน GAS ทุก function ที่ใช้ `user.house_id`:
+  - `Houses.getByUser` — fallback `sheetToObjects('USERS').find(u_id)` → ได้ `house_id`
+  - `Vehicles.getByHouse` — fallback เช่นเดียวกัน
+  - `Fees.getByHouse` — fallback เช่นเดียวกัน
+  - `Issues.getMine` — fallback เช่นเดียวกัน
+  - `Violations.getMine` — fallback เช่นเดียวกัน (แก้รอบที่แล้วแล้ว อัปเดตเพิ่ม)
+
+### ⚠️ Deploy GAS ทุกไฟล์:
+- `Code.gs` — _DATE_FIELDS + sheetToObjects
+- `Houses_Vehicles_ChangeReq.gs` — getByUser + getByHouse fallback
+- `Fees_Issues_Violations.gs` — Violations.getAll join + getMine fallback + Fees/Issues fallback

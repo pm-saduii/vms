@@ -1289,6 +1289,23 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     </div>
   </div>
 
+  <!-- Notification panel (กระดิ่ง) -->
+  <div id="notif-backdrop" style="display:none;position:fixed;inset:0;z-index:8500" onclick="closeM_notif()"></div>
+  <div id="notif-panel" style="display:none;position:fixed;top:60px;right:12px;width:360px;max-width:calc(100vw - 24px);max-height:520px;z-index:8600;background:var(--card);border:1.5px solid var(--bo);border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.18);flex-direction:column;overflow:hidden">
+    <div style="padding:14px 16px 10px;border-bottom:1px solid var(--bo);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-weight:700;font-size:14px;color:var(--tx)">🔔 การแจ้งเตือน</div>
+      <button onclick="markAllNotifsRead()" style="font-size:11px;color:var(--pr);background:none;border:none;cursor:pointer;font-family:var(--font)">อ่านทั้งหมด</button>
+    </div>
+    <div style="display:flex;border-bottom:1px solid var(--bo)">
+      <button class="notif-tab on" onclick="switchNotifTab('all',this)" style="flex:1;padding:8px;font-size:12px;font-family:var(--font);background:none;border:none;border-bottom:2px solid var(--pr);color:var(--pr);cursor:pointer">ทั้งหมด <span id="nt-cnt-all" style="background:var(--bg2);border-radius:10px;padding:1px 6px;font-size:10px"></span></button>
+      <button class="notif-tab" onclick="switchNotifTab('unread',this)" style="flex:1;padding:8px;font-size:12px;font-family:var(--font);background:none;border:none;border-bottom:2px solid transparent;color:var(--mu);cursor:pointer">ยังไม่อ่าน <span id="nt-cnt-unread" style="background:var(--bg2);border-radius:10px;padding:1px 6px;font-size:10px"></span></button>
+      <button class="notif-tab" onclick="switchNotifTab('slip',this)" style="flex:1;padding:8px;font-size:12px;font-family:var(--font);background:none;border:none;border-bottom:2px solid transparent;color:var(--mu);cursor:pointer">สลิปรอ <span id="nt-cnt-slip" style="background:var(--bg2);border-radius:10px;padding:1px 6px;font-size:10px"></span></button>
+    </div>
+    <div id="notif-panel-list" style="overflow-y:auto;flex:1">
+      <p style="text-align:center;padding:24px;color:var(--mu);font-size:13px">กำลังโหลด...</p>
+    </div>
+  </div>
+
   <!-- CONTENT -->
   <div class="page">
 
@@ -3271,7 +3288,7 @@ async function loadResidentHome() {
       var dashNotifEl = document.getElementById('res-dash-notif');
       if (dashNotifEl) {
         if (!unread.length) {
-          dashNotifEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีการแจ้เตือน</p>';
+          dashNotifEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีการแจ้งเตือน</p>';
         } else {
           dashNotifEl.innerHTML = unread.slice(0,1).map(function(v) {
             return '<div class="vio-card"><div class="vio-t">⚠️ ' + v.title + '</div>' +
@@ -4190,9 +4207,10 @@ function _renderVioList(elId, viols) {
     var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
     var rImgs=[]; try{rImgs=JSON.parse(v.resident_image_urls||'[]');}catch(e){}
     var badge='<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
+    var houseLabel = v.house_no ? (v.house_no + (v.soi ? ' ซอย '+v.soi : '')) : v.house_id;
     return '<div class="iss mb-12" data-vio-status="'+v.status+'">' +
       '<div class="iss-h">' +
-        '<span class="iss-t">บ้าน '+v.house_id+' — '+v.title+'</span>' +
+        '<span class="iss-t">🏠 '+houseLabel+' — '+v.title+'</span>' +
         badge +
         (rImgs.length?'<span class="bd b-ok" style="font-size:10px">🏠 รูปลูกบ้าน</span>':'') +
       '</div>' +
@@ -4251,7 +4269,8 @@ function openVioDetail(vio_id) {
   if (!v) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูล'}); return; }
   _vioDetailId = vio_id;
   _setEl('vd-title', v.title);
-  _setEl('vd-house', 'บ้าน '+v.house_id);
+  var houseLabel = v.house_no ? (v.house_no + (v.soi ? ' ซอย '+v.soi : '')) : v.house_id;
+  _setEl('vd-house', 'บ้านเลขที่ '+houseLabel);
   _setEl('vd-type', v.vio_type||'—');
   var sbMap={pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
   var slMap={pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
@@ -7314,7 +7333,7 @@ function _openInvoiceWindow(f, isFullYear) {
   </div>
 </div></div>
 <!-- MODAL: ดูรายละเอียดการแจ้งกระทำผิด -->
-<div class="mo" id="m-vio-detail" onclick="omOut(event,'m-vio-detail')">
+<div class="mo" id="m-vio-detail">
 <div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
@@ -7358,7 +7377,6 @@ function _openInvoiceWindow(f, isFullYear) {
   <div class="md-bd">
     <input type="hidden" id="ve-vio-id">
     <div class="fr2">
-      <div class="fg"><label class="fl">หัวข้อ *</label><input class="fi" id="ve-title"></div>
       <div class="fg"><label class="fl">ประเภท</label>
         <select class="fs" id="ve-type">
           <option value="จอดรถผิดที่">จอดรถผิดที่</option>
@@ -7369,6 +7387,7 @@ function _openInvoiceWindow(f, isFullYear) {
           <option value="อื่นๆ">อื่นๆ</option>
         </select>
       </div>
+      <div class="fg"><label class="fl">หัวข้อ *</label><input class="fi" id="ve-title"></div>
     </div>
     <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="ve-desc"></textarea></div>
     <div class="fr2">
