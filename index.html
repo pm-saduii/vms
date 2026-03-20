@@ -394,6 +394,28 @@ a{color:var(--pr);text-decoration:none}
 @media(min-width:768px){.page{padding:22px}}
 @media(min-width:1024px){.page{padding:28px}}
 
+/* ═══════════════════════════════════════════
+   SYSTEM FOOTER
+═══════════════════════════════════════════ */
+.sys-footer{
+  padding:10px 20px;
+  border-top:1px solid var(--bo);
+  background:var(--card2);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:6px;
+  font-size:11px;color:var(--mu);
+  flex-shrink:0;
+}
+.sys-footer-left{display:flex;align-items:center;gap:8px}
+.sys-footer-ver{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:20px;
+  background:var(--pr-soft);color:var(--pr);
+  font-weight:700;font-size:10.5px;
+}
+.sys-footer-right{font-size:10.5px;color:var(--mu)}
+@media(max-width:480px){.sys-footer{flex-direction:column;align-items:flex-start}}
+
 .view{display:none}.view.on{display:block}
 .pane{display:none}.pane.on{display:block}
 
@@ -1496,6 +1518,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <div class="fg"><label class="fl">Logo (Emoji หรือ URL)</label>
                 <input class="fi" id="cfg-inp-village_logo" placeholder="🏘️ หรือ https://...logo.png"></div>
             </div>
+            <div class="fg" style="margin-top:4px"><label class="fl">เวอร์ชันโปรแกรม <span style="font-weight:400;color:var(--mu)">(แสดงใน Footer)</span></label>
+              <input class="fi" id="cfg-inp-app_version" placeholder="เช่น 5.0.1" style="max-width:200px"></div>
           </div>
         </div>
 
@@ -2006,6 +2030,17 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
     </div><!-- end v-res -->
 
   </div><!-- end page -->
+
+  <!-- SYSTEM FOOTER -->
+  <div class="sys-footer">
+    <div class="sys-footer-left">
+      <span id="footer-logo" style="font-size:15px">🏘️</span>
+      <span id="footer-village">The Greenfield</span>
+      <span class="sys-footer-ver" id="footer-ver">v5.0</span>
+    </div>
+    <div class="sys-footer-right" id="footer-copy">Village Management System</div>
+  </div>
+
 </div><!-- end main -->
 </div><!-- end app -->
 
@@ -2594,14 +2629,16 @@ async function api(action, payload = {}) {
 }
 
 // POST variant — ใช้สำหรับ action ที่ส่ง payload ขนาดใหญ่ เช่น uploadImage (base64)
-// ส่ง JSON ตรงๆ ใน request body ให้ตรงกับที่ doPost ใน Code.gs รอรับ (e.postData.contents)
+// ใช้ Content-Type: text/plain เพื่อหลีกเลี่ยง CORS preflight OPTIONS request
+// (application/json trigger preflight → GAS ไม่มี doOptions() → blocked)
+// GAS doPost รับ e.postData.contents เป็น string ตรงๆ ซึ่งเป็น JSON.stringify(body)
 async function apiPost(action, payload = {}) {
   const body = { action, token: APP.token, ...payload };
   try {
     const res = await fetch(GAS_URL, {
       method: 'POST',
       redirect: 'follow',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(body)
     });
     const json = await res.json();
@@ -4838,6 +4875,16 @@ function applySettings() {
   // Resident house ph-sub
   var rhsub = document.getElementById('res-house-sub');
   if (rhsub) rhsub.textContent = vName;
+
+  // System footer
+  var fLogo = document.getElementById('footer-logo');
+  if (fLogo) fLogo.textContent = vLogo.startsWith('http') ? '🏘️' : vLogo;
+  var fVillage = document.getElementById('footer-village');
+  if (fVillage) fVillage.textContent = vName;
+  var fVer = document.getElementById('footer-ver');
+  if (fVer) fVer.textContent = 'v' + _cfg('app_version', '5.0');
+  var fCopy = document.getElementById('footer-copy');
+  if (fCopy) fCopy.textContent = vSub;
 
   // Update m-pay modal if settings available
   _applyPaymentSettings();

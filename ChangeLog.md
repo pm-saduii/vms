@@ -638,3 +638,58 @@ function openAddHouseModal() {
 ### DO NOT CHANGE
 - `doPost` ใน Code.gs — ถูกต้องแล้ว ไม่ต้องแก้
 - `apiPost()` ต้องส่ง `Content-Type: application/json` และ body เป็น `JSON.stringify(body)` เท่านั้น
+
+---
+
+## ✅ Fix — CORS Preflight + Footer Version
+
+### งานที่ 1: Fix CORS (อ่านจากโค้ดจริง)
+
+**Root Cause:**
+- Browser ส่ง POST พร้อม `Content-Type: application/json` → browser บังคับส่ง **OPTIONS preflight** ก่อน
+- GAS Web App ไม่มี `doOptions()` handler → ไม่ส่ง `Access-Control-Allow-Origin` header → CORS blocked
+- Error: `Response to preflight request doesn't pass access control check`
+
+**Fix: `apiPost()` index.html บรรทัด Content-Type**
+- เปลี่ยน `Content-Type: application/json` → `Content-Type: text/plain`
+- `text/plain` เป็น "simple request" → browser ไม่ส่ง preflight OPTIONS → ผ่าน CORS
+- `body` ยังคงเป็น `JSON.stringify(body)` เหมือนเดิม → `doPost` ใน GAS รับได้ปกติ (`e.postData.contents` = JSON string)
+- ไม่แก้ GAS ทุกไฟล์
+
+### งานที่ 2: Footer แสดง Version ทุกหน้า
+
+**HTML — เพิ่ม `.sys-footer` ก่อน `</div><!-- end main -->`**
+- `footer-logo` — emoji/icon หมู่บ้าน (จาก `village_logo`)
+- `footer-village` — ชื่อหมู่บ้าน (จาก `village_name`)
+- `footer-ver` — version badge (จาก `app_version` ใน Settings)
+- `footer-copy` — subtitle (จาก `village_subtitle`)
+
+**CSS — เพิ่ม `.sys-footer` block หลัง `.page`**
+- `flex-shrink:0` ให้ footer อยู่ล่างสุดเสมอ
+- `.sys-footer-ver` badge ใช้ `--pr-soft` + `--pr` color ตาม theme
+- responsive: mobile stack เป็น column
+
+**JS — `applySettings()` populate 4 elements**
+- `footer-logo`, `footer-village`, `footer-ver`, `footer-copy`
+- `_cfg('app_version', '5.0')` fallback เป็น `5.0`
+
+**Setup.gs — เพิ่ม `app_version` key ใน `_seedSettings()`**
+- key: `app_version`, default: `'5.0'`, label: `'เวอร์ชันโปรแกรม'`, group: `'village'`
+- `setupAllSheets()` จะ seed key นี้ให้อัตโนมัติถ้ายังไม่มี
+
+**Settings Pane — เพิ่ม field ใน card ข้อมูลหมู่บ้าน**
+- `id="cfg-inp-app_version"` — admin แก้ไข version ได้จาก UI แล้วกด บันทึกทั้งหมด
+
+### หมายเหตุ: เพิ่ม app_version ใน SETTINGS Sheet ด้วยตนเอง
+หาก Sheet มีข้อมูลอยู่แล้ว (ไม่ได้ run setupAllSheets ใหม่) ให้ **เพิ่ม row ใน SETTINGS sheet** ด้วยตนเอง:
+```
+key:   app_version
+value: 5.0
+label: เวอร์ชันโปรแกรม
+group: village
+```
+
+### DO NOT CHANGE
+- `api()` เดิม — GET ไม่มี CORS ปัญหา ไม่ต้องแก้
+- `apiPost()` ต้องใช้ `Content-Type: text/plain` เท่านั้น — ห้ามเปลี่ยนเป็น `application/json`
+- Footer element IDs: `footer-logo`, `footer-village`, `footer-ver`, `footer-copy`
