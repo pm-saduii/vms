@@ -358,14 +358,22 @@ var Upload = (function() {
     const { base64data, filename, mime_type } = body;
     if (!base64data) throw new Error('base64data required');
 
+    // ลบ whitespace/newline ที่อาจติดมากับ base64 string
+    // เพื่อป้องกัน Utilities.base64Decode ให้ผลผิดพลาด (0 bytes)
+    const cleanBase64 = String(base64data).replace(/\s/g, '');
+    if (cleanBase64.length < 10) throw new Error('base64data is empty or too short');
+
     const folder  = DriveApp.getFolderById(DRIVE_FOLDER);
-    const bytes   = Utilities.base64Decode(base64data);
+    const bytes   = Utilities.base64Decode(cleanBase64);
+    if (!bytes || bytes.length === 0) throw new Error('base64Decode returned empty bytes');
+
     const blob    = Utilities.newBlob(bytes, mime_type || 'image/jpeg', filename || 'upload.jpg');
     const file    = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
     const fileId  = file.getId();
-    const url     = 'https://drive.google.com/uc?export=view&id=' + fileId;
+    // ใช้ thumbnail URL ที่ browser โหลดได้โดยตรงโดยไม่ต้อง redirect หลายชั้น
+    const url     = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
     return { url, file_id: fileId };
   }
   return { base64 };

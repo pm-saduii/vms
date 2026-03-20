@@ -693,3 +693,53 @@ group: village
 - `api()` เดิม — GET ไม่มี CORS ปัญหา ไม่ต้องแก้
 - `apiPost()` ต้องใช้ `Content-Type: text/plain` เท่านั้น — ห้ามเปลี่ยนเป็น `application/json`
 - Footer element IDs: `footer-logo`, `footer-village`, `footer-ver`, `footer-copy`
+
+---
+
+## ✅ Fix — รูปภาพ 0 byte ใน Drive + Broken Image ใน UI
+
+### Root Cause 1: รูป 0 byte ใน Drive (อ่านจากโค้ดจริง)
+- `canvas.toDataURL('image/jpeg', 0.75)` ไม่ reliable สำหรับการ convert PNG/WEBP→JPEG
+  - ถ้า PNG มี alpha channel → JPEG conversion บาง environment ให้ผลว่าง
+  - ไม่มี `ctx.fillStyle = '#FFFFFF'` → transparent area → JPEG encode ผิดพลาด
+  - ไม่มี `img.onerror` handler → ถ้า load fail → `img.width/height = 0` → canvas 0x0
+  - `canvas.getContext('2d')` อาจ return null ใน บาง environment → ไม่มี null check
+- GAS `Utilities.base64Decode(base64data)` — ถ้ามี whitespace/newline ใน string → decode ผิด → 0 bytes
+
+### Root Cause 2: Broken Image ใน UI — Double JSON.stringify
+- Frontend `doAdminAddCar` บรรทัด 6090: `payload.image_urls = JSON.stringify(imgUrls)`
+- GAS `Vehicles.create` บรรทัด 123: `image_urls: JSON.stringify(body.image_urls || [])`
+- ผล: `JSON.stringify(JSON.stringify(['url']))` → double-encoded string ใน Sheet
+- ตอน parse: `JSON.parse(double-encoded)` → ได้ string ไม่ใช่ array → `img.src = '[\"url\"]'` → broken
+
+### สิ่งที่แก้
+
+**index.html — `onCarImageSelect()` (เขียนใหม่ทั้งหมด)**
+- เปลี่ยน `canvas.toDataURL()` → `canvas.toBlob()` (async, reliable กว่า)
+- เพิ่ม `ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,w,h)` ก่อน drawImage (รองรับ PNG transparent)
+- เพิ่ม `img.onerror` handler
+- เพิ่ม null check `canvas.getContext('2d')`
+- เพิ่ม dimension validation: ตรวจ `w > 0 && h > 0` ก่อนใช้งาน
+- เพิ่ม base64 validation ใน blobReader callback: ตรวจ length > 10
+- แก้ renamed collision: เพิ่ม fileIdx ต่อท้าย dtFmt เมื่อเลือกหลายไฟล์พร้อมกัน
+- บันทึกเป็น `.jpg` เสมอ (canvas.toBlob ส่ง image/jpeg เสมอ)
+
+**index.html — `_uploadCarImages()` เพิ่ม validation**
+- ตรวจ `base64.length < 10` → skip และ warn แทนที่จะส่ง empty ไป GAS
+
+**index.html — `doAdminAddCar()` และ `doAdminEditCar()`**
+- ลบ `JSON.stringify()` ออก → ส่ง `imgUrls` เป็น Array ตรงๆ
+- GAS `Vehicles.create` จะ `JSON.stringify` ให้อีกรอบเดียวตามที่ควรเป็น
+
+**Services.gs — `Upload.base64()`**
+- เพิ่ม `cleanBase64 = String(base64data).replace(/\s/g, '')` ก่อน decode
+- เพิ่ม validation: `cleanBase64.length < 10` → throw error
+- เพิ่ม validation: `bytes.length === 0` → throw error
+- เปลี่ยน URL: `uc?export=view` → `thumbnail?id=XXX&sz=w800`
+  - `uc?export=view` → redirect หลายชั้น → browser บางตัว block
+  - `thumbnail` URL → ส่งรูปโดยตรง → โหลดได้ทุก browser
+
+### DO NOT CHANGE
+- GAS `Vehicles.create` บรรทัด 123: `JSON.stringify(body.image_urls || [])` — ถูกต้องแล้ว ไม่ต้องแก้
+- `onCarImageSelect` ต้องใช้ `toBlob` เท่านั้น — ห้ามเปลี่ยนกลับเป็น `toDataURL`
+- thumbnail URL format: `https://drive.google.com/thumbnail?id=XXX&sz=w800`
