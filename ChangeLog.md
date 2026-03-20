@@ -618,3 +618,23 @@ function openAddHouseModal() {
 - `api()` เดิม — ห้ามแก้ ยังใช้ GET สำหรับทุก action อื่นที่ไม่ใช่ upload
 - `apiPost()` ใหม่ — ใช้เฉพาะ action ที่ส่ง payload ขนาดใหญ่ (ปัจจุบันคือ `uploadImage` เท่านั้น)
 - ไม่มีการเปลี่ยนแปลง GAS ฝั่ง backend ทั้งหมด (Code.gs, Services.gs ไม่ถูกแตะ)
+
+---
+
+## ✅ Fix — apiPost Content-Type ผิด (JSON parse error)
+
+### Root Cause (อ่านจากโค้ดจริง)
+- `apiPost()` ส่ง `Content-Type: application/x-www-form-urlencoded` + body เป็น `payload=%7B...`
+- `doPost` ใน Code.gs บรรทัด 22: `JSON.parse(e.postData.contents)` — รอรับ JSON string ตรงๆ
+- GAS รับ body มาเป็น `payload=%7B%22action%22...` (URL-encoded) → `JSON.parse` ล้มเหลว
+- Error: `Unexpected token 'p', "payload=%7"... is not valid JSON`
+
+### สิ่งที่แก้ (1 จุดเท่านั้น)
+**`apiPost()` index.html บรรทัด 2604–2605**
+- เปลี่ยน `Content-Type` จาก `application/x-www-form-urlencoded` → `application/json`
+- เปลี่ยน body จาก `new URLSearchParams({ payload: JSON.stringify(body) }).toString()` → `JSON.stringify(body)`
+- ตรงกับที่ `doPost` ใน Code.gs รอรับ (`e.postData.contents` = JSON string)
+
+### DO NOT CHANGE
+- `doPost` ใน Code.gs — ถูกต้องแล้ว ไม่ต้องแก้
+- `apiPost()` ต้องส่ง `Content-Type: application/json` และ body เป็น `JSON.stringify(body)` เท่านั้น

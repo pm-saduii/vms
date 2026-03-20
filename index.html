@@ -2594,15 +2594,15 @@ async function api(action, payload = {}) {
 }
 
 // POST variant — ใช้สำหรับ action ที่ส่ง payload ขนาดใหญ่ เช่น uploadImage (base64)
-// ส่งผ่าน request body แทน URL query string เพื่อหลีกเลี่ยง ERR_FAILED จาก URL ที่ยาวเกิน
+// ส่ง JSON ตรงๆ ใน request body ให้ตรงกับที่ doPost ใน Code.gs รอรับ (e.postData.contents)
 async function apiPost(action, payload = {}) {
   const body = { action, token: APP.token, ...payload };
   try {
     const res = await fetch(GAS_URL, {
       method: 'POST',
       redirect: 'follow',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ payload: JSON.stringify(body) }).toString()
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     });
     const json = await res.json();
     if (json.code !== 200) throw new Error(json.data?.error || 'API Error');
