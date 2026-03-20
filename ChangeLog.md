@@ -1012,3 +1012,34 @@ group: village
 - `_vioImages` prefix แยกกันชัดเจน: `vio-` นิติใหม่, `ve-` นิติแก้, `vr-` ลูกบ้าน
 - filename ลูกบ้านต้องขึ้นต้นด้วย `H-` เสมอ
 - `_allViolationsCache` update ทุกครั้งหลัง `loadViolationsPage`
+
+---
+
+## ✅ Fix — แจ้งกระทำผิด: Tabs / Filter / Dropdown / ค่าปรับ / ลูกบ้าน
+
+### ข้อ 1: Tabs ยังไม่ปิด / ปิดแล้ว
+- HTML: เพิ่ม tab `🔴 ยังไม่ปิด` และ `✅ ปิดแล้ว` พร้อม pane `vio-pane-open/closed`
+- `_vioOpenCache` = status ≠ resolved, `_vioClosedCache` = status = resolved
+- `stabVio(tab)` toggle display + class `.on`
+
+### ข้อ 2: Dropdown หัวเรื่องใน modal แก้ไข
+- `m-vio-edit` เพิ่ม `<select id="ve-type">` ข้างๆ `ve-title` แบบ fr2
+- `openVioEdit` populate `ve-type` จาก `v.vio_type`
+- `doSaveVioEdit` ส่ง `vio_type` ใน payload
+
+### ข้อ 3: Filter cards ตามสถานะ (เฉพาะ tab ยังไม่ปิด)
+- 4 card: ทั้งหมด / รออนุมัติ / รับทราบแล้ว / แจ้งแก้ไขแล้ว
+- `_filterVio(status)` filter `_vioOpenCache` แล้ว re-render
+- card ถูก highlight ด้วย `outline:2px solid var(--pr)` เมื่อ active
+
+### ข้อ 4: `openAddPenalty` ไม่ถูก define
+- เพิ่ม `openAddPenalty(vio_id, house_id)` เปิด modal `m-add-penalty`
+- เพิ่ม modal `m-add-penalty` พร้อม input `ap-amount`
+- `doAddPenalty()` เรียก `updateViolationStatus` พร้อม `penalty_amount`
+- GAS `updateViolationStatus` รองรับ `penalty_amount` ใน updates แล้ว
+
+### ลูกบ้านไม่เห็นรายการ (แก้ defensive)
+- `loadResNotifPage` เพิ่ม `showLoader`/`hideLoader`/`finally`
+- guard `viols && viols.length` แทน `.map` ตรง (กัน `null`/`undefined`)
+- เพิ่ม error display ใน `list-my-notifs` เมื่อ catch
+- **Note:** root cause จริงคือ `user.house_id` ต้องมีค่าใน USERS sheet — ตรวจสอบว่า user ของลูกบ้านมี house_id ตรงกับ VIOLATIONS.house_id

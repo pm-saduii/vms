@@ -1495,9 +1495,27 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <!-- ADMIN: VIO      <!-- ADMIN: VIO (แจ้งกระทำผิด) -->
       <div id="p-admin-vio" class="pane">
         <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">⚠️</div><div><div class="ph-h1">แจ้งกระทำผิด</div><div class="ph-sub">แจ้งเตือนลูกบ้านกระทำผิดกฎ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-vio" data-fn="loadViolationsPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button><button class="btn btn-ghost btn-sm" onclick="openNewVioModal()">+ แจ้งใหม่</button></div></div></div>
-        <div class="card">
-          <div class="ch"><div class="ch-ico">⚠️</div><div class="ct">รายการแจ้งเตือนทั้งหมด</div></div>
+        <!-- Status filter cards (เฉพาะ tab ยังไม่ปิด) -->
+        <div id="vio-filter-cards" class="stats" style="grid-template-columns:repeat(4,1fr);margin-top:8px">
+          <div class="sc" style="cursor:pointer" onclick="_filterVio('')" id="vfc-all"><div class="sc-ico w">📋</div><div><div class="sc-v" id="vfc-cnt-all">—</div><div class="sc-l">ทั้งหมด</div></div></div>
+          <div class="sc" style="cursor:pointer" onclick="_filterVio('pending')" id="vfc-pending"><div class="sc-ico w">⏳</div><div><div class="sc-v" id="vfc-cnt-pending">—</div><div class="sc-l">รออนุมัติ</div></div></div>
+          <div class="sc" style="cursor:pointer" onclick="_filterVio('acknowledged')" id="vfc-acknowledged"><div class="sc-ico p">👁️</div><div><div class="sc-v" id="vfc-cnt-acknowledged">—</div><div class="sc-l">รับทราบแล้ว</div></div></div>
+          <div class="sc" style="cursor:pointer" onclick="_filterVio('fix_submitted')" id="vfc-fix"><div class="sc-ico a">🔧</div><div><div class="sc-v" id="vfc-cnt-fix">—</div><div class="sc-l">แจ้งแก้ไขแล้ว</div></div></div>
+        </div>
+        <!-- Tabs -->
+        <div class="tabs" style="margin-top:8px">
+          <button class="tab on" id="tab-vio-open" onclick="stabVio('open',this)">🔴 ยังไม่ปิด</button>
+          <button class="tab" id="tab-vio-closed" onclick="stabVio('closed',this)">✅ ปิดแล้ว</button>
+        </div>
+        <!-- Tab: ยังไม่ปิด -->
+        <div id="vio-pane-open" class="card" style="margin-top:4px">
           <div class="cb" id="list-violations">
+            <p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p>
+          </div>
+        </div>
+        <!-- Tab: ปิดแล้ว -->
+        <div id="vio-pane-closed" class="card" style="margin-top:4px;display:none">
+          <div class="cb" id="list-violations-closed">
             <p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p>
           </div>
         </div>
@@ -4115,38 +4133,115 @@ async function doCreateViolation() {
   } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
 }
 
+var _vioOpenCache   = [];  // รายการยังไม่ปิด
+var _vioClosedCache = [];  // รายการปิดแล้ว
+var _vioFilterStatus = ''; // '' = ทั้งหมด
+
 async function loadViolationsPage() {
   showLoader('โหลดรายการแจ้งกระทำผิด...');
   try {
     const viols = await api('getViolations');
-    const el = document.getElementById('list-violations');
-    if (!el) return;
-    if (!viols.length) { el.innerHTML='<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการแจ้งกระทำผิด</div></div>'; return; }
-    const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว',escalated:'ส่งต่อ'};
-    const statusBadge = {pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu',escalated:'b-dg'};
-    el.innerHTML = viols.map(function(v) {
-      var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
-      var rImgs=[]; try{rImgs=JSON.parse(v.resident_image_urls||'[]');}catch(e){}
-      var badge='<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
-      var hasResImg = rImgs.length > 0;
-      return '<div class="iss mb-12">' +
-        '<div class="iss-h">' +
-          '<span class="iss-t">บ้าน '+v.house_id+' — '+v.title+'</span>' +
-          badge +
-          (hasResImg ? '<span class="bd b-ok" style="font-size:10px">🏠 มีรูปจากลูกบ้าน</span>' : '') +
-        '</div>' +
-        '<div class="iss-m">📅 กำหนด: '+(v.deadline||'—')+(Number(v.penalty_amount)>0?' · ค่าปรับ: ฿'+Number(v.penalty_amount).toLocaleString():'')+
-        (imgs.length?' · 📷 '+imgs.length+' รูป':'')+
-        '</div>' +
-        '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
-          '<button class="btn btn-xs btn-p" onclick="openVioDetail(\''+v.vio_id+'\')">🔍 รายละเอียด</button>' +
-          '<button class="btn btn-xs btn-o" onclick="openVioEdit(\''+v.vio_id+'\')">✏️ แก้ไข</button>' +
-          (v.status!=='resolved'?'<button class="btn btn-xs btn-a" onclick="doViolationStatus(\''+v.vio_id+'\',\'resolved\')">✓ ปิดเรื่อง</button>':'') +
-          (Number(v.penalty_amount)===0?'<button class="btn btn-xs btn-d" onclick="openAddPenalty(\''+v.vio_id+'\',\''+v.house_id+'\')">+ ค่าปรับ</button>':'') +
-        '</div>' +
-      '</div>';
-    }).join('');
+    _allViolationsCache = viols;
+    _vioOpenCache   = viols.filter(function(v){ return v.status !== 'resolved'; });
+    _vioClosedCache = viols.filter(function(v){ return v.status === 'resolved'; });
+
+    // อัปเดต filter cards counts
+    _setEl('vfc-cnt-all',         _vioOpenCache.length);
+    _setEl('vfc-cnt-pending',     _vioOpenCache.filter(function(v){return v.status==='pending';}).length);
+    _setEl('vfc-cnt-acknowledged',_vioOpenCache.filter(function(v){return v.status==='acknowledged';}).length);
+    _setEl('vfc-cnt-fix',         _vioOpenCache.filter(function(v){return v.status==='fix_submitted';}).length);
+
+    _vioFilterStatus = '';
+    _renderVioOpenList();
+    _renderVioClosedList();
   } finally { hideLoader(); }
+}
+
+function stabVio(tab, btn) {
+  document.getElementById('vio-pane-open').style.display   = tab==='open'   ? '' : 'none';
+  document.getElementById('vio-pane-closed').style.display = tab==='closed' ? '' : 'none';
+  document.getElementById('vio-filter-cards').style.display = tab==='open'  ? '' : 'none';
+  document.getElementById('tab-vio-open').classList.toggle('on',  tab==='open');
+  document.getElementById('tab-vio-closed').classList.toggle('on', tab==='closed');
+}
+
+function _filterVio(status) {
+  _vioFilterStatus = status;
+  // highlight active card
+  ['all','pending','acknowledged','fix'].forEach(function(k) {
+    var el = document.getElementById('vfc-'+k);
+    if (!el) return;
+    var match = (k==='all' && status==='') || (k==='fix' && status==='fix_submitted') || k===status;
+    el.style.outline = match ? '2px solid var(--pr)' : '';
+  });
+  _renderVioOpenList();
+}
+
+function _renderVioList(elId, viols) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  if (!viols.length) {
+    el.innerHTML = '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการ</div></div>';
+    return;
+  }
+  const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว',escalated:'ส่งต่อ'};
+  const statusBadge = {pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu',escalated:'b-dg'};
+  el.innerHTML = viols.map(function(v) {
+    var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
+    var rImgs=[]; try{rImgs=JSON.parse(v.resident_image_urls||'[]');}catch(e){}
+    var badge='<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
+    return '<div class="iss mb-12" data-vio-status="'+v.status+'">' +
+      '<div class="iss-h">' +
+        '<span class="iss-t">บ้าน '+v.house_id+' — '+v.title+'</span>' +
+        badge +
+        (rImgs.length?'<span class="bd b-ok" style="font-size:10px">🏠 รูปลูกบ้าน</span>':'') +
+      '</div>' +
+      '<div class="iss-m">📅 กำหนด: '+(v.deadline||'—')+(Number(v.penalty_amount)>0?' · ค่าปรับ: ฿'+Number(v.penalty_amount).toLocaleString():'')+
+        (imgs.length?' · 📷 '+imgs.length+' รูป':'')+
+      '</div>' +
+      '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
+        '<button class="btn btn-xs btn-p" onclick="openVioDetail(\''+v.vio_id+'\')">🔍 รายละเอียด</button>' +
+        '<button class="btn btn-xs btn-o" onclick="openVioEdit(\''+v.vio_id+'\')">✏️ แก้ไข</button>' +
+        (v.status!=='resolved'?'<button class="btn btn-xs btn-a" onclick="doViolationStatus(\''+v.vio_id+'\',\'resolved\')">✓ ปิดเรื่อง</button>':'') +
+        (Number(v.penalty_amount)===0?'<button class="btn btn-xs btn-d" onclick="openAddPenalty(\''+v.vio_id+'\',\''+v.house_id+'\')">+ ค่าปรับ</button>':'') +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function _renderVioOpenList() {
+  var list = _vioFilterStatus
+    ? _vioOpenCache.filter(function(v){ return v.status === _vioFilterStatus; })
+    : _vioOpenCache;
+  _renderVioList('list-violations', list);
+}
+
+function _renderVioClosedList() {
+  _renderVioList('list-violations-closed', _vioClosedCache);
+}
+
+// ── เพิ่มค่าปรับ ──
+var _penaltyVioId = '', _penaltyHouseId = '';
+function openAddPenalty(vio_id, house_id) {
+  _penaltyVioId   = vio_id;
+  _penaltyHouseId = house_id;
+  var el = document.getElementById('ap-amount'); if (el) el.value = '';
+  var he = document.getElementById('ap-sub');
+  if (he) he.textContent = 'บ้าน ' + house_id;
+  openM('m-add-penalty');
+}
+
+async function doAddPenalty() {
+  var amount = Number((document.getElementById('ap-amount')||{}).value || 0);
+  if (!amount || amount <= 0) { Swal.fire({icon:'warning',title:'กรุณาระบุจำนวนค่าปรับ'}); return; }
+  showLoader('กำลังบันทึกค่าปรับ...');
+  try {
+    await api('updateViolationStatus', {vio_id: _penaltyVioId, status: 'pending', penalty_amount: amount});
+    closeM('m-add-penalty');
+    hideLoader();
+    Swal.fire({icon:'success',title:'บันทึกค่าปรับแล้ว',timer:1500,showConfirmButton:false});
+    invalidatePageCache('admin-vio'); loadViolationsPage();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
 }
 
 // ── ดูรายละเอียด ──
@@ -4209,6 +4304,7 @@ async function openVioEdit(vio_id) {
   document.getElementById('ve-vio-id').value = vio_id;
   _setEl('ve-sub','บ้าน '+v.house_id+' · '+v.vio_id);
   var t=document.getElementById('ve-title'); if(t) t.value=v.title||'';
+  var ty=document.getElementById('ve-type'); if(ty) ty.value=v.vio_type||'อื่นๆ';
   var d=document.getElementById('ve-desc'); if(d) d.value=v.description||'';
   var dl=document.getElementById('ve-deadline'); if(dl) dl.value=v.deadline||'';
   var pe=document.getElementById('ve-penalty'); if(pe) pe.value=v.penalty_amount||0;
@@ -4222,6 +4318,7 @@ async function openVioEdit(vio_id) {
 async function doSaveVioEdit() {
   var vio_id = document.getElementById('ve-vio-id').value;
   var title  = (document.getElementById('ve-title')||{}).value||'';
+  var vtype  = (document.getElementById('ve-type')||{}).value||'';
   var desc   = (document.getElementById('ve-desc')||{}).value||'';
   var dl     = (document.getElementById('ve-deadline')||{}).value||'';
   var pen    = Number((document.getElementById('ve-penalty')||{}).value||0);
@@ -4230,7 +4327,7 @@ async function doSaveVioEdit() {
   try {
     var newUrls = await _uploadVioImages('ve-', vio_id);
     var allUrls = _veExistingUrls.concat(newUrls);
-    await api('updateViolation', {vio_id, title:title.trim(), description:desc, deadline:dl, penalty_amount:pen, image_urls:allUrls});
+    await api('updateViolation', {vio_id, title:title.trim(), vio_type:vtype, description:desc, deadline:dl, penalty_amount:pen, image_urls:allUrls});
     _resetVioImages('ve-');
     closeM('m-vio-edit');
     hideLoader();
@@ -4281,11 +4378,12 @@ async function doAckViolation(vio_id) {
 
 // ── RESIDENT: Notifications / Violations ─────────────────────
 async function loadResNotifPage() {
+  showLoader('โหลดการแจ้งเตือน...');
   try {
     const viols = await api('getMyViolations');
     const statusLabel={pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
     const statusBadge={pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
-    const _html = viols.map(function(v) {
+    const _html = viols && viols.length ? viols.map(function(v) {
       var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
       var imgHtml = imgs.length ? '<div class="vio-imgs">'+imgs.map(function(url){
         return '<img class="vio-img" src="'+url+'" onclick="window.open(\''+url+'\',\'_blank\')" style="cursor:pointer">';
@@ -4293,9 +4391,9 @@ async function loadResNotifPage() {
       var badge='<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
       var actions = '';
       if (v.status==='pending') {
-        actions = '<button class="btn btn-sm btn-o" style="margin-top:10px;margin-right:6px" onclick="doAckViolation(\''+v.vio_id+'\')">✓ รับทราบ</button>';
+        actions += '<button class="btn btn-sm btn-o" style="margin-top:10px;margin-right:6px" onclick="doAckViolation(\''+v.vio_id+'\')">✓ รับทราบ</button>';
       }
-      if (v.status==='pending'||v.status==='acknowledged') {
+      if (v.status==='pending' || v.status==='acknowledged') {
         actions += '<button class="btn btn-sm btn-a" style="margin-top:10px" onclick="openResidentVioAction(\''+v.vio_id+'\',\''+v.title.replace(/'/g,'')+'\')">✅ แจ้งว่าแก้ไขแล้ว</button>';
       }
       return '<div class="vio-card">' +
@@ -4308,18 +4406,18 @@ async function loadResNotifPage() {
         imgHtml +
         (actions?'<div style="margin-top:8px">'+actions+'</div>':'') +
       '</div>';
-    }).join('') || '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีการแจ้งเตือน</div></div>';
+    }).join('') : '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีการแจ้งเตือน</div></div>';
     var el=document.getElementById('list-my-notifs'); if(el) el.innerHTML=_html;
     var el2=document.getElementById('list-my-violations'); if(el2) el2.innerHTML=_html;
-  } catch(e) { console.warn('loadResNotifPage', e); }
+  } catch(e) {
+    console.warn('loadResNotifPage:', e);
+    var errHtml='<div class="al al-e">โหลดข้อมูลไม่สำเร็จ: '+e.message+'</div>';
+    var el=document.getElementById('list-my-notifs'); if(el) el.innerHTML=errHtml;
+  } finally { hideLoader(); }
 }
 
-// loadViolationsPage cache update after api call
-var _origLoadVioPage = loadViolationsPage;
-loadViolationsPage = async function() {
-  await _origLoadVioPage();
-  try { _allViolationsCache = await api('getViolations'); } catch(e) {}
-};
+// loadViolationsPage wrapper: อัปเดต _allViolationsCache หลัง load (ไม่ต้อง double call)
+// ลบ wrapper เดิมทิ้ง - _allViolationsCache อัปเดตใน loadViolationsPage โดยตรงแล้ว
 
 // ── Toggle announcement ───────────────────────────────────────
 async function doToggleAnn(ann_id) {
@@ -7259,7 +7357,19 @@ function _openInvoiceWindow(f, isFullYear) {
   </div>
   <div class="md-bd">
     <input type="hidden" id="ve-vio-id">
-    <div class="fg"><label class="fl">หัวข้อ</label><input class="fi" id="ve-title"></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">หัวข้อ *</label><input class="fi" id="ve-title"></div>
+      <div class="fg"><label class="fl">ประเภท</label>
+        <select class="fs" id="ve-type">
+          <option value="จอดรถผิดที่">จอดรถผิดที่</option>
+          <option value="เผาขยะ">เผาขยะ</option>
+          <option value="ส่งเสียงดัง">ส่งเสียงดัง</option>
+          <option value="สัตว์เลี้ยงรบกวน">สัตว์เลี้ยงรบกวน</option>
+          <option value="ทำลายทรัพย์สินส่วนกลาง">ทำลายทรัพย์สินส่วนกลาง</option>
+          <option value="อื่นๆ">อื่นๆ</option>
+        </select>
+      </div>
+    </div>
     <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="ve-desc"></textarea></div>
     <div class="fr2">
       <div class="fg"><label class="fl">กำหนดแก้ไข</label><input class="fi" id="ve-deadline" type="date"></div>
@@ -7304,6 +7414,25 @@ function _openInvoiceWindow(f, isFullYear) {
   <div class="md-ft">
     <button class="btn btn-g btn-sm" onclick="closeM('m-vio-resident')">ยกเลิก</button>
     <button class="btn btn-a btn-sm" onclick="doResidentVioAction()">✓ ยืนยันแก้ไขแล้ว</button>
+  </div>
+</div></div>
+<!-- MODAL: เพิ่มค่าปรับ -->
+<div class="mo" id="m-add-penalty" onclick="omOut(event,'m-add-penalty')">
+<div class="md">
+  <div class="md-handle"></div>
+  <div class="md-hd">
+    <div class="md-hd-ico">💰</div>
+    <div><div class="md-title">เพิ่มค่าปรับ</div><div class="md-sub" id="ap-sub"></div></div>
+  </div>
+  <div class="md-bd">
+    <div class="al al-i" style="margin-bottom:12px">ระบุจำนวนค่าปรับที่ต้องการเรียกเก็บ</div>
+    <div class="fg"><label class="fl">จำนวนค่าปรับ (บาท) *</label>
+      <input class="fi" id="ap-amount" type="number" min="1" placeholder="เช่น 500">
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-add-penalty')">ยกเลิก</button>
+    <button class="btn btn-d btn-sm" onclick="doAddPenalty()">💰 บันทึกค่าปรับ</button>
   </div>
 </div></div>
 

@@ -485,6 +485,10 @@ var Violations = (function() {
     const { vio_id, status, admin_note } = body;
     const updates = { status, admin_note: admin_note || '' };
     if (status === 'resolved') updates.resolved_at = now();
+    // รองรับ penalty_amount จาก openAddPenalty
+    if (body.penalty_amount !== undefined) {
+      updates.penalty_amount = Number(body.penalty_amount) || 0;
+    }
     // อัปเดต image_urls ถ้ามี
     if (body.image_urls !== undefined) {
       updates.image_urls = Array.isArray(body.image_urls)
