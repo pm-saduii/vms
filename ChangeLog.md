@@ -1117,3 +1117,33 @@ group: village
 - `Code.gs` — routes ครบ
 - `Services.gs` — Boot.load fallback
 - `Houses_Vehicles_ChangeReq.gs`, `Fees_Issues_Violations.gs` — fallbacks (ของรอบก่อน)
+
+---
+
+## ✅ Fix — หน้าบ้านลูกบ้าน: ข้อมูลถูก + Modal แก้ไขถูกต้อง
+
+### Root Causes (อ่านจาก Data จริง)
+- USERS: admin มี `house_id = HSE-004`
+- HOUSES: HSE-004 = บ้านเลขที่ 99/7 ซอย 1 เจ้าของ นายพงศภัสร์
+- แต่หน้าแสดง 9/1 (HSE-001) เพราะ `APP.house` cache เก่าจาก session ก่อน
+
+### Fix: m-edithouse modal
+- ลบ hardcode ทั้งหมด: "081-234-5678", "somchai@email.com", "ซอย 3", "52", "10/1"
+- เพิ่ม IDs ใหม่: `eh-houseno`, `eh-soi`, `eh-area`, `eh-fee`, `eh-owner`
+- `id="edithouse-usage"` → `id="edit-usage"` (ให้ตรงกับ `doSubmitHouseEditReq`)
+- เพิ่ม `id="edit-renter"` สำหรับผู้เช่า/ผู้อาศัย
+- `id="edithouse-sub"` (resident modal) vs `id="admin-edithouse-sub"` (admin modal) — แยก ID ออก
+
+### Fix: `openResEditHouseModal()` (ใหม่)
+- populate ทุก field จาก `APP.house` จริง: house_no, soi, area_sqm, fee_per_year, owner_name, renter_name, phone, email, usage_type
+- อัปเดต subtitle เป็น "บ้าน {house_no} ซอย {soi}"
+- ปุ่ม "ขอแก้ไข" เรียก `openResEditHouseModal()` แทน `openM('m-edithouse')` โดยตรง
+
+### Fix: `doSubmitHouseEditReq()`
+- แก้ `edit-usage` (เดิมใช้ `edit-usage` แต่ modal ใช้ `edithouse-usage` — ไม่ตรงกัน)
+- เพิ่ม `renter_name` ใน changes comparison
+- showLoader: `'กำลังส่งคำขอแก้ไข...'` แทน `'...'`
+- guard null ทุก element ด้วย `||{}`
+
+### Fix: admin `openEditHouseModal`
+- เปลี่ยน `_setEl('edithouse-sub',...)` → `_setEl('admin-edithouse-sub',...)` เพื่อไม่ชนกับ resident modal

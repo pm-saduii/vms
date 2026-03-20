@@ -2100,28 +2100,32 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🏠</div>
-    <div><div class="md-title">ขอแก้ไขข้อมูลบ้าน</div><div class="md-sub">บ้าน 10/1 · ส่งคำขอเพื่อรออนุมัติจากนิติ</div></div>
+    <div><div class="md-title">ขอแก้ไขข้อมูลบ้าน</div><div class="md-sub" id="edithouse-sub">ส่งคำขอเพื่อรออนุมัติจากนิติ</div></div>
   </div>
   <div class="md-bd">
-    <div class="al al-i">ℹ️ ข้อมูลที่ระบุเป็นสีเทาแก้ไขไม่ได้ ส่วนที่เปิดให้แก้ไขจะถูกส่งเป็นคำขอเพื่อรออนุมัติ</div>
+    <div class="al al-i" style="margin-bottom:12px">ℹ️ ข้อมูลที่ระบุเป็นสีเทาแก้ไขไม่ได้ ส่วนที่เปิดให้แก้ไขจะถูกส่งเป็นคำขอเพื่อรออนุมัติ</div>
     <div class="sl">📍 ที่อยู่ (แก้ไขไม่ได้)</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">บ้านเลขที่</label><input class="fi" id="prof-houseid" value="" disabled></div>
-      <div class="fg"><label class="fl">ซอย</label><input class="fi" value="ซอย 3" disabled></div>
+      <div class="fg"><label class="fl">บ้านเลขที่</label><input class="fi" id="eh-houseno" value="" disabled></div>
+      <div class="fg"><label class="fl">ซอย</label><input class="fi" id="eh-soi" value="" disabled></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">ขนาด (ตร.ว.)</label><input class="fi" value="52" disabled></div>
-      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" value="฿4,500" disabled></div>
+      <div class="fg"><label class="fl">ขนาด (ตร.ว.)</label><input class="fi" id="eh-area" value="" disabled></div>
+      <div class="fg"><label class="fl">ค่าส่วนกลาง/ปี</label><input class="fi" id="eh-fee" value="" disabled></div>
     </div>
     <div class="sl">👤 ผู้อาศัย (แก้ไขได้)</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์</label><input class="fi" id="prof-name" value="" disabled></div>
-      <div class="fg"><label class="fl">ผู้เช่า/ผู้อาศัย</label><input class="fi" value="" placeholder="(ไม่มี)"></div>
+      <div class="fg"><label class="fl">เจ้าของกรรมสิทธิ์</label><input class="fi" id="eh-owner" value="" disabled></div>
+      <div class="fg"><label class="fl">ผู้เช่า/ผู้อาศัย</label><input class="fi" id="edit-renter" placeholder="(ไม่มี)"></div>
     </div>
-    <div class="fg"><label class="fl">เบอร์โทรศัพท์ ✏️</label><input class="fi" id="edit-phone" value="081-234-5678" oninput="this.value=_fmtPhone(this.value)"></div>
-    <div class="fg"><label class="fl">อีเมล ✏️</label><input class="fi" id="edit-email" value="somchai@email.com"></div>
+    <div class="fg"><label class="fl">เบอร์โทรศัพท์ ✏️</label><input class="fi" id="edit-phone" oninput="this.value=_fmtPhone(this.value)"></div>
+    <div class="fg"><label class="fl">อีเมล ✏️</label><input class="fi" id="edit-email"></div>
     <div class="fg"><label class="fl">ประเภทการใช้ ✏️</label>
-      <select class="fs" id="edithouse-usage"><option value="owner">อยู่เอง</option><option value="rent">ให้เช่า</option><option value="vacant">ว่าง</option></select>
+      <select class="fs" id="edit-usage">
+        <option value="owner">อยู่เอง</option>
+        <option value="rent">ให้เช่า</option>
+        <option value="vacant">ว่าง</option>
+      </select>
     </div>
     <div class="fg"><label class="fl">หมายเหตุ (ถึงนิติ)</label><textarea class="ft" id="edit-note" placeholder="ระบุเหตุผลในการแก้ไข..."></textarea></div>
   </div>
@@ -2398,7 +2402,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">✏️</div>
-    <div><div class="md-title">แก้ไขข้อมูลบ้าน</div><div class="md-sub" id="edithouse-sub">Admin Mode</div></div>
+    <div><div class="md-title">แก้ไขข้อมูลบ้าน</div><div class="md-sub" id="admin-edithouse-sub">Admin Mode</div></div>
   </div>
   <input type="hidden" id="edithouse-id">
   <input type="hidden" id="edithouse-mode" value="edit">
@@ -3715,7 +3719,7 @@ async function loadResHousePage() {
     var infoHtml =
       '<div class="card">' +
         '<div class="ch"><div class="ch-ico">🏠</div><div class="ct">ข้อมูลบ้านทั้งหมด</div>' +
-          '<button class="btn btn-sm btn-o" onclick="openM(\'m-edithouse\')">✏️ ขอแก้ไข</button>' +
+          '<button class="btn btn-sm btn-o" onclick="openResEditHouseModal()">✏️ ขอแก้ไข</button>' +
         '</div>' +
         '<div class="cb">' +
           '<div class="sl">📍 ที่อยู่</div>' +
@@ -4585,27 +4589,53 @@ async function doCreateAnn() {
 }
 
 // ── Submit change request for house (resident) ────────────────
+// ── เปิด modal แก้ไขบ้านลูกบ้าน — populate จาก APP.house ──
+function openResEditHouseModal() {
+  var house = APP.house;
+  if (!house) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูลบ้าน กรุณารอโหลดสักครู่'}); return; }
+  // populate read-only fields
+  var f = function(id, val) { var el=document.getElementById(id); if(el) el.value=val||''; };
+  f('eh-houseno', house.house_no);
+  f('eh-soi',     house.soi);
+  f('eh-area',    house.area_sqm || '');
+  f('eh-fee',     '฿' + Number(house.fee_per_year||0).toLocaleString());
+  f('eh-owner',   house.owner_name);
+  // populate editable fields
+  f('edit-renter', house.renter_name);
+  f('edit-phone',  house.phone);
+  f('edit-email',  house.email);
+  f('edit-note',   '');
+  var uEl = document.getElementById('edit-usage');
+  if (uEl) uEl.value = house.usage_type || 'owner';
+  // update subtitle
+  var sub = document.getElementById('edithouse-sub');
+  if (sub) sub.textContent = 'บ้าน ' + house.house_no + (house.soi?' ซอย '+house.soi:'') + ' · ส่งคำขอเพื่อรออนุมัติจากนิติ';
+  openM('m-edithouse');
+}
+
 async function doSubmitHouseEditReq() {
-  const phone = document.getElementById('edit-phone').value.trim();
-  const email = document.getElementById('edit-email').value.trim();
-  const usage = document.getElementById('edit-usage').value;
-  const note  = document.getElementById('edit-note').value.trim();
-  const house = APP.house;
-  if (!house) return;
+  const phone  = (document.getElementById('edit-phone')||{}).value?.trim()||'';
+  const email  = (document.getElementById('edit-email')||{}).value?.trim()||'';
+  const usage  = (document.getElementById('edit-usage')||{}).value||'';
+  const renter = (document.getElementById('edit-renter')||{}).value?.trim()||'';
+  const note   = (document.getElementById('edit-note')||{}).value?.trim()||'';
+  const house  = APP.house;
+  if (!house) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูลบ้าน'}); return; }
   const changes = {};
-  if (phone !== house.phone) changes.phone = { old: house.phone, new: phone };
-  if (email !== house.email) changes.email = { old: house.email, new: email };
-  if (usage !== house.usage_type) changes.usage_type = { old: house.usage_type, new: usage };
+  if (phone  !== (house.phone||''))       changes.phone      = { old: house.phone||'',      new: phone  };
+  if (email  !== (house.email||''))       changes.email      = { old: house.email||'',      new: email  };
+  if (usage  !== (house.usage_type||''))  changes.usage_type = { old: house.usage_type||'', new: usage  };
+  if (renter !== (house.renter_name||'')) changes.renter_name= { old: house.renter_name||'',new: renter };
   if (!Object.keys(changes).length) {
-    Swal.fire({ icon:'info', title:'\u0e44\u0e21\u0e48\u0e21\u0e35\u0e2a\u0e34\u0e48\u0e07\u0e17\u0e35\u0e48\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e41\u0e1b\u0e25\u0e07' }); return;
+    Swal.fire({icon:'info',title:'ไม่มีสิ่งที่เปลี่ยนแปลง'}); return;
   }
-  showLoader('...');
+  showLoader('กำลังส่งคำขอแก้ไข...');
   try {
     await api('submitChangeReq', { target_type:'house_info', field_changes: changes, note });
     hideLoader(); closeM('m-edithouse');
-    Swal.fire({ icon:'success', title:'\u0e2a\u0e48\u0e07\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e25\u0e49\u0e27', text:'\u0e23\u0e2d\u0e19\u0e34\u0e15\u0e34\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34', timer:2500, showConfirmButton:false });
+    Swal.fire({icon:'success',title:'ส่งคำขอแล้ว',text:'รอนิติอนุมัติ',timer:2500,showConfirmButton:false});
     loadResHousePage();
-  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
 }
 
 // ── Submit new vehicle request (resident) ─────────────────────
@@ -5036,7 +5066,7 @@ function openAddHouseModal() {
   // Update modal title
   var titleEl = document.querySelector('#m-admin-edithouse .md-title');
   if (titleEl) titleEl.textContent = isAdd ? '\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48' : '\u0e41\u0e01\u0e49\u0e44\u0e02\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19';
-  _setEl('edithouse-sub', isAdd
+  _setEl('admin-edithouse-sub', isAdd
     ? '\u0e01\u0e23\u0e2d\u0e01\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19\u0e43\u0e2b\u0e21\u0e48'
     : '\u0e1a\u0e49\u0e32\u0e19 ' + _safeHouseNo(h.house_no) + ' \u00b7 Admin Mode');
   hideLoader();
