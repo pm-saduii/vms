@@ -417,9 +417,15 @@ var Issues = (function() {
     requireAdmin(user);
     const { issue_id, status, admin_note, assigned_to } = body;
     const updates = { status, updated_at: now() };
-    if (admin_note)   updates.admin_note  = admin_note;
+    if (admin_note !== undefined) updates.admin_note = admin_note;
     if (assigned_to)  updates.assigned_to = assigned_to;
     if (status === 'resolved') updates.resolved_at = now();
+    // รองรับ image_urls จาก admin update
+    if (body.image_urls !== undefined && body.image_urls.length > 0) {
+      updates.image_urls = Array.isArray(body.image_urls)
+        ? JSON.stringify(body.image_urls)
+        : body.image_urls;
+    }
     updateRowById('ISSUES', 'issue_id', issue_id, updates);
     return { success: true };
   }
@@ -509,24 +515,17 @@ var Violations = (function() {
   }
 
   function updateStatus(body, user) {
+    requireAdmin(user);
     const { vio_id, status, admin_note } = body;
-    // ลูกบ้านทำได้เฉพาะ fix_submitted เท่านั้น (fallback เมื่อ violationResidentAction ไม่มี)
-    if (user.role !== 'admin') {
-      if (status !== 'fix_submitted') throw new Error('ไม่มีสิทธิ์');
-      const vio = findRow('VIOLATIONS', 'vio_id', vio_id);
-      if (!vio) throw new Error('ไม่พบการแจ้งเตือน');
-      if (vio.house_id !== user.house_id) throw new Error('ไม่มีสิทธิ์');
-    }
     const updates = { status, admin_note: admin_note || '' };
     if (status === 'resolved') updates.resolved_at = now();
-    if (status === 'fix_submitted') updates.resident_ack_at = now();
     // รองรับ penalty_amount จาก openAddPenalty
     if (body.penalty_amount !== undefined) {
       updates.penalty_amount = Number(body.penalty_amount) || 0;
     }
-    // รองรับ image_urls (fallback resident action) → เก็บเป็น resident_image_urls
-    if (body.image_urls !== undefined && body.image_urls.length > 0) {
-      updates.resident_image_urls = Array.isArray(body.image_urls)
+    // อัปเดต image_urls ถ้ามี
+    if (body.image_urls !== undefined) {
+      updates.image_urls = Array.isArray(body.image_urls)
         ? JSON.stringify(body.image_urls)
         : body.image_urls;
     }
