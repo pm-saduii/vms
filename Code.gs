@@ -72,6 +72,7 @@ function _route(body) {
       'getMyIssues':           () => Issues.getMine(body, user),
       'createIssue':           () => Issues.create(body, user),
       'updateIssueStatus':     () => Issues.updateStatus(body, user),
+      'cancelIssue':           () => Issues.cancel(body, user),
       'rateIssue':             () => Issues.rate(body, user),
       /* VIOLATIONS */
       'getViolations':              () => Violations.getAll(body, user),

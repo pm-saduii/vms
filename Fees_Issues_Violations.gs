@@ -442,7 +442,21 @@ var Issues = (function() {
     return { success: true };
   }
 
-  return { getAll, getMine, create, updateStatus, rate };
+  function cancel(body, user) {
+    const { issue_id } = body;
+    const issue = findRow('ISSUES', 'issue_id', issue_id);
+    if (!issue) throw new Error('ไม่พบปัญหา');
+    // ลูกบ้านยกเลิกได้เฉพาะ issue ของตัวเอง, admin ยกเลิกได้ทุกรายการ
+    if (user.role !== 'admin' && issue.house_id !== user.house_id) throw new Error('ไม่มีสิทธิ์');
+    var newStatus = body.status || 'cancelled';
+    updateRowById('ISSUES', 'issue_id', issue_id, {
+      status: newStatus,
+      updated_at: now()
+    });
+    return { success: true };
+  }
+
+  return { getAll, getMine, create, updateStatus, cancel, rate };
 })();
 
 

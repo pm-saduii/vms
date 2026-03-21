@@ -1079,6 +1079,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 .btn-refresh:hover{background:var(--bg2);border-color:var(--ac)}
 .btn-refresh svg{width:14px;height:14px;flex-shrink:0}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body data-theme="normal">
 
@@ -1578,7 +1579,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- ADMIN: ISSUES -->
       <div id="p-admin-issues" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-issues" data-fn="loadIssuesPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">จัดการปัญหา</div><div class="ph-sub">จัดการปัญหาจากลูกบ้าน</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="admin-issues" data-fn="loadIssuesPage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> รีโหลด</button></div></div></div>
         <div class="tabs">
           <button class="tab on" id="tab-iss-open" onclick="stab('ai','open',this)">🔴 รอดำเนินการ</button>
           <button class="tab" id="tab-iss-doing" onclick="stab('ai','doing',this)">🟡 กำลังดำเนินการ</button>
@@ -2014,7 +2015,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
         <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">ปัญหาที่แจ้งไว้กับนิติ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="res-issue" data-fn="loadResIssuePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button><button class="btn btn-ghost btn-sm" onclick="openResNewIssueModal()">+ แจ้งปัญหาใหม่</button></div></div></div>
         <div class="tabs">
           <button class="tab on" id="res-tab-iss-open" onclick="stabResIssue('open',this)">🔴 รอดำเนินการ</button>
-          <button class="tab" id="res-tab-iss-done" onclick="stabResIssue('done',this)">✅ เสร็จสิ้น</button>
+          <button class="tab" id="res-tab-iss-done" onclick="stabResIssue('done',this)">✅ เสร็จสิ้น/ยกเลิกโดยลูกบ้าน</button>
         </div>
         <div id="res-iss-open"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div>
         <div id="res-iss-done" style="display:none"></div>
@@ -2696,7 +2697,40 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 
 <!-- MODAL: Update Issue Status (Admin) -->
-<div class="mo" id="m-update-issue">
+<!-- MODAL: ดูรายละเอียดปัญหา (Admin) -->
+<div class="mo" id="m-view-issue" onclick="omOut(event,'m-view-issue')">
+<div class="md wide"><div class="md-handle"></div>
+  <div class="md-hd"><div class="md-hd-ico">🔧</div>
+    <div><div class="md-title" id="vi-title">รายละเอียดปัญหา</div><div class="md-sub" id="vi-sub"></div></div>
+  </div>
+  <div class="md-bd">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div><div class="sl">บ้าน</div><div id="vi-house" style="font-size:13px"></div></div>
+      <div><div class="sl">สถานะ</div><div id="vi-status"></div></div>
+      <div><div class="sl">หมวดหมู่</div><div id="vi-cat" style="font-size:13px"></div></div>
+      <div><div class="sl">วันที่แจ้ง</div><div id="vi-date" style="font-size:13px"></div></div>
+    </div>
+    <div class="fg"><div class="sl">รายละเอียด</div><div id="vi-desc" style="font-size:13px;color:var(--tx);line-height:1.6;white-space:pre-wrap"></div></div>
+    <div id="vi-admin-note-wrap" style="margin-top:10px;display:none">
+      <div class="sl">💬 หมายเหตุจากนิติ</div>
+      <div id="vi-admin-note" style="margin-top:4px;padding:8px 12px;background:var(--prl);border-radius:8px;font-size:12.5px;line-height:1.6"></div>
+    </div>
+    <div id="vi-imgs-wrap" style="margin-top:12px;display:none">
+      <div class="sl">📷 รูปจากลูกบ้าน</div>
+      <div id="vi-imgs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div>
+    </div>
+    <div id="vi-admin-imgs-wrap" style="margin-top:12px;display:none">
+      <div class="sl">📷 รูปจากนิติ</div>
+      <div id="vi-admin-imgs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px"></div>
+    </div>
+  </div>
+  <div class="md-ft">
+    <button class="btn btn-g btn-sm" onclick="closeM('m-view-issue')">ปิด</button>
+    <button class="btn btn-p btn-sm" id="vi-btn-update" onclick="openUpdateFromView()">✏️ อัปเดตสถานะ</button>
+  </div>
+</div></div>
+
+<!-- MODAL: อัปเดตสถานะปัญหา (Admin) -->
 <div class="md wide"><div class="md-handle"></div>
   <div class="md-hd"><div class="md-hd-ico">🔧</div>
     <div><div class="md-title">อัปเดตสถานะปัญหา</div><div class="md-sub" id="iss-update-sub"></div></div>
@@ -3383,11 +3417,8 @@ function _destroyChart(c) { if (c) { try { c.destroy(); } catch(e) {} } }
 
 function dashRenderAllCharts() {
   if (typeof Chart === 'undefined') {
-    // โหลด Chart.js แล้วค่อย render
-    var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
-    s.onload = function() { dashRenderAllCharts(); };
-    document.head.appendChild(s);
+    // Chart.js ยังไม่พร้อม (rare) — ลองอีกครั้งใน 300ms
+    setTimeout(dashRenderAllCharts, 300);
     return;
   }
   dashRenderVioChart();
@@ -3967,14 +3998,15 @@ function _renderIssueList(elId, items) {
     var statusTH = _issStatusTH[i.status] || i.status;
     var statusBd = _issStatusBd[i.status] || 'b-mu';
     var imgs = []; try { imgs = JSON.parse(i.image_urls||'[]'); } catch(e) {}
-    var imgHtml = imgs.length
-      ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">' +
-        imgs.map(function(url){
-          return '<img src="'+url+'" style="width:56px;height:56px;object-fit:cover;border-radius:7px;border:1px solid var(--bo);cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')">';
-        }).join('') + '</div>'
-      : '';
     var noteHtml = i.admin_note
       ? '<div class="iss-m" style="margin-top:4px">💬 '+i.admin_note+'</div>'
+      : '';
+    // แสดง thumbnail เล็ก
+    var thumbHtml = imgs.length
+      ? '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">' +
+        imgs.slice(0,3).map(function(url){
+          return '<img src="'+url+'" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--bo);cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')">';
+        }).join('') + (imgs.length>3?'<span style="font-size:11px;color:var(--mu);align-self:center">+'+( imgs.length-3)+'</span>':'') + '</div>'
       : '';
     return '<div class="iss">' +
       '<div class="iss-h">' +
@@ -3982,15 +4014,45 @@ function _renderIssueList(elId, items) {
         '<span class="bd '+statusBd+'">' + statusTH + '</span>' +
       '</div>' +
       '<div class="iss-m">🏠 ' + (i.house_id||'') + ' · ' + _fmtDate(i.created_at) + (i.category?' · '+i.category:'') + '</div>' +
-      (i.description ? '<div class="iss-m" style="margin-top:3px;color:var(--tx)">' + (i.description).substring(0,120) + '</div>' : '') +
-      noteHtml +
-      imgHtml +
+      (i.description ? '<div class="iss-m" style="margin-top:3px;color:var(--tx)">' + i.description.substring(0,100) + '</div>' : '') +
+      noteHtml + thumbHtml +
       '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
+        '<button class="btn btn-xs btn-g" onclick="openViewIssue(\''+i.issue_id+'\')">🔍 ดูปัญหา</button>' +
         '<button class="btn btn-xs btn-p" onclick="openUpdateIssue(\''+i.issue_id+'\')">✏️ อัปเดต</button>' +
       '</div>' +
     '</div>';
   }).join('');
 }
+
+// ── ดูรายละเอียดปัญหา (Admin) ──
+var _viewIssueId = null;
+function openViewIssue(issue_id) {
+  var i = (window._issuesCache||[]).find(function(x){ return x.issue_id === issue_id; });
+  if (!i) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูล'}); return; }
+  _viewIssueId = issue_id;
+  _setEl('vi-title', i.title||'—');
+  _setEl('vi-house', i.house_id||'—');
+  _setEl('vi-cat',   i.category||'—');
+  _setEl('vi-date',  _fmtDate(i.created_at));
+  _setEl('vi-desc',  i.description||'—');
+  var stEl = document.getElementById('vi-status');
+  if (stEl) stEl.innerHTML = '<span class="bd '+(_issStatusBd[i.status]||'b-mu')+'">'+(_issStatusTH[i.status]||i.status)+'</span>';
+  var noteWrap = document.getElementById('vi-admin-note-wrap');
+  var noteEl   = document.getElementById('vi-admin-note');
+  if (noteWrap) noteWrap.style.display = i.admin_note ? '' : 'none';
+  if (noteEl && i.admin_note) noteEl.textContent = i.admin_note;
+  // รูปจากลูกบ้าน
+  var imgs = []; try { imgs = JSON.parse(i.image_urls||'[]'); } catch(e) {}
+  var imgWrap = document.getElementById('vi-imgs-wrap');
+  var imgEl   = document.getElementById('vi-imgs');
+  if (imgWrap) imgWrap.style.display = imgs.length ? '' : 'none';
+  if (imgEl) imgEl.innerHTML = imgs.map(function(url){
+    return '<img src="'+url+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo);cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')">';
+  }).join('');
+  openM('m-view-issue');
+}
+
+function openUpdateFromView() { closeM('m-view-issue'); openUpdateIssue(_viewIssueId); }
 
 // Resident issue list (ใช้ใน loadResIssuePage) — เพิ่มปุ่มให้คะแนน
 function _renderResIssueList(el, items) {
@@ -4430,26 +4492,34 @@ async function loadResIssuePage() {
   showLoader('โหลดรายการแจ้งปัญหา...');
   try {
     const issues = await api('getMyIssues');
-    var openList = issues.filter(function(i){ return i.status !== 'resolved'; });
-    var doneList = issues.filter(function(i){ return i.status === 'resolved'; });
+    var openList = issues.filter(function(i){ return i.status!=='resolved' && i.status!=='closed' && i.status!=='cancelled'; });
+    var doneList = issues.filter(function(i){ return i.status==='resolved'||i.status==='closed'||i.status==='cancelled'; });
 
-    var statusMap  = {pending:'รอดำเนินการ', in_progress:'กำลังดำเนิน', resolved:'เสร็จสิ้น'};
-    var statusBadge= {pending:'b-dg', in_progress:'b-wn', resolved:'b-ok'};
+    var statusMap  = {pending:'รอดำเนินการ', in_progress:'กำลังดำเนินการ', resolved:'เสร็จสิ้น', closed:'ปิด', cancelled:'ยกเลิกโดยลูกบ้าน'};
+    var statusBadge= {pending:'b-dg', in_progress:'b-wn', resolved:'b-ok', closed:'b-mu', cancelled:'b-mu'};
 
-    // อัปเดต tab label
     var tabOpen = document.getElementById('res-tab-iss-open');
     if (tabOpen) tabOpen.textContent = '🔴 รอดำเนินการ'+(openList.length?' ('+openList.length+')':'');
+    var tabDone = document.getElementById('res-tab-iss-done');
+    if (tabDone) tabDone.textContent = '✅ เสร็จสิ้น/ยกเลิก'+(doneList.length?' ('+doneList.length+')':'');
 
     function renderIssCard(i) {
       var imgs = []; try { imgs = JSON.parse(i.image_urls||'[]'); } catch(e) {}
-      var imgHtml = imgs.length ? '<div class="vio-imgs" style="margin-top:8px">'+imgs.map(function(url){
+      var imgHtml = imgs.length ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">'+imgs.map(function(url){
         return '<img src="'+url+'" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo);cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')">';
       }).join('')+'</div>' : '';
       var catIco = {'ไฟฟ้า / แสงสว่าง':'💡','ประปา / น้ำ':'💧','สระว่ายน้ำ':'🏊','สวนสาธารณะ':'🌳','ถนน / ทางเดิน':'🛣️','รักษาความปลอดภัย':'🔐','ขยะ / ความสะอาด':'🗑️'}[i.category] || '🔧';
+      var stTH  = statusMap[i.status]  || i.status;
+      var stBdg = statusBadge[i.status]|| 'b-mu';
+      var canCancel = (i.status==='pending'||i.status==='in_progress');
+      var ratingHtml = '';
+      if (i.status==='resolved' && !i.rating) {
+        ratingHtml = '<button class="btn btn-xs btn-o" onclick="openRateIssue(\''+i.issue_id+'\')" style="margin-top:8px">⭐ ให้คะแนนการแก้ไข</button>';
+      }
       return '<div class="iss mb-12">' +
         '<div class="iss-h">' +
           '<span class="iss-t">'+catIco+' '+i.title+'</span>' +
-          '<span class="bd '+(statusBadge[i.status]||'b-mu')+'">'+(statusMap[i.status]||i.status)+'</span>' +
+          '<span class="bd '+stBdg+'">'+stTH+'</span>' +
         '</div>' +
         '<div class="iss-m" style="margin-top:4px">' +
           (i.category ? '<span style="font-size:11px;color:var(--mu)">'+i.category+' · </span>' : '') +
@@ -4458,8 +4528,8 @@ async function loadResIssuePage() {
         (i.description ? '<div style="font-size:12.5px;color:var(--tx2);margin-top:5px;line-height:1.5">'+i.description+'</div>' : '') +
         (i.admin_note ? '<div style="margin-top:6px;padding:6px 10px;background:var(--prl);border-radius:8px;font-size:12px;color:var(--tx)">💬 นิติ: '+i.admin_note+'</div>' : '') +
         imgHtml +
-        (i.status==='resolved' && !i.rating ? '<button class="btn btn-xs btn-o" onclick="openRateIssue(\''+i.issue_id+'\')" style="margin-top:8px">⭐ ให้คะแนน</button>' : '') +
-        (i.rating ? '<div style="margin-top:6px;font-size:12px;color:var(--mu)">คะแนน: '+'⭐'.repeat(Number(i.rating))+'</div>' : '') +
+        (canCancel ? '<button class="btn btn-xs btn-dg" onclick="doCancelIssue(\''+i.issue_id+'\')" style="margin-top:8px">✕ ยกเลิกการแจ้ง</button>' : '') +
+        ratingHtml +
       '</div>';
     }
 
@@ -4471,13 +4541,30 @@ async function loadResIssuePage() {
     var elDone = document.getElementById('res-iss-done');
     if (elDone) elDone.innerHTML = doneList.length
       ? doneList.map(renderIssCard).join('')
-      : '<div class="empty-state"><div class="es-ico">📋</div><div class="es-s">ยังไม่มีปัญหาที่แก้ไขแล้ว</div></div>';
+      : '<div class="empty-state"><div class="es-ico">📋</div><div class="es-s">ยังไม่มีรายการ</div></div>';
 
   } catch(e) {
     console.warn('loadResIssuePage:', e);
     var el = document.getElementById('res-iss-open');
     if (el) el.innerHTML = '<div class="al al-e">โหลดไม่สำเร็จ: '+e.message+'</div>';
   } finally { hideLoader(); }
+}
+
+// ลูกบ้านยกเลิกปัญหา
+async function doCancelIssue(issue_id) {
+  var r = await Swal.fire({
+    icon:'warning', title:'ยืนยันยกเลิก?',
+    text:'จะเปลี่ยนสถานะเป็น "ยกเลิกโดยลูกบ้าน" ไม่สามารถกู้คืนได้',
+    showCancelButton:true, confirmButtonText:'ยืนยัน', cancelButtonText:'ยกเลิก'
+  });
+  if (!r.isConfirmed) return;
+  showLoader('กำลังยกเลิก...');
+  try {
+    await api('cancelIssue', {issue_id});
+    hideLoader();
+    Swal.fire({icon:'success',title:'ยกเลิกแล้ว',timer:1500,showConfirmButton:false});
+    loadResIssuePage();
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
 }
 
 
@@ -5435,9 +5522,9 @@ function openUpdateIssue(issue_id) {
   _issExistingImgs = [];
   var previewWrap = document.getElementById('iss-existing-imgs');
   if (previewWrap) previewWrap.innerHTML = '';
-  // reset note (ล้างช่องหมายเหตุ ไม่เอาค่าเดิม)
+  // reset note — เอาค่าเดิมมาแสดง (ไม่ล้าง)
   var noteEl = document.getElementById('iss-note');
-  if (noteEl) noteEl.value = '';
+  if (noteEl) noteEl.value = iss ? (iss.admin_note||'') : '';
   // populate จาก cache
   if (iss) {
     var statusEl = document.getElementById('iss-status');
@@ -5494,13 +5581,16 @@ var _rateIssueId = null;
 var _rateValue = 0;
 function openRateIssue(issue_id) { _rateIssueId = issue_id; openM('m-rate-issue'); }
 async function doSubmitRating() {
-  if (!_rateValue) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e40\u0e25\u0e37\u0e2d\u0e01\u0e04\u0e30\u0e41\u0e19\u0e19' }); return; }
+  if (!_rateValue) { Swal.fire({ icon:'warning', title:'กรุณาเลือกคะแนน' }); return; }
   const comment = document.getElementById('rate-comment').value.trim();
-  showLoader('...');
+  showLoader('กำลังส่งคะแนน...');
   try {
+    // บันทึก rating
     await api('rateIssue', { issue_id: _rateIssueId, rating: _rateValue, rating_comment: comment });
+    // auto-close: เปลี่ยน status เป็น closed
+    try { await api('cancelIssue', { issue_id: _rateIssueId, status: 'closed' }); } catch(e2) {}
     hideLoader(); closeM('m-rate-issue');
-    Swal.fire({ icon:'success', title:'\u0e02\u0e2d\u0e1a\u0e04\u0e38\u0e13\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e04\u0e30\u0e41\u0e19\u0e19!', timer:2000, showConfirmButton:false });
+    Swal.fire({ icon:'success', title:'ขอบคุณสำหรับคะแนน!', text:'ปัญหาของคุณถูกปิดแล้ว', timer:2000, showConfirmButton:false });
     loadResIssuePage();
   } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
 }
@@ -5518,7 +5608,7 @@ var PT = {
   'admin-dash':        'Dashboard \u2014 <span class="hl">\u0e20\u0e32\u0e1e\u0e23\u0e27\u0e21</span>',
   'admin-houses':      '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19 \u2014 <span class="hl">\u0e08\u0e31\u0e14\u0e01\u0e32\u0e23</span>',
   'admin-fees':        '\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07 \u2014 <span class="hl">\u0e01\u0e32\u0e23\u0e0a\u0e33\u0e23\u0e30</span>',
-  'admin-issues':      '\u0e41\u0e08\u0e49\u0e1b\u0e31\u0e0d\u0e2b\u0e32 \u2014 <span class="hl">\u0e08\u0e31\u0e14\u0e01\u0e32\u0e23</span>',
+  'admin-issues':      'จัดการปัญหา',
   'admin-vio':         'แจ้งกระทำผิด — <span class="hl">แจ้งเตือน</span>',
   'admin-req':         '\u0e04\u0e33\u0e02\u0e2d\u0e41\u0e01\u0e49\u0e44\u0e02 \u2014 <span class="hl">\u0e23\u0e2d\u0e2d\u0e19\u0e38\u0e21\u0e31\u0e15\u0e34</span>',
   'admin-ann':         '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28 \u2014 <span class="hl">\u0e02\u0e48\u0e32\u0e27\u0e2a\u0e32\u0e23</span>',
