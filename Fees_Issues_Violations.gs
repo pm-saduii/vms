@@ -509,17 +509,24 @@ var Violations = (function() {
   }
 
   function updateStatus(body, user) {
-    requireAdmin(user);
     const { vio_id, status, admin_note } = body;
+    // ลูกบ้านทำได้เฉพาะ fix_submitted เท่านั้น (fallback เมื่อ violationResidentAction ไม่มี)
+    if (user.role !== 'admin') {
+      if (status !== 'fix_submitted') throw new Error('ไม่มีสิทธิ์');
+      const vio = findRow('VIOLATIONS', 'vio_id', vio_id);
+      if (!vio) throw new Error('ไม่พบการแจ้งเตือน');
+      if (vio.house_id !== user.house_id) throw new Error('ไม่มีสิทธิ์');
+    }
     const updates = { status, admin_note: admin_note || '' };
     if (status === 'resolved') updates.resolved_at = now();
+    if (status === 'fix_submitted') updates.resident_ack_at = now();
     // รองรับ penalty_amount จาก openAddPenalty
     if (body.penalty_amount !== undefined) {
       updates.penalty_amount = Number(body.penalty_amount) || 0;
     }
-    // อัปเดต image_urls ถ้ามี
-    if (body.image_urls !== undefined) {
-      updates.image_urls = Array.isArray(body.image_urls)
+    // รองรับ image_urls (fallback resident action) → เก็บเป็น resident_image_urls
+    if (body.image_urls !== undefined && body.image_urls.length > 0) {
+      updates.resident_image_urls = Array.isArray(body.image_urls)
         ? JSON.stringify(body.image_urls)
         : body.image_urls;
     }
@@ -542,15 +549,16 @@ var Violations = (function() {
 
   // ลูกบ้าน action: รับทราบ + แนบรูปหลักฐานว่าแก้ไขแล้ว
   function residentAction(body, user) {
-    const { vio_id, action, resident_image_urls } = body;
+    // ใช้ vio_action แทน action เพื่อป้องกัน key collision กับ api router
+    const { vio_id, vio_action, resident_image_urls } = body;
     const vio = findRow('VIOLATIONS', 'vio_id', vio_id);
     if (!vio) throw new Error('ไม่พบการแจ้งเตือน');
     if (user.role !== 'admin' && vio.house_id !== user.house_id) throw new Error('ไม่มีสิทธิ์');
     const updates = {};
-    if (action === 'acknowledge') {
+    if (vio_action === 'acknowledge') {
       updates.status = 'acknowledged';
       updates.resident_ack_at = now();
-    } else if (action === 'fix_submitted') {
+    } else if (vio_action === 'fix_submitted') {
       updates.status = 'fix_submitted';
       updates.resident_ack_at = now();
     }

@@ -1330,3 +1330,30 @@ const body = { action, token: APP.token, ...payload };
 ### ⚠️ Deploy Services.gs ใหม่
 URL thumbnail เปลี่ยนแล้ว — รูปเก่าที่อยู่ใน Drive จะยังใช้ URL เดิม (`uc?export=view`)
 ต้อง re-upload หรือ update URL ใน Sheet ให้เป็น thumbnail format ใหม่
+
+---
+
+## ✅ Fix — Unknown action: fix_submitted (Robust Fallback)
+
+### Root Cause
+GAS ที่ deploy อยู่ไม่มี route `violationResidentAction` (version เก่า) → error ทุกครั้ง
+
+### Fix: index.html — doResidentVioAction() Fallback Logic
+```
+try → violationResidentAction (route ใหม่)
+catch 'Unknown action' → fallback updateViolationStatus (มีในทุก GAS version)
+```
+- ลอง `violationResidentAction` ก่อนเสมอ
+- ถ้า error "Unknown action" → fallback `updateViolationStatus` พร้อม `status:'fix_submitted'`
+- รูปที่ upload ส่งเป็น `image_urls` ใน fallback → GAS เก็บเป็น `resident_image_urls`
+
+### Fix: Fees_Issues_Violations.gs — updateViolationStatus ลูกบ้านได้
+- ลบ `requireAdmin(user)` ออก
+- เพิ่ม permission check: ลูกบ้านทำได้เฉพาะ `status: 'fix_submitted'` + ต้องเป็น house เดียวกัน
+- `fix_submitted` → set `resident_ack_at = now()` ด้วย
+- `image_urls` จาก fallback → เก็บเป็น `resident_image_urls` ใน Sheet
+
+### Deploy ที่ต้องทำ
+- `Fees_Issues_Violations.gs` — updateViolationStatus รองรับลูกบ้าน (**จำเป็น**)
+- `index.html` — มี fallback logic แล้ว (**จำเป็น**)
+- `Code.gs` — ถ้า deploy ใหม่ได้ ให้ใส่ `violationResidentAction` route ด้วย (**แนะนำ**)

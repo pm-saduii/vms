@@ -4491,17 +4491,46 @@ function openResidentVioAction(vio_id, title) {
 
 async function doResidentVioAction() {
   var vio_id = document.getElementById('vr-vio-id').value;
+  if (!vio_id) { Swal.fire({icon:'warning',title:'ไม่พบข้อมูล'}); return; }
   showLoader('กำลังส่งข้อมูล...');
   try {
     var imgUrls = await _uploadVioImages('vr-', vio_id);
-    // หมายเหตุ: ใช้ vio_action ไม่ใช่ action เพื่อป้องกัน key collision กับ api() parameter
-    await api('violationResidentAction', {vio_id, vio_action:'fix_submitted', resident_image_urls: imgUrls});
-    _resetVioImages('vr-');
-    closeM('m-vio-resident');
+
+    // ลอง violationResidentAction ก่อน (route ใหม่)
+    // ถ้าไม่มี → fallback ใช้ updateViolationStatus ซึ่งมีอยู่แล้วใน GAS เดิม
+    var success = false;
+    try {
+      await api('violationResidentAction', {
+        vio_id: vio_id,
+        vio_action: 'fix_submitted',
+        resident_image_urls: imgUrls
+      });
+      success = true;
+    } catch(e1) {
+      if (e1.message && e1.message.indexOf('Unknown action') >= 0) {
+        // Fallback: ใช้ updateViolationStatus ที่มีใน GAS ทุก version
+        await api('updateViolationStatus', {
+          vio_id: vio_id,
+          status: 'fix_submitted',
+          image_urls: imgUrls.length ? imgUrls : undefined
+        });
+        success = true;
+      } else {
+        throw e1;
+      }
+    }
+
+    if (success) {
+      _resetVioImages('vr-');
+      closeM('m-vio-resident');
+      hideLoader();
+      Swal.fire({icon:'success',title:'แจ้งแก้ไขแล้ว',text:'นิติจะตรวจสอบและปิดเรื่องให้',timer:2500,showConfirmButton:false});
+      loadResNotifPage();
+    }
+  } catch(e) {
     hideLoader();
-    Swal.fire({icon:'success',title:'แจ้งแก้ไขแล้ว',text:'นิติจะตรวจสอบและปิดเรื่องให้',timer:2500,showConfirmButton:false});
-    loadResNotifPage();
-  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
+    Swal.fire({icon:'error',title:'Error',text:e.message});
+  }
 }
 
 async function doAckViolation(vio_id) {
