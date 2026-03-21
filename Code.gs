@@ -192,8 +192,15 @@ function updateRowById(name, idField, idValue, updates) {
   for (let i = 1; i < data.length; i++) {
     if (String(data[i][iCol]) === String(idValue)) {
       Object.keys(updates).forEach(k => {
-        const c = hdrs.indexOf(k);
-        if (c >= 0) sh.getRange(i + 1, c + 1).setValue(updates[k]);
+        let c = hdrs.indexOf(k);
+        // ถ้า column ไม่มีใน header → เพิ่ม column ใหม่ท้ายสุดอัตโนมัติ
+        if (c < 0) {
+          const newCol = hdrs.length + 1;
+          sh.getRange(1, newCol).setValue(k);
+          hdrs.push(k);
+          c = newCol - 1;
+        }
+        sh.getRange(i + 1, c + 1).setValue(updates[k]);
       });
       return true;
     }

@@ -1251,3 +1251,37 @@ const body = { action, token: APP.token, ...payload };
 - `if (action === 'fix_submitted')` → `if (vio_action === 'fix_submitted')`
 
 ### ⚠️ Deploy GAS: Fees_Issues_Violations.gs
+
+---
+
+## ✅ Fix — แจ้งแก้ไขแล้ว: Sheet ไม่ update + รูปไม่แสดง
+
+### ปัญหา 1: Sheet VIOLATIONS ไม่ update + รูปหาย
+**Root Cause (อ่านจาก updateRowById บรรทัด 195):**
+- `hdrs.indexOf(k)` คืน `-1` เมื่อ column `resident_image_urls` ไม่มีใน VIOLATIONS sheet header row
+- `if (c >= 0)` → skip → ไม่ setValue → Sheet ไม่เปลี่ยนแปลง
+- รูปถูก upload ไป Drive แล้ว (URL มี) แต่ URL ไม่ถูกเก็บ
+
+**Fix (Code.gs — updateRowById):**
+- เปลี่ยนจาก skip → **auto-add column** ท้ายสุดถ้า key ไม่มีใน header:
+  ```javascript
+  const newCol = hdrs.length + 1;
+  sh.getRange(1, newCol).setValue(k); // เพิ่ม header
+  hdrs.push(k);                        // update local array
+  c = newCol - 1;
+  ```
+- ครั้งแรกที่ส่ง `resident_image_urls` → GAS จะสร้าง column ใหม่ใน Sheet อัตโนมัติ
+
+### ปัญหา 2: กดครั้งที่ 2 ไม่แสดงรูปเดิม
+**Root Cause:**
+- `openResidentVioAction` เรียก `_resetVioImages('vr-')` → ลบ preview
+- ไม่มีการโหลด `resident_image_urls` ที่เคยส่งไปแล้วมาแสดง
+
+**Fix (index.html):**
+- เพิ่ม `<div id="vr-existing-imgs">` ใน modal `m-vio-resident`
+- `openResidentVioAction` lookup `window._myViolationsCache` → parse `resident_image_urls` → แสดงรูปเดิม
+- `loadResNotifPage` เก็บ `window._myViolationsCache = viols` หลัง fetch
+
+### ⚠️ Deploy GAS Code.gs ใหม่ (สำคัญ)
+- `updateRowById` auto-add column จะแก้ปัญหา resident_image_urls ที่ขาดใน header
+- ครั้งแรกที่ resident กด "แจ้งว่าแก้ไขแล้ว" หลัง deploy → GAS จะสร้าง column `resident_image_urls` ใน VIOLATIONS sheet อัตโนมัติ
