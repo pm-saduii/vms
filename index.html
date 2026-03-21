@@ -1333,7 +1333,86 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           </div>
         </div>
 
-        <!-- Row 1: 4 stat cards -->
+        <!-- ── GRAPHS (ด้านบน) ── -->
+
+        <!-- Row 1: Vehicle cards -->
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:4px 0 8px">ยานพาหนะที่ลงทะเบียน</div>
+        <div class="stats" id="dash-vehicle-cards" style="grid-template-columns:repeat(4,1fr);margin-top:0">
+          <div class="sc"><div class="sc-ico p">🚗</div><div><div class="sc-v" id="dash-veh-car">—</div><div class="sc-l">รถยนต์</div></div></div>
+          <div class="sc"><div class="sc-ico w">🏍️</div><div><div class="sc-v" id="dash-veh-moto">—</div><div class="sc-l">รถจักรยานยนต์</div></div></div>
+          <div class="sc"><div class="sc-ico a">🚐</div><div><div class="sc-v" id="dash-veh-van">—</div><div class="sc-l">รถตู้/กระบะ</div></div></div>
+          <div class="sc"><div class="sc-ico" style="background:var(--bg2)">🚙</div><div><div class="sc-v" id="dash-veh-other">—</div><div class="sc-l">อื่นๆ</div></div></div>
+        </div>
+
+        <!-- Row 2: Charts กราฟรายเดือน -->
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">กราฟรายเดือน</div>
+        <div class="g2">
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">⚠️</div>
+              <div class="ct">การแจ้งกระทำผิด รายเดือน</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="display:flex;gap:4px">
+                  <button onclick="dashSetVioColor('#D85A30')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#D85A30;cursor:pointer"></button>
+                  <button onclick="dashSetVioColor('#1D9E75')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#1D9E75;cursor:pointer"></button>
+                  <button onclick="dashSetVioColor('#7F77DD')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#7F77DD;cursor:pointer"></button>
+                  <button onclick="dashSetVioColor('#BA7517')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#BA7517;cursor:pointer"></button>
+                </div>
+                <select id="vio-chart-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderVioChart()">
+                  <option value="2568">2568</option><option value="2567">2567</option>
+                </select>
+              </div>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-vio-monthly"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">🔧</div>
+              <div class="ct">แจ้งปัญหา + แก้ไขแล้ว รายเดือน</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="display:flex;gap:4px">
+                  <button onclick="dashSetIssColor('#185FA5')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#185FA5;cursor:pointer"></button>
+                  <button onclick="dashSetIssColor('#0F6E56')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#0F6E56;cursor:pointer"></button>
+                  <button onclick="dashSetIssColor('#BA7517')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#BA7517;cursor:pointer"></button>
+                </div>
+                <select id="iss-chart-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderIssChart()">
+                  <option value="2568">2568</option><option value="2567">2567</option>
+                </select>
+              </div>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-iss-monthly"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Row 3: Fee charts (Mock) -->
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">ค่าส่วนกลาง <span class="bd b-wn" style="font-size:9px;vertical-align:middle">Mock data</span></div>
+        <div class="g2">
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">🏠</div>
+              <div class="ct">บ้านค้างชำระ vs ชำระแล้ว</div>
+              <select id="fee-status-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderFeeStatusChart()">
+                <option value="2568">2568</option><option value="2567">2567</option><option value="2566">2566</option>
+              </select>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-fee-status"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">💰</div>
+              <div class="ct">ยอดเก็บได้ vs เป้าหมาย</div>
+              <select id="fee-amt-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderFeeAmtChart()">
+                <option value="2568">2568</option><option value="2567">2567</option><option value="2566">2566</option>
+              </select>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-fee-amt"></canvas></div>
+          </div>
+        </div>
+
+        <!-- ── STAT CARDS + ACTIVITY (ด้านล่าง) ── -->
+
+        <!-- Row 4: 4 stat cards -->
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">สรุปภาพรวม</div>
         <div class="stats">
           <div class="sc"><div class="sc-ico p">🏠</div><div>
             <div class="sc-v" id="stat-houses">—</div>
@@ -1357,7 +1436,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           </div></div>
         </div>
 
-        <!-- Row 2: 4 more cards (violations, change req, market, contractors) -->
+        <!-- Row 5: 4 more cards -->
         <div class="stats" style="grid-template-columns:repeat(4,1fr);margin-top:0">
           <div class="sc"><div class="sc-ico d" style="background:var(--wnl);color:var(--wn)">⚠️</div><div>
             <div class="sc-v" id="stat-vio">—</div>
@@ -1377,7 +1456,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           </div></div>
         </div>
 
-        <!-- Row 3: Slips + Change Requests -->
+        <!-- Row 6: Slips + Change Requests -->
         <div class="g2">
           <div class="card">
             <div class="ch">
@@ -1404,7 +1483,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           </div>
         </div>
 
-        <!-- Row 4: Issues + Announcements -->
+        <!-- Row 7: Issues + Announcements -->
         <div class="g2">
           <div class="card">
             <div class="ch">
@@ -1428,7 +1507,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           </div>
         </div>
 
-        <!-- Row 5: Violations + Quick Actions -->
+        <!-- Row 8: Violations + Quick Actions -->
         <div class="g2">
           <div class="card">
             <div class="ch">
@@ -1450,84 +1529,6 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
               <button class="btn btn-o btn-sm" onclick="go('admin','usr',null)" style="justify-content:flex-start;gap:8px">👥 จัดการสมาชิก</button>
               <button class="btn btn-o btn-sm" onclick="doGenerateFees()" style="justify-content:flex-start;gap:8px">⚡ Generate ค่าส่วนกลาง</button>
             </div>
-          </div>
-        </div>
-
-        <!-- Row 6: Vehicle cards -->
-        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">ยานพาหนะที่ลงทะเบียน</div>
-        <div class="stats" id="dash-vehicle-cards" style="grid-template-columns:repeat(4,1fr);margin-top:0">
-          <div class="sc"><div class="sc-ico p">🚗</div><div><div class="sc-v" id="dash-veh-car">—</div><div class="sc-l">รถยนต์</div></div></div>
-          <div class="sc"><div class="sc-ico w">🏍️</div><div><div class="sc-v" id="dash-veh-moto">—</div><div class="sc-l">รถจักรยานยนต์</div></div></div>
-          <div class="sc"><div class="sc-ico a">🚐</div><div><div class="sc-v" id="dash-veh-van">—</div><div class="sc-l">รถตู้/กระบะ</div></div></div>
-          <div class="sc"><div class="sc-ico" style="background:var(--bg2)">🚙</div><div><div class="sc-v" id="dash-veh-other">—</div><div class="sc-l">อื่นๆ</div></div></div>
-        </div>
-
-        <!-- Row 7: Charts -->
-        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">กราฟรายเดือน</div>
-        <div class="g2">
-          <!-- Chart 1: Violations by month -->
-          <div class="card">
-            <div class="ch">
-              <div class="ch-ico">⚠️</div>
-              <div class="ct">การแจ้งกระทำผิด รายเดือน</div>
-              <div style="display:flex;align-items:center;gap:6px">
-                <div style="display:flex;gap:4px" id="vio-color-btns">
-                  <button onclick="dashSetVioColor('#D85A30')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#D85A30;cursor:pointer"></button>
-                  <button onclick="dashSetVioColor('#1D9E75')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#1D9E75;cursor:pointer"></button>
-                  <button onclick="dashSetVioColor('#7F77DD')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#7F77DD;cursor:pointer"></button>
-                  <button onclick="dashSetVioColor('#BA7517')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#BA7517;cursor:pointer"></button>
-                </div>
-                <select id="vio-chart-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderVioChart()">
-                  <option value="2568">2568</option><option value="2567">2567</option>
-                </select>
-              </div>
-            </div>
-            <div style="position:relative;width:100%;height:180px"><canvas id="chart-vio-monthly"></canvas></div>
-          </div>
-          <!-- Chart 2: Issues by month -->
-          <div class="card">
-            <div class="ch">
-              <div class="ch-ico">🔧</div>
-              <div class="ct">แจ้งปัญหา + แก้ไขแล้ว รายเดือน</div>
-              <div style="display:flex;align-items:center;gap:6px">
-                <div style="display:flex;gap:4px">
-                  <button onclick="dashSetIssColor('#185FA5')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#185FA5;cursor:pointer"></button>
-                  <button onclick="dashSetIssColor('#0F6E56')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#0F6E56;cursor:pointer"></button>
-                  <button onclick="dashSetIssColor('#BA7517')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#BA7517;cursor:pointer"></button>
-                </div>
-                <select id="iss-chart-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderIssChart()">
-                  <option value="2568">2568</option><option value="2567">2567</option>
-                </select>
-              </div>
-            </div>
-            <div style="position:relative;width:100%;height:180px"><canvas id="chart-iss-monthly"></canvas></div>
-          </div>
-        </div>
-
-        <!-- Row 8: Fee charts (Mock) -->
-        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">ค่าส่วนกลาง <span class="bd b-wn" style="font-size:9px;vertical-align:middle">Mock data</span></div>
-        <div class="g2">
-          <!-- Chart 3: Paid/Unpaid houses by half-year -->
-          <div class="card">
-            <div class="ch">
-              <div class="ch-ico">🏠</div>
-              <div class="ct">บ้านค้างชำระ vs ชำระแล้ว</div>
-              <select id="fee-status-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderFeeStatusChart()">
-                <option value="2568">2568</option><option value="2567">2567</option><option value="2566">2566</option>
-              </select>
-            </div>
-            <div style="position:relative;width:100%;height:180px"><canvas id="chart-fee-status"></canvas></div>
-          </div>
-          <!-- Chart 4: Amount collected vs target -->
-          <div class="card">
-            <div class="ch">
-              <div class="ch-ico">💰</div>
-              <div class="ct">ยอดเก็บได้ vs เป้าหมาย</div>
-              <select id="fee-amt-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderFeeAmtChart()">
-                <option value="2568">2568</option><option value="2567">2567</option><option value="2566">2566</option>
-              </select>
-            </div>
-            <div style="position:relative;width:100%;height:180px"><canvas id="chart-fee-amt"></canvas></div>
           </div>
         </div>
 
