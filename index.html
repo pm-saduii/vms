@@ -2011,8 +2011,13 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: ISSUE -->
       <div id="p-res-issue" class="pane">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">ปัญหาที่แจ้งไว้</div></div></div><div class="ph-acts"><button class="btn btn-ghost btn-sm" onclick="openM('m-newissue')">+ แจ้งปัญหา</button></div></div></div>
-        <div class="card"><div class="ch"><div class="ch-ico">🔧</div><div class="ct">ปัญหาที่แจ้ง</div></div><div class="cb" id="list-my-issues"><p class="text-mu" style="text-align:center;padding:20px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔧</div><div><div class="ph-h1">แจ้งปัญหา</div><div class="ph-sub">ปัญหาที่แจ้งไว้กับนิติ</div></div></div><div class="ph-acts"><button class="btn-refresh" data-pane="res-issue" data-fn="loadResIssuePage" onclick="_doRefresh(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button><button class="btn btn-ghost btn-sm" onclick="openResNewIssueModal()">+ แจ้งปัญหาใหม่</button></div></div></div>
+        <div class="tabs">
+          <button class="tab on" id="res-tab-iss-open" onclick="stabResIssue('open',this)">🔴 รอดำเนินการ</button>
+          <button class="tab" id="res-tab-iss-done" onclick="stabResIssue('done',this)">✅ เสร็จสิ้น</button>
+        </div>
+        <div id="res-iss-open"><p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p></div>
+        <div id="res-iss-done" style="display:none"></div>
       </div>
 
       <!-- RES: NOTIF      <!-- RES: NOTIF (การแจ้งเตือนจากนิติ) -->
@@ -2363,20 +2368,37 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
 <!-- MODAL: แจ้งปัญหาใหม่ -->
 <div class="mo" id="m-newissue">
-<div class="md">
+<div class="md wide">
   <div class="md-handle"></div>
   <div class="md-hd">
     <div class="md-hd-ico">🔧</div>
-    <div><div class="md-title">แจ้งปัญหาใหม่</div><div class="md-sub">บ้าน 10/1</div></div>
+    <div><div class="md-title">แจ้งปัญหาใหม่</div><div class="md-sub" id="newissue-sub">ส่งคำขอให้นิติดำเนินการ</div></div>
   </div>
   <div class="md-bd">
-    <div class="fg"><label class="fl">หัวข้อปัญหา</label><input class="fi" id="new-issue-title" placeholder="เช่น ไฟถนนดับ ท่อน้ำรั่ว..."></div>
-    <div class="fg"><label class="fl">ประเภท</label>
-      <select class="fs"><option>ไฟฟ้า / แสงสว่าง</option><option>ประปา / น้ำ</option><option>สระว่ายน้ำ</option><option>สวนสาธารณะ</option><option>ถนน / ทางเดิน</option><option>รักษาความปลอดภัย</option><option>อื่นๆ</option></select>
+    <div class="fg"><label class="fl">ประเภทปัญหา *</label>
+      <select class="fs" id="new-issue-cat">
+        <option value="ไฟฟ้า / แสงสว่าง">💡 ไฟฟ้า / แสงสว่าง</option>
+        <option value="ประปา / น้ำ">💧 ประปา / น้ำ</option>
+        <option value="สระว่ายน้ำ">🏊 สระว่ายน้ำ</option>
+        <option value="สวนสาธารณะ">🌳 สวนสาธารณะ</option>
+        <option value="ถนน / ทางเดิน">🛣️ ถนน / ทางเดิน</option>
+        <option value="รักษาความปลอดภัย">🔐 รักษาความปลอดภัย</option>
+        <option value="ขยะ / ความสะอาด">🗑️ ขยะ / ความสะอาด</option>
+        <option value="อื่นๆ">📋 อื่นๆ</option>
+      </select>
     </div>
-    <div class="fg"><label class="fl">รายละเอียด</label><textarea class="ft" id="new-issue-desc" placeholder="อธิบายปัญหาให้ละเอียด..."></textarea></div>
-    <div class="fg"><label class="fl">รูปภาพประกอบ</label>
-      <div class="upl"><div class="upl-ico">📷</div><div class="upl-txt"><strong>อัปโหลดรูปภาพ</strong> ถ่ายรูปปัญหา</div></div>
+    <div class="fg"><label class="fl">หัวข้อปัญหา *</label>
+      <input class="fi" id="new-issue-title" placeholder="เช่น ไฟถนนดับ ท่อน้ำรั่ว ต้นไม้ล้ม...">
+    </div>
+    <div class="fg"><label class="fl">รายละเอียด</label>
+      <textarea class="ft" id="new-issue-desc" placeholder="อธิบายปัญหาให้ละเอียด ตำแหน่งที่เกิดปัญหา และผลกระทบ..." rows="3"></textarea>
+    </div>
+    <div class="fg"><label class="fl">📷 รูปภาพประกอบ (ไม่เกิน 3 รูป, resize ≤150KB)</label>
+      <label style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg2);border:1.5px dashed var(--bo2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--tx2)">
+        📎 เลือกรูปภาพ
+        <input type="file" id="iss-img-input" accept="image/*" multiple style="display:none" onchange="onIssImageSelect(this)">
+      </label>
+      <div id="iss-img-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
     </div>
   </div>
   <div class="md-ft">
@@ -4249,23 +4271,122 @@ function _renderResFees(fees, year) {
 }
 
 // ── RESIDENT: Issues ──────────────────────────────────────────
+// ── Issue image upload (resident) ────────────────────────────
+var _issImages = [];
+function onIssImageSelect(input) {
+  var files = Array.from(input.files || []).slice(0, 3 - _issImages.length);
+  input.value = '';
+  files.forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var MAX = 800, w = img.width, h = img.height;
+        if (w > MAX || h > MAX) { if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
+        var tryQ = function(q) {
+          canvas.toBlob(function(blob) {
+            if (!blob) return;
+            if (blob.size > 150000 && q > 0.3) { tryQ(q-0.1); return; }
+            var br = new FileReader();
+            br.onload = function(ev) {
+              _issImages.push({dataUrl: ev.target.result});
+              _renderIssImgPreviews();
+            };
+            br.readAsDataURL(blob);
+          }, 'image/jpeg', q);
+        };
+        tryQ(0.8);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function _renderIssImgPreviews() {
+  var wrap = document.getElementById('iss-img-previews');
+  if (!wrap) return;
+  wrap.innerHTML = _issImages.map(function(img, idx) {
+    return '<div style="position:relative;display:inline-block">' +
+      '<img src="'+img.dataUrl+'" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo)">' +
+      '<button onclick="_issImages.splice('+idx+',1);_renderIssImgPreviews()" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--dg);color:#fff;border:none;cursor:pointer;font-size:10px;padding:0">&times;</button>' +
+    '</div>';
+  }).join('');
+}
+
+function openResNewIssueModal() {
+  _issImages = []; _renderIssImgPreviews();
+  var inp = document.getElementById('iss-img-input'); if(inp) inp.value='';
+  ['new-issue-title','new-issue-desc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var cat = document.getElementById('new-issue-cat'); if(cat) cat.selectedIndex=0;
+  // populate sub จากบ้านจริง
+  var sub = document.getElementById('newissue-sub');
+  if (sub && APP.house) sub.textContent = 'บ้าน '+(APP.house.house_no||'')+(APP.house.soi?' ซอย '+APP.house.soi:'')+' · ส่งให้นิติดำเนินการ';
+  openM('m-newissue');
+}
+
+function stabResIssue(tab, btn) {
+  document.getElementById('res-iss-open').style.display = tab==='open' ? '' : 'none';
+  document.getElementById('res-iss-done').style.display = tab==='done' ? '' : 'none';
+  document.getElementById('res-tab-iss-open').classList.toggle('on', tab==='open');
+  document.getElementById('res-tab-iss-done').classList.toggle('on', tab==='done');
+}
+
 async function loadResIssuePage() {
+  showLoader('โหลดรายการแจ้งปัญหา...');
   try {
     const issues = await api('getMyIssues');
-    const el = document.getElementById('list-my-issues');
-    if (!el) return;
-    el.innerHTML = issues.map(function(i) {
-      return '<div class="iss">' +
-        '<div class="iss-h"><span class="iss-t">' + i.title + '</span>' +
-        '<span class="bd b-' + ({pending:'dg',in_progress:'wn',resolved:'ok'}[i.status]||'mu') + '">' +
-          ({pending:'\u0e23\u0e2d\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19',in_progress:'\u0e01\u0e33\u0e25\u0e31\u0e07\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19',resolved:'\u0e40\u0e2a\u0e23\u0e47\u0e08\u0e2a\u0e34\u0e49\u0e19'}[i.status]||i.status) +
-        '</span></div>' +
-        '<div class="iss-m">\ud83d\udcc5 ' + _fmtDate(i.created_at) + '</div>' +
-        (i.admin_note ? '<div class="iss-m" style="margin-top:4px">\ud83d\udcac \u0e19\u0e34\u0e15\u0e34: ' + i.admin_note + '</div>' : '') +
-        (i.status === 'resolved' && !i.rating ? '<button class="btn btn-xs btn-o" onclick="openRateIssue(\'' + i.issue_id + '\')" style="margin-top:8px">\u2b50 \u0e43\u0e2b\u0e49\u0e04\u0e30\u0e41\u0e19\u0e19</button>' : '') +
+    var openList = issues.filter(function(i){ return i.status !== 'resolved'; });
+    var doneList = issues.filter(function(i){ return i.status === 'resolved'; });
+
+    var statusMap  = {pending:'รอดำเนินการ', in_progress:'กำลังดำเนิน', resolved:'เสร็จสิ้น'};
+    var statusBadge= {pending:'b-dg', in_progress:'b-wn', resolved:'b-ok'};
+
+    // อัปเดต tab label
+    var tabOpen = document.getElementById('res-tab-iss-open');
+    if (tabOpen) tabOpen.textContent = '🔴 รอดำเนินการ'+(openList.length?' ('+openList.length+')':'');
+
+    function renderIssCard(i) {
+      var imgs = []; try { imgs = JSON.parse(i.image_urls||'[]'); } catch(e) {}
+      var imgHtml = imgs.length ? '<div class="vio-imgs" style="margin-top:8px">'+imgs.map(function(url){
+        return '<img src="'+url+'" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1.5px solid var(--bo);cursor:pointer" onclick="window.open(\''+url+'\',\'_blank\')">';
+      }).join('')+'</div>' : '';
+      var catIco = {'ไฟฟ้า / แสงสว่าง':'💡','ประปา / น้ำ':'💧','สระว่ายน้ำ':'🏊','สวนสาธารณะ':'🌳','ถนน / ทางเดิน':'🛣️','รักษาความปลอดภัย':'🔐','ขยะ / ความสะอาด':'🗑️'}[i.category] || '🔧';
+      return '<div class="iss mb-12">' +
+        '<div class="iss-h">' +
+          '<span class="iss-t">'+catIco+' '+i.title+'</span>' +
+          '<span class="bd '+(statusBadge[i.status]||'b-mu')+'">'+(statusMap[i.status]||i.status)+'</span>' +
+        '</div>' +
+        '<div class="iss-m" style="margin-top:4px">' +
+          (i.category ? '<span style="font-size:11px;color:var(--mu)">'+i.category+' · </span>' : '') +
+          '📅 '+_fmtDate(i.created_at) +
+        '</div>' +
+        (i.description ? '<div style="font-size:12.5px;color:var(--tx2);margin-top:5px;line-height:1.5">'+i.description+'</div>' : '') +
+        (i.admin_note ? '<div style="margin-top:6px;padding:6px 10px;background:var(--prl);border-radius:8px;font-size:12px;color:var(--tx)">💬 นิติ: '+i.admin_note+'</div>' : '') +
+        imgHtml +
+        (i.status==='resolved' && !i.rating ? '<button class="btn btn-xs btn-o" onclick="openRateIssue(\''+i.issue_id+'\')" style="margin-top:8px">⭐ ให้คะแนน</button>' : '') +
+        (i.rating ? '<div style="margin-top:6px;font-size:12px;color:var(--mu)">คะแนน: '+'⭐'.repeat(Number(i.rating))+'</div>' : '') +
       '</div>';
-    }).join('') || '<div class="empty-state"><div class="es-ico">\u2705</div><div class="es-s">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e1b\u0e31\u0e0d\u0e2b\u0e32</div></div>';
-  } catch(e) {}
+    }
+
+    var elOpen = document.getElementById('res-iss-open');
+    if (elOpen) elOpen.innerHTML = openList.length
+      ? openList.map(renderIssCard).join('')
+      : '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีปัญหาที่รอดำเนินการ</div></div>';
+
+    var elDone = document.getElementById('res-iss-done');
+    if (elDone) elDone.innerHTML = doneList.length
+      ? doneList.map(renderIssCard).join('')
+      : '<div class="empty-state"><div class="es-ico">📋</div><div class="es-s">ยังไม่มีปัญหาที่แก้ไขแล้ว</div></div>';
+
+  } catch(e) {
+    console.warn('loadResIssuePage:', e);
+    var el = document.getElementById('res-iss-open');
+    if (el) el.innerHTML = '<div class="al al-e">โหลดไม่สำเร็จ: '+e.message+'</div>';
+  } finally { hideLoader(); }
 }
 
 
@@ -5057,17 +5178,37 @@ async function doSubmitSlip() {
 
 // ── Submit new issue (resident) ───────────────────────────────
 async function doSubmitIssue() {
-  const title = document.getElementById('new-issue-title').value.trim();
-  const desc  = document.getElementById('new-issue-desc').value.trim();
-  const cat   = document.getElementById('new-issue-cat').value;
-  if (!title) { Swal.fire({ icon:'warning', title:'\u0e01\u0e23\u0e38\u0e13\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e2b\u0e31\u0e27\u0e02\u0e49\u0e2d' }); return; }
-  showLoader('\u0e2a\u0e48\u0e07\u0e41\u0e08\u0e49\u0e1b\u0e31\u0e0d\u0e2b\u0e32...');
+  const title = (document.getElementById('new-issue-title')||{}).value?.trim()||'';
+  const desc  = (document.getElementById('new-issue-desc')||{}).value?.trim()||'';
+  const cat   = (document.getElementById('new-issue-cat')||{}).value||'อื่นๆ';
+  if (!title) { Swal.fire({icon:'warning',title:'กรุณาระบุหัวข้อปัญหา'}); return; }
+  showLoader('กำลังส่งแจ้งปัญหา...');
   try {
-    await api('createIssue', { title, description: desc, category: cat });
+    // สร้างปัญหาก่อน ได้ issue_id
+    const result = await api('createIssue', {title, description: desc, category: cat});
+    // upload รูป (ถ้ามี)
+    if (_issImages.length && result && result.issue_id) {
+      var imgUrls = [];
+      for (var i=0; i<_issImages.length; i++) {
+        var b64 = _issImages[i].dataUrl.split(',')[1];
+        if (!b64 || b64.length < 10) continue;
+        try {
+          var res = await apiPost('uploadImage', {
+            filename: 'ISS-'+result.issue_id+'_'+(i+1)+'_'+Date.now()+'.jpg',
+            base64data: b64, mime_type: 'image/jpeg'
+          });
+          if (res && res.url) imgUrls.push(res.url);
+        } catch(e2) { console.warn('iss img upload', e2.message); }
+      }
+      if (imgUrls.length) {
+        await api('updateIssue', {issue_id: result.issue_id, image_urls: imgUrls}).catch(function(){});
+      }
+    }
+    _issImages = []; _renderIssImgPreviews();
     hideLoader(); closeM('m-newissue');
-    Swal.fire({ icon:'success', title:'\u0e2a\u0e48\u0e07\u0e2a\u0e33\u0e40\u0e23\u0e47\u0e08', timer:2000, showConfirmButton:false });
+    Swal.fire({icon:'success',title:'ส่งแจ้งปัญหาแล้ว',text:'นิติจะดำเนินการโดยเร็ว',timer:2000,showConfirmButton:false});
     loadResIssuePage();
-  } catch(e) { hideLoader(); Swal.fire({ icon:'error', title:'Error', text:e.message }); }
+  } catch(e) { hideLoader(); Swal.fire({icon:'error',title:'Error',text:e.message}); }
 }
 
 
@@ -5250,7 +5391,7 @@ var PT = {
   'res-dash':          '\u0e2b\u0e19\u0e49\u0e32\u0e41\u0e23\u0e01',
   'res-house':         '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',
   'res-fee':           '\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07',
-  'res-issue':         '\u0e41\u0e08\u0e49\u0e1b\u0e31\u0e0d\u0e2b\u0e32',
+  'res-issue':         'แจ้งปัญหา',
   'res-notif':         'การแจ้งเตือน',
   'res-news':          '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28',
   'res-work':          '\u0e1c\u0e25\u0e07\u0e32\u0e19\u0e19\u0e34\u0e15\u0e34',
@@ -5278,7 +5419,8 @@ var _refreshFnMap = {
   'loadChangeReqPage':    function(){ return loadChangeReqPage(); },
   'loadMarketPage':       function(){ return loadMarketPage(); },
   'loadLoginLogsPage':    function(){ return loadLoginLogsPage(); },
-  'loadResHousePage':     function(){ return loadResHousePage(); }
+  'loadResHousePage':     function(){ return loadResHousePage(); },
+  'loadResIssuePage':     function(){ return loadResIssuePage(); }
 };
 async function _doRefresh(btn) {
   var pane = btn.getAttribute('data-pane');
