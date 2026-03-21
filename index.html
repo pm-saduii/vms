@@ -1930,8 +1930,12 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
       <!-- RES: NOTIF      <!-- RES: NOTIF (การแจ้งเตือนจากนิติ) -->
       <div id="p-res-notif" class="pane">
         <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🔔</div><div><div class="ph-h1">การแจ้งเตือน</div><div class="ph-sub">ประกาศจากนิติ</div></div></div></div></div>
-        <div id="list-my-notifs"><p class="text-mu" style="font-size:13px;text-align:center;padding:20px">กำลังโหลด...</p></div>
-        <div class="card"><div class="ch"><div class="ch-ico">📋</div><div class="ct">ประวัติการแจ้งเตือน</div></div><div class="cb" id="list-my-violations"><p class="text-mu" style="text-align:center;padding:16px;font-size:13px">กำลังโหลด...</p></div></div>
+        <div class="tabs">
+          <button class="tab on" id="tab-notif-open" onclick="stabResNotif('open',this)">🔴 ยังไม่แก้ไข</button>
+          <button class="tab" id="tab-notif-closed" onclick="stabResNotif('closed',this)">✅ แก้ไขแล้ว</button>
+        </div>
+        <div id="res-notif-open"><p class="text-mu" style="font-size:13px;text-align:center;padding:20px">กำลังโหลด...</p></div>
+        <div id="res-notif-closed" style="display:none"></div>
       </div>
 
       <!-- RES: NEWS      <!-- RES: NEWS -->
@@ -3762,9 +3766,17 @@ async function loadResHousePage() {
       '<div class="cb">';
     if (reqs.length) {
       carsHtml += reqs.slice(0,5).map(function(r) {
+        var typeLabel = {
+          house_info:'แก้ไขข้อมูลบ้าน',
+          vehicle_add:'ขอเพิ่มรถ',
+          vehicle_edit:'แก้ไขข้อมูลรถ',
+          house:'ข้อมูลบ้าน',
+          vehicle:'ยานพาหนะ',
+          user:'ข้อมูลผู้ใช้'
+        }[r.target_type] || r.target_type;
         var stMap = {pending:'b-wn',approved:'b-ok',rejected:'b-dg'};
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bo)">' +
-          '<div><div style="font-size:12.5px;font-weight:600">'+r.target_type+'</div>' +
+          '<div><div style="font-size:12.5px;font-weight:600">'+typeLabel+'</div>' +
           '<div style="font-size:11px;color:var(--mu)">'+_fmtDate(r.created_at)+'</div></div>' +
           '<span class="bd b-'+(stMap[r.status]||'mu')+'">'+r.status+'</span>' +
         '</div>';
@@ -4393,18 +4405,31 @@ async function doAckViolation(vio_id) {
 }
 
 // ── RESIDENT: Notifications / Violations ─────────────────────
+// ── Tab switcher สำหรับ resident notif ──
+function stabResNotif(tab, btn) {
+  document.getElementById('res-notif-open').style.display   = tab==='open'   ? '' : 'none';
+  document.getElementById('res-notif-closed').style.display = tab==='closed' ? '' : 'none';
+  document.getElementById('tab-notif-open').classList.toggle('on',  tab==='open');
+  document.getElementById('tab-notif-closed').classList.toggle('on', tab==='closed');
+}
+
 async function loadResNotifPage() {
   showLoader('โหลดการแจ้งเตือน...');
   try {
     const viols = await api('getMyViolations');
-    const statusLabel={pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
-    const statusBadge={pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
-    const _html = viols && viols.length ? viols.map(function(v) {
+    const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
+    const statusBadge = {pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
+
+    // แยก open (ยังไม่แก้ไข) และ closed (แก้ไขแล้ว/ปิดแล้ว)
+    var openList   = (viols||[]).filter(function(v){ return v.status!=='resolved'; });
+    var closedList = (viols||[]).filter(function(v){ return v.status==='resolved'; });
+
+    function renderCard(v) {
       var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
       var imgHtml = imgs.length ? '<div class="vio-imgs">'+imgs.map(function(url){
         return '<img class="vio-img" src="'+url+'" onclick="window.open(\''+url+'\',\'_blank\')" style="cursor:pointer">';
       }).join('')+'</div>' : '';
-      var badge='<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
+      var badge = '<span class="bd '+(statusBadge[v.status]||'b-mu')+'">'+(statusLabel[v.status]||v.status)+'</span>';
       var actions = '';
       if (v.status==='pending') {
         actions += '<button class="btn btn-sm btn-o" style="margin-top:10px;margin-right:6px" onclick="doAckViolation(\''+v.vio_id+'\')">✓ รับทราบ</button>';
@@ -4422,13 +4447,34 @@ async function loadResNotifPage() {
         imgHtml +
         (actions?'<div style="margin-top:8px">'+actions+'</div>':'') +
       '</div>';
-    }).join('') : '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีการแจ้งเตือน</div></div>';
-    var el=document.getElementById('list-my-notifs'); if(el) el.innerHTML=_html;
-    var el2=document.getElementById('list-my-violations'); if(el2) el2.innerHTML=_html;
+    }
+
+    // อัปเดต tab badge
+    var tabOpen = document.getElementById('tab-notif-open');
+    if (tabOpen) tabOpen.textContent = '🔴 ยังไม่แก้ไข'+(openList.length?' ('+openList.length+')':'');
+
+    // render open tab
+    var elOpen = document.getElementById('res-notif-open');
+    if (elOpen) elOpen.innerHTML = openList.length
+      ? openList.map(renderCard).join('')
+      : '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการที่รอแก้ไข</div></div>';
+
+    // render closed tab
+    var elClosed = document.getElementById('res-notif-closed');
+    if (elClosed) elClosed.innerHTML = closedList.length
+      ? closedList.map(renderCard).join('')
+      : '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการที่ปิดแล้ว</div></div>';
+
+    // อัปเดต legacy elements ถ้ายังมี (dashboard card)
+    var elLegacy = document.getElementById('list-my-notifs');
+    if (elLegacy) elLegacy.innerHTML = openList.length ? openList.map(renderCard).join('') : '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีการแจ้งเตือน</div></div>';
+    var elLegacy2 = document.getElementById('list-my-violations');
+    if (elLegacy2) elLegacy2.innerHTML = (viols||[]).length ? (viols||[]).map(renderCard).join('') : '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีประวัติ</div></div>';
+
   } catch(e) {
     console.warn('loadResNotifPage:', e);
-    var errHtml='<div class="al al-e">โหลดข้อมูลไม่สำเร็จ: '+e.message+'</div>';
-    var el=document.getElementById('list-my-notifs'); if(el) el.innerHTML=errHtml;
+    var errHtml = '<div class="al al-e">โหลดข้อมูลไม่สำเร็จ: '+e.message+'</div>';
+    var el = document.getElementById('res-notif-open'); if(el) el.innerHTML = errHtml;
   } finally { hideLoader(); }
 }
 
@@ -4777,7 +4823,7 @@ var PT = {
   'res-house':         '\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1a\u0e49\u0e32\u0e19',
   'res-fee':           '\u0e04\u0e48\u0e32\u0e2a\u0e48\u0e27\u0e19\u0e01\u0e25\u0e32\u0e07',
   'res-issue':         '\u0e41\u0e08\u0e49\u0e1b\u0e31\u0e0d\u0e2b\u0e32',
-  'res-notif':         '\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e40\u0e15\u0e37\u0e2d\u0e19',
+  'res-notif':         'การแจ้งเตือน',
   'res-news':          '\u0e1b\u0e23\u0e30\u0e01\u0e32\u0e28',
   'res-work':          '\u0e1c\u0e25\u0e07\u0e32\u0e19\u0e19\u0e34\u0e15\u0e34',
   'res-contractor':    '\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e0a\u0e48\u0e32\u0e07',

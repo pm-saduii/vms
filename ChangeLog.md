@@ -1192,3 +1192,34 @@ group: village
   - ปุ่ม `onclick="openResEditCarModal('+idx+')"` ส่ง index
   - `openResEditCarModal(idx)` lookup `window._resVehiclesCache[idx]`
   - `loadResVehiclePage` แก้เช่นเดียวกัน set `window._resVehiclesCache = allShown`
+
+---
+
+## ✅ Fix — การแจ้งเตือนลูกบ้าน: ข้อความ / Tabs / Loading / แปล / Fix route
+
+### 1. "การแจ้เตือน" → "การแจ้งเตือน"
+- Root cause: PT breadcrumb map บรรทัด 4780 encoded `\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e40\u0e15\u0e37\u0e2d\u0e19` = "การแจ้เตือน"
+- Fix: เปลี่ยนเป็น `'การแจ้งเตือน'` ตรงๆ
+
+### 2. Tab แยก ยังไม่แก้ไข / แก้ไขแล้ว
+- HTML: เพิ่ม `.tabs` พร้อม `tab-notif-open` / `tab-notif-closed`
+- `res-notif-open` = filter `status !== 'resolved'`
+- `res-notif-closed` = filter `status === 'resolved'`
+- `stabResNotif(tab, btn)` toggle display + class `.on`
+- Tab badge แสดงจำนวน: `🔴 ยังไม่แก้ไข (N)`
+
+### 3. กำลังโหลด... ไม่หาย
+- Root cause: `list-my-notifs` / `list-my-violations` hardcode "กำลังโหลด..." แต่ JS render ไปที่ element เก่าที่อาจไม่มีใน pane ปัจจุบัน
+- Fix: เปลี่ยน HTML ให้ใช้ `res-notif-open` / `res-notif-closed` แทน
+- `loadResNotifPage` render ไปที่ elements ใหม่ทั้งหมด (legacy elements อัปเดตด้วยถ้ายังมี)
+
+### 4. แปล target_type → ภาษาไทย
+- `house_info` → "แก้ไขข้อมูลบ้าน"
+- `vehicle_add` → "ขอเพิ่มรถ"
+- `vehicle_edit` → "แก้ไขข้อมูลรถ"
+- แสดงใน loadResHousePage ประวัติคำขอแก้ไข
+
+### 5. Unknown action: fix_submitted
+- **Root cause:** GAS ที่ deploy ยังเป็น version เก่า ไม่มี route `violationResidentAction`
+- `outputs/Code.gs` มี route ครบแล้ว
+- **⚠️ ต้อง deploy Code.gs ใหม่ใน GAS** — ไม่ใช่ปัญหาของ index.html
