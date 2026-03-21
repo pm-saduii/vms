@@ -1452,6 +1452,85 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             </div>
           </div>
         </div>
+
+        <!-- Row 6: Vehicle cards -->
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">ยานพาหนะที่ลงทะเบียน</div>
+        <div class="stats" id="dash-vehicle-cards" style="grid-template-columns:repeat(4,1fr);margin-top:0">
+          <div class="sc"><div class="sc-ico p">🚗</div><div><div class="sc-v" id="dash-veh-car">—</div><div class="sc-l">รถยนต์</div></div></div>
+          <div class="sc"><div class="sc-ico w">🏍️</div><div><div class="sc-v" id="dash-veh-moto">—</div><div class="sc-l">รถจักรยานยนต์</div></div></div>
+          <div class="sc"><div class="sc-ico a">🚐</div><div><div class="sc-v" id="dash-veh-van">—</div><div class="sc-l">รถตู้/กระบะ</div></div></div>
+          <div class="sc"><div class="sc-ico" style="background:var(--bg2)">🚙</div><div><div class="sc-v" id="dash-veh-other">—</div><div class="sc-l">อื่นๆ</div></div></div>
+        </div>
+
+        <!-- Row 7: Charts -->
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">กราฟรายเดือน</div>
+        <div class="g2">
+          <!-- Chart 1: Violations by month -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">⚠️</div>
+              <div class="ct">การแจ้งกระทำผิด รายเดือน</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="display:flex;gap:4px" id="vio-color-btns">
+                  <button onclick="dashSetVioColor('#D85A30')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#D85A30;cursor:pointer"></button>
+                  <button onclick="dashSetVioColor('#1D9E75')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#1D9E75;cursor:pointer"></button>
+                  <button onclick="dashSetVioColor('#7F77DD')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#7F77DD;cursor:pointer"></button>
+                  <button onclick="dashSetVioColor('#BA7517')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#BA7517;cursor:pointer"></button>
+                </div>
+                <select id="vio-chart-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderVioChart()">
+                  <option value="2568">2568</option><option value="2567">2567</option>
+                </select>
+              </div>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-vio-monthly"></canvas></div>
+          </div>
+          <!-- Chart 2: Issues by month -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">🔧</div>
+              <div class="ct">แจ้งปัญหา + แก้ไขแล้ว รายเดือน</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="display:flex;gap:4px">
+                  <button onclick="dashSetIssColor('#185FA5')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#185FA5;cursor:pointer"></button>
+                  <button onclick="dashSetIssColor('#0F6E56')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#0F6E56;cursor:pointer"></button>
+                  <button onclick="dashSetIssColor('#BA7517')" style="width:16px;height:16px;border-radius:3px;border:0.5px solid var(--bo);background:#BA7517;cursor:pointer"></button>
+                </div>
+                <select id="iss-chart-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderIssChart()">
+                  <option value="2568">2568</option><option value="2567">2567</option>
+                </select>
+              </div>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-iss-monthly"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Row 8: Fee charts (Mock) -->
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin:14px 0 8px">ค่าส่วนกลาง <span class="bd b-wn" style="font-size:9px;vertical-align:middle">Mock data</span></div>
+        <div class="g2">
+          <!-- Chart 3: Paid/Unpaid houses by half-year -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">🏠</div>
+              <div class="ct">บ้านค้างชำระ vs ชำระแล้ว</div>
+              <select id="fee-status-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderFeeStatusChart()">
+                <option value="2568">2568</option><option value="2567">2567</option><option value="2566">2566</option>
+              </select>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-fee-status"></canvas></div>
+          </div>
+          <!-- Chart 4: Amount collected vs target -->
+          <div class="card">
+            <div class="ch">
+              <div class="ch-ico">💰</div>
+              <div class="ct">ยอดเก็บได้ vs เป้าหมาย</div>
+              <select id="fee-amt-year" class="fs" style="font-size:12px;padding:3px 8px;height:28px;width:auto" onchange="dashRenderFeeAmtChart()">
+                <option value="2568">2568</option><option value="2567">2567</option><option value="2566">2566</option>
+              </select>
+            </div>
+            <div style="position:relative;width:100%;height:180px"><canvas id="chart-fee-amt"></canvas></div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ADMIN: HOUSES -->
@@ -1471,8 +1550,8 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
             </select>
           </div>
           <div class="search-bar"><span>🔍</span><input type="text" id="house-search" placeholder="ค้นหาบ้านเลขที่ ชื่อ เบอร์โทร..." oninput="filterHousesTable()"></div>
-          <div class="tw"><table><thead><tr><th>บ้านเลขที่</th><th>เจ้าของ</th><th>โทร</th><th style="text-align:right">ค่าส่วนกลาง/ปี</th><th style="text-align:right">ค่ารถ/ปี</th><th>สถานะ</th><th></th></tr></thead><tbody id="tbl-houses">
-            <tr><td colspan="7" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
+          <div class="tw"><table><thead><tr><th>บ้านเลขที่</th><th>ซอย</th><th>เจ้าของ</th><th>โทร</th><th style="text-align:right">ค่าส่วนกลาง/ปี</th><th style="text-align:right">ค่ารถ/ปี</th><th>สถานะ</th><th></th></tr></thead><tbody id="tbl-houses">
+            <tr><td colspan="8" class="text-mu" style="text-align:center;padding:20px">กำลังโหลด...</td></tr>
           </tbody></table></div>
         </div>
       </div>
@@ -3181,9 +3260,206 @@ async function loadAdminDashboard() {
       return a.is_active === true || a.is_active === 'TRUE' || a.is_active === 1;
     }));
 
+    // ── Vehicle cards ─────────────────────────────────────
+    try {
+      var vehs = await api('getVehicles');
+      var carCount   = vehs.filter(function(v){ return v.status==='active' && v.type==='รถยนต์'; }).length;
+      var motoCount  = vehs.filter(function(v){ return v.status==='active' && v.type==='รถจักรยานยนต์'; }).length;
+      var vanCount   = vehs.filter(function(v){ return v.status==='active' && (v.type==='รถตู้'||v.type==='รถกระบะ'); }).length;
+      var otherCount = vehs.filter(function(v){ return v.status==='active' && v.type!=='รถยนต์' && v.type!=='รถจักรยานยนต์' && v.type!=='รถตู้' && v.type!=='รถกระบะ'; }).length;
+      _setEl('dash-veh-car',   carCount);
+      _setEl('dash-veh-moto',  motoCount);
+      _setEl('dash-veh-van',   vanCount);
+      _setEl('dash-veh-other', otherCount);
+    } catch(e2) {}
+
+    // ── Charts data ───────────────────────────────────────
+    // รวบรวม violations by month (ปีปัจจุบัน พ.ศ.)
+    var curYear = now.getFullYear() + 543;
+    var vioByMonth  = new Array(12).fill(0);
+    var issByMonth  = new Array(12).fill(0);
+    var issResByMonth = new Array(12).fill(0);
+    violations.forEach(function(v) {
+      if (!v.created_at) return;
+      var d = new Date(v.created_at);
+      var yr = d.getFullYear() + 543;
+      if (yr === curYear) vioByMonth[d.getMonth()]++;
+    });
+    issues.forEach(function(i) {
+      if (!i.created_at) return;
+      var d = new Date(i.created_at);
+      var yr = d.getFullYear() + 543;
+      if (yr === curYear) issByMonth[d.getMonth()]++;
+      if (i.status === 'resolved' && i.updated_at) {
+        var dr = new Date(i.updated_at);
+        var yrr = dr.getFullYear() + 543;
+        if (yrr === curYear) issResByMonth[dr.getMonth()]++;
+      }
+    });
+    window._dashVioData    = vioByMonth;
+    window._dashIssData    = issByMonth;
+    window._dashIssResData = issResByMonth;
+    dashRenderAllCharts();
+
   } catch(err) {
     console.warn('Dashboard load error:', err.message);
   }
+}
+
+// ============================================================
+// ADMIN DASHBOARD — CHARTS (Chart.js)
+// ============================================================
+var _dashVioColor = '#D85A30';
+var _dashIssColor = '#185FA5';
+var _dashChartVio = null, _dashChartIss = null, _dashChartFeeStatus = null, _dashChartFeeAmt = null;
+
+var _dashMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+// Mock fee data สำหรับ chart 5-6
+var _mockFeeStatus = {
+  '2568': { h1_paid:36, h1_unpaid:12, h2_paid:29, h2_unpaid:19 },
+  '2567': { h1_paid:40, h1_unpaid:8,  h2_paid:35, h2_unpaid:13 },
+  '2566': { h1_paid:32, h1_unpaid:16, h2_paid:28, h2_unpaid:20 }
+};
+var _mockFeeAmt = {
+  '2568': { h1_collected:432000, h1_target:540000, h2_collected:320400, h2_target:540000 },
+  '2567': { h1_collected:498000, h1_target:540000, h2_collected:445000, h2_target:540000 },
+  '2566': { h1_collected:380000, h1_target:504000, h2_collected:295000, h2_target:504000 }
+};
+
+function _destroyChart(c) { if (c) { try { c.destroy(); } catch(e) {} } }
+
+function dashRenderAllCharts() {
+  if (typeof Chart === 'undefined') {
+    // โหลด Chart.js แล้วค่อย render
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+    s.onload = function() { dashRenderAllCharts(); };
+    document.head.appendChild(s);
+    return;
+  }
+  dashRenderVioChart();
+  dashRenderIssChart();
+  dashRenderFeeStatusChart();
+  dashRenderFeeAmtChart();
+}
+
+function dashSetVioColor(c) { _dashVioColor = c; dashRenderVioChart(); }
+function dashSetIssColor(c) { _dashIssColor = c; dashRenderIssChart(); }
+
+function dashRenderVioChart() {
+  if (typeof Chart === 'undefined') return;
+  var data = window._dashVioData || new Array(12).fill(0);
+  var ctx = document.getElementById('chart-vio-monthly');
+  if (!ctx) return;
+  _destroyChart(_dashChartVio);
+  _dashChartVio = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: _dashMonths,
+      datasets: [{
+        label: 'การแจ้งเตือน',
+        data: data,
+        backgroundColor: _dashVioColor + 'cc',
+        borderColor: _dashVioColor,
+        borderWidth: 1,
+        borderRadius: 3
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { font: { size: 10 }, autoSkip: false, maxRotation: 0 }, grid: { display: false } },
+        y: { ticks: { font: { size: 10 }, stepSize: 1 }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function dashRenderIssChart() {
+  if (typeof Chart === 'undefined') return;
+  var data1 = window._dashIssData    || new Array(12).fill(0);
+  var data2 = window._dashIssResData || new Array(12).fill(0);
+  var ctx = document.getElementById('chart-iss-monthly');
+  if (!ctx) return;
+  _destroyChart(_dashChartIss);
+  var light = _dashIssColor + '88';
+  _dashChartIss = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: _dashMonths,
+      datasets: [
+        { label: 'แจ้งปัญหา',   data: data1, backgroundColor: _dashIssColor+'cc', borderColor: _dashIssColor, borderWidth:1, borderRadius:3 },
+        { label: 'แก้ไขแล้ว',   data: data2, backgroundColor: light,              borderColor: _dashIssColor, borderWidth:1, borderRadius:3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10, boxHeight: 10 } } },
+      scales: {
+        x: { ticks: { font: { size: 10 }, autoSkip: false, maxRotation: 0 }, grid: { display: false } },
+        y: { ticks: { font: { size: 10 }, stepSize: 1 }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function dashRenderFeeStatusChart() {
+  if (typeof Chart === 'undefined') return;
+  var yr = (document.getElementById('fee-status-year') || {}).value || '2568';
+  var d = _mockFeeStatus[yr] || _mockFeeStatus['2568'];
+  var ctx = document.getElementById('chart-fee-status');
+  if (!ctx) return;
+  _destroyChart(_dashChartFeeStatus);
+  _dashChartFeeStatus = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['ครึ่งปีแรก', 'ครึ่งปีหลัง'],
+      datasets: [
+        { label: 'ชำระแล้ว',   data: [d.h1_paid,   d.h2_paid],   backgroundColor: '#1D9E75cc', borderColor:'#1D9E75', borderWidth:1, borderRadius:4 },
+        { label: 'ค้างชำระ',   data: [d.h1_unpaid, d.h2_unpaid], backgroundColor: '#E24B4Acc', borderColor:'#E24B4A', borderWidth:1, borderRadius:4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10, boxHeight: 10 } } },
+      scales: {
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+        y: { ticks: { font: { size: 10 }, stepSize: 5 }, beginAtZero: true, title: { display: true, text: 'หลัง', font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function dashRenderFeeAmtChart() {
+  if (typeof Chart === 'undefined') return;
+  var yr = (document.getElementById('fee-amt-year') || {}).value || '2568';
+  var d = _mockFeeAmt[yr] || _mockFeeAmt['2568'];
+  var ctx = document.getElementById('chart-fee-amt');
+  if (!ctx) return;
+  _destroyChart(_dashChartFeeAmt);
+  _dashChartFeeAmt = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['ครึ่งปีแรก', 'ครึ่งปีหลัง'],
+      datasets: [
+        { label: 'เก็บได้',  data: [d.h1_collected, d.h2_collected], backgroundColor: '#1D9E75cc', borderColor:'#1D9E75', borderWidth:1, borderRadius:4 },
+        { label: 'เป้าหมาย', data: [d.h1_target,    d.h2_target],    backgroundColor: '#378ADDcc', borderColor:'#378ADD', borderWidth:1, borderRadius:4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10, boxHeight: 10 } },
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ฿' + Number(ctx.raw).toLocaleString(); } } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } },
+        y: { ticks: { font: { size: 10 }, callback: function(v){ return '฿'+Number(v/1000).toFixed(0)+'K'; } }, beginAtZero: true }
+      }
+    }
+  });
 }
 
 function _renderDashSlips(fees) {
@@ -3210,13 +3486,27 @@ function _renderDashReqs(reqs) {
     el.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีคำขอรออนุมัติ</p>';
     return;
   }
+  var typeLabel = {
+    house_info: 'แก้ไขข้อมูลบ้าน',
+    vehicle_add: 'ขอเพิ่มรถ',
+    vehicle_edit: 'แก้ไขข้อมูลรถ',
+    house: 'ข้อมูลบ้าน',
+    vehicle: 'ยานพาหนะ',
+    user: 'ข้อมูลผู้ใช้'
+  };
   el.innerHTML = reqs.slice(0, 4).map(function(r) {
-    var typeLabel = {house:'ข้อมูลบ้าน', vehicle:'ยานพาหนะ', user:'ข้อมูลผู้ใช้'}[r.target_type] || r.target_type;
+    // ดึง house_no จาก _housesCache ถ้ามี
+    var houseLabel = r.house_id;
+    if (window._housesAllCache && window._housesAllCache.length) {
+      var h = window._housesAllCache.find(function(x){ return x.house_id === r.house_id; });
+      if (h) houseLabel = _safeHouseNo(h.house_no) + (h.soi ? ' ซอย '+h.soi : '');
+    }
+    var tLabel = typeLabel[r.target_type] || r.target_type;
     return '<div class="ann">' +
       '<div class="ann-dot ad-evt"></div>' +
       '<div style="flex:1">' +
-        '<div class="ann-t">บ้าน ' + r.house_id + ' — ' + typeLabel + '</div>' +
-        '<div class="ann-d">' + _fmtDate(r.created_at) + ' · โดย ' + (r.requested_by||'—') + '</div>' +
+        '<div class="ann-t">บ้าน ' + houseLabel + ' — ' + tLabel + '</div>' +
+        '<div class="ann-d">' + _fmtDate(r.created_at) + '</div>' +
       '</div>' +
       '<div style="display:flex;gap:5px">' +
         '<button class="btn btn-xs btn-g" data-rid="' + r.req_id + '" onclick="doRejectReq(this.dataset.rid)">✗</button>' +
@@ -3518,20 +3808,21 @@ function _safeHouseNo(val) {
     tbody.innerHTML = sorted.map(function(h) {
       var badge = badgeMap[h.status] || '<span class="bd b-mu">' + h.status + '</span>';
       var park  = parkMap[h.house_id] || 0;
-      var fmt   = function(v){ return '\u0e3f' + Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+      var fmt   = function(v){ return '฿' + Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}); };
       return '<tr>' +
-        '<td><strong>' + _safeHouseNo(h.house_no) + '</strong>' + (h.soi ? ' <span class="tag">' + h.soi + '</span>' : '') + '</td>' +
+        '<td><strong>' + _safeHouseNo(h.house_no) + '</strong></td>' +
+        '<td>' + (h.soi ? '<span class="tag">ซอย ' + h.soi + '</span>' : '<span style="color:var(--mu)">—</span>') + '</td>' +
         '<td>' + (h.owner_name||'') + '</td>' +
-        '<td style="white-space:nowrap">' + (h.phone ? _fmtPhone(h.phone) : '\u2014') + '</td>' +
+        '<td style="white-space:nowrap">' + (h.phone ? _fmtPhone(h.phone) : '—') + '</td>' +
         '<td style="text-align:right;white-space:nowrap" class="text-pr fw-7">' + fmt(h.fee_per_year) + '</td>' +
-        '<td style="text-align:right;white-space:nowrap">' + (park > 0 ? fmt(park) : '\u2014') + '</td>' +
+        '<td style="text-align:right;white-space:nowrap">' + (park > 0 ? fmt(park) : '—') + '</td>' +
         '<td>' + badge + '</td>' +
         '<td style="display:flex;gap:4px">' +
-          '<button class="btn btn-xs btn-g" data-hid="' + h.house_id + '" onclick="viewHouseDetail(this.dataset.hid)">\u0e14\u0e39</button>' +
-          '<button class="btn btn-xs btn-o" data-hid="' + h.house_id + '" onclick="openEditHouseModal(this.dataset.hid)">\u270f\ufe0f</button>' +
+          '<button class="btn btn-xs btn-g" data-hid="' + h.house_id + '" onclick="viewHouseDetail(this.dataset.hid)">ดู</button>' +
+          '<button class="btn btn-xs btn-o" data-hid="' + h.house_id + '" onclick="openEditHouseModal(this.dataset.hid)">✏️</button>' +
         '</td>' +
         '</tr>';
-    }).join('') || '<tr><td colspan="7" class="text-mu" style="text-align:center;padding:20px">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25</td></tr>';
+    }).join('') || '<tr><td colspan="8" class="text-mu" style="text-align:center;padding:20px">ไม่มีข้อมูล</td></tr>';
   } finally { hideLoader(); }
 }
 
@@ -4495,36 +4786,32 @@ async function doResidentVioAction() {
   showLoader('กำลังส่งข้อมูล...');
   try {
     var imgUrls = await _uploadVioImages('vr-', vio_id);
-
-    // ลอง violationResidentAction ก่อน (route ใหม่)
-    // ถ้าไม่มี → fallback ใช้ updateViolationStatus ซึ่งมีอยู่แล้วใน GAS เดิม
-    var success = false;
+    // ใช้ apiPost (POST) เพื่อหลีกเลี่ยง URL length limit และ parameter parsing issue
+    // ถ้า violationResidentAction ยังไม่ได้ deploy → fallback ใช้ acknowledgeViolation
+    var sent = false;
     try {
-      await api('violationResidentAction', {
+      await apiPost('violationResidentAction', {
         vio_id: vio_id,
         vio_action: 'fix_submitted',
         resident_image_urls: imgUrls
       });
-      success = true;
+      sent = true;
     } catch(e1) {
+      // fallback: ถ้า route ไม่มี → ใช้ acknowledgeViolation แล้วอัปเดต status ด้วย updateViolationStatus
       if (e1.message && e1.message.indexOf('Unknown action') >= 0) {
-        // Fallback: ใช้ updateViolationStatus ที่มีใน GAS ทุก version
-        await api('updateViolationStatus', {
+        await apiPost('updateViolationStatus', {
           vio_id: vio_id,
           status: 'fix_submitted',
-          image_urls: imgUrls.length ? imgUrls : undefined
+          resident_image_urls: imgUrls
         });
-        success = true;
-      } else {
-        throw e1;
-      }
+        sent = true;
+      } else { throw e1; }
     }
-
-    if (success) {
+    if (sent) {
       _resetVioImages('vr-');
       closeM('m-vio-resident');
       hideLoader();
-      Swal.fire({icon:'success',title:'แจ้งแก้ไขแล้ว',text:'นิติจะตรวจสอบและปิดเรื่องให้',timer:2500,showConfirmButton:false});
+      Swal.fire({icon:'success',title:'แจ้งว่าแก้ไขแล้ว',text:'นิติจะตรวจสอบและยืนยันให้',timer:2500,showConfirmButton:false});
       loadResNotifPage();
     }
   } catch(e) {
