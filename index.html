@@ -4385,7 +4385,8 @@ async function doResidentVioAction() {
   showLoader('กำลังส่งข้อมูล...');
   try {
     var imgUrls = await _uploadVioImages('vr-', vio_id);
-    await api('violationResidentAction', {vio_id, action:'fix_submitted', resident_image_urls: imgUrls});
+    // หมายเหตุ: ใช้ vio_action ไม่ใช่ action เพื่อป้องกัน key collision กับ api() parameter
+    await api('violationResidentAction', {vio_id, vio_action:'fix_submitted', resident_image_urls: imgUrls});
     _resetVioImages('vr-');
     closeM('m-vio-resident');
     hideLoader();

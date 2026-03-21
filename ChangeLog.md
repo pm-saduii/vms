@@ -1223,3 +1223,31 @@ group: village
 - **Root cause:** GAS ที่ deploy ยังเป็น version เก่า ไม่มี route `violationResidentAction`
 - `outputs/Code.gs` มี route ครบแล้ว
 - **⚠️ ต้อง deploy Code.gs ใหม่ใน GAS** — ไม่ใช่ปัญหาของ index.html
+
+---
+
+## ✅ Fix — Unknown action: fix_submitted (Key Collision Bug)
+
+### Root Cause (อ่านจากโค้ดจริง)
+```js
+// api() function:
+const body = { action, token: APP.token, ...payload };
+// ถ้า payload = {vio_id, action:'fix_submitted', resident_image_urls:[]}
+// spread ...payload จะ override key 'action' ที่กำหนดก่อนหน้า
+// body.action = 'fix_submitted'  ← GAS เห็น action ผิด!
+```
+- `doResidentVioAction` เรียก `api('violationResidentAction', {vio_id, action:'fix_submitted', ...})`
+- JavaScript object spread: `{action:'violationResidentAction', ...{action:'fix_submitted'}}` → `action = 'fix_submitted'`
+- GAS `_route` หา `'fix_submitted'` ใน switch → ไม่พบ → `Unknown action: fix_submitted`
+
+### Fix: เปลี่ยน key จาก `action` → `vio_action`
+**index.html `doResidentVioAction`:**
+- `api('violationResidentAction', {vio_id, action:'fix_submitted', ...})`
+  → `api('violationResidentAction', {vio_id, vio_action:'fix_submitted', ...})`
+
+**Fees_Issues_Violations.gs `residentAction`:**
+- `const { vio_id, action, ... } = body` → `const { vio_id, vio_action, ... } = body`
+- `if (action === 'acknowledge')` → `if (vio_action === 'acknowledge')`
+- `if (action === 'fix_submitted')` → `if (vio_action === 'fix_submitted')`
+
+### ⚠️ Deploy GAS: Fees_Issues_Violations.gs
