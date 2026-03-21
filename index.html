@@ -761,9 +761,9 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 }
 .vio-imgs{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
 .vio-img{
-  width:56px;height:56px;background:var(--bg2);border-radius:9px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;border:1.5px solid var(--bo);
+  width:64px;height:64px;border-radius:9px;
+  border:1.5px solid var(--bo);
+  object-fit:cover;display:block;cursor:pointer;
 }
 
 /* ═══════════════════════════════════════════
@@ -1517,7 +1517,7 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
           <div class="sc" style="cursor:pointer" onclick="_filterVio('')" id="vfc-all"><div class="sc-ico w">📋</div><div><div class="sc-v" id="vfc-cnt-all">—</div><div class="sc-l">ทั้งหมด</div></div></div>
           <div class="sc" style="cursor:pointer" onclick="_filterVio('pending')" id="vfc-pending"><div class="sc-ico w">⏳</div><div><div class="sc-v" id="vfc-cnt-pending">—</div><div class="sc-l">รออนุมัติ</div></div></div>
           <div class="sc" style="cursor:pointer" onclick="_filterVio('acknowledged')" id="vfc-acknowledged"><div class="sc-ico p">👁️</div><div><div class="sc-v" id="vfc-cnt-acknowledged">—</div><div class="sc-l">รับทราบแล้ว</div></div></div>
-          <div class="sc" style="cursor:pointer" onclick="_filterVio('fix_submitted')" id="vfc-fix"><div class="sc-ico a">🔧</div><div><div class="sc-v" id="vfc-cnt-fix">—</div><div class="sc-l">แจ้งแก้ไขแล้ว</div></div></div>
+          <div class="sc" style="cursor:pointer" onclick="_filterVio('fix_submitted')" id="vfc-fix"><div class="sc-ico a">🔧</div><div><div class="sc-v" id="vfc-cnt-fix">—</div><div class="sc-l">รอยืนยัน</div></div></div>
         </div>
         <!-- Tabs -->
         <div class="tabs" style="margin-top:8px">
@@ -1803,20 +1803,28 @@ tr:hover td{background:var(--pr-soft)!important;transition:background .12s}
 
       <!-- RES: DASHBOARD -->
       <div id="p-res-dash" class="pane on">
-        <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏡</div><div><div class="ph-h1" id="res-welcome">สวัสดี 👋</div><div class="ph-sub" id="res-house-sub">The Greenfield</div></div></div><div class="ph-acts"><div style="text-align:right"><div style="font-size:20px;font-weight:800;color:#fff">฿2,750</div><div style="font-size:10.5px;color:rgba(255,255,255,.8)">ค้างชำระ</div></div></div></div></div>
-        <div class="al al-w">⚠️ มียอดค้างชำระ <strong id="res-al-amt">฿—</strong> — กรุณาชำระตามกำหนด</div>
-        <div class="stats" style="grid-template-columns:repeat(3,1fr)">
-          <div class="sc"><div class="sc-ico d">💳</div><div><div class="sc-v" style="font-size:15px" id="res-stat-owed">฿—</div><div class="sc-l">ค้างชำระ</div></div></div>
+        <!-- Header: render โดย renderResidentHomeFromBoot -->
+        <div id="res-dash-header">
+          <div class="ph"><div class="ph-in"><div style="display:flex;align-items:center;gap:13px"><div class="ph-ico">🏡</div><div><div class="ph-h1" id="res-welcome">สวัสดี 👋</div><div class="ph-sub" id="res-house-sub">กำลังโหลด...</div></div></div></div></div>
+        </div>
+        <!-- Alert ค้างชำระ — แสดงเมื่อมีค้างชำระ -->
+        <div class="al al-w" id="res-dash-alert" style="display:none">⚠️ มียอดค้างชำระ <strong id="res-al-amt">฿—</strong> — กรุณาชำระตามกำหนด</div>
+        <!-- Stats Cards: render โดย loadResidentHome -->
+        <div class="stats" id="res-dash-stats" style="grid-template-columns:repeat(3,1fr)">
+          <div class="sc"><div class="sc-ico d">💳</div><div><div class="sc-v" id="res-stat-owed">—</div><div class="sc-l">ค้างชำระ</div></div></div>
           <div class="sc"><div class="sc-ico w">🔧</div><div><div class="sc-v" id="res-stat-issues">—</div><div class="sc-l">แจ้งปัญหา</div></div></div>
           <div class="sc"><div class="sc-ico d">⚠️</div><div><div class="sc-v" id="res-stat-notif">—</div><div class="sc-l">การแจ้งเตือน</div></div></div>
         </div>
-        <div class="g2">
-          <div class="card"><div class="ch"><div class="ch-ico">📢</div><div class="ct">ประกาศล่าสุด</div></div><div class="cb">
-            <div id="res-dash-ann"><p class="text-mu" style="font-size:13px;text-align:center;padding:16px">กำลังโหลด...</p></div>
-          </div></div>
-          <div class="card"><div class="ch"><div class="ch-ico">⚠️</div><div class="ct">การแจ้งเตือนจากนิติ</div></div><div class="cb" id="list-my-notifs">
-            <div id="res-dash-notif"><p class="text-mu" style="font-size:13px;text-align:center;padding:16px">กำลังโหลด...</p></div>
-          </div></div>
+        <!-- Quick links -->
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px">
+          <button class="btn btn-o" style="padding:10px;font-size:13px" onclick="go('res','fee',null)">💳 ชำระค่าส่วนกลาง</button>
+          <button class="btn btn-o" style="padding:10px;font-size:13px" onclick="go('res','issue',null)">🔧 แจ้งปัญหา</button>
+          <button class="btn btn-o" style="padding:10px;font-size:13px" onclick="go('res','notif',null)">⚠️ การแจ้งเตือน</button>
+          <button class="btn btn-o" style="padding:10px;font-size:13px" onclick="go('res','news',null)">📢 ประกาศ</button>
+        </div>
+        <!-- Content cards: render โดย loadResidentHome -->
+        <div id="res-dash-content">
+          <p class="text-mu" style="text-align:center;padding:24px;font-size:13px">กำลังโหลด...</p>
         </div>
       </div>
 
@@ -2930,28 +2938,171 @@ function _notifDataFromBoot(boot) {
 }
 
 function renderResidentHomeFromBoot(boot) {
+  // house จาก boot — อาจผิดถ้า JWT เก่า → loadResidentHome จะ override
   APP.house = boot.house;
   var h = boot.house;
-  if (h) {
-    var hno = _safeHouseNo(h.house_no);
-    var sbItems = document.querySelectorAll('.sb-urole');
-    sbItems.forEach(function(el){ if(el.textContent.indexOf('\u0e1a\u0e49\u0e32\u0e19')===0) el.textContent = '\u0e1a\u0e49\u0e32\u0e19 '+hno; });
-    _setEl('res-h-houseno', hno);
-    var rhsub = document.getElementById('res-house-sub');
-    if (rhsub) rhsub.textContent = _cfg('village_name','The Greenfield');
+  var hno = h ? _safeHouseNo(h.house_no) : '';
+  var villageName = _cfg('village_name', 'The Greenfield');
+
+  // Sidebar: บ้าน XXX
+  document.querySelectorAll('.sb-urole').forEach(function(el){
+    if (el.textContent.indexOf('บ้าน') === 0) el.textContent = 'บ้าน ' + (hno||'—');
+  });
+
+  // Header
+  var user = APP.user || {};
+  _setEl('res-welcome', 'สวัสดี ' + (user.display_name || '') + ' 👋');
+  _setEl('res-house-sub', villageName + (hno ? '  ·  บ้าน ' + hno : ''));
+
+  // Stats from boot data
+  var viols   = boot.violations || [];
+  var issues  = boot.issues || [];
+  var fees    = boot.fees || [];
+  var pending = viols.filter(function(v){ return v.status === 'pending' || v.status === 'fix_submitted'; });
+  var openIss = issues.filter(function(i){ return i.status !== 'resolved'; });
+  var unpaid  = fees.filter(function(f){ return f.status === 'pending' || f.status === 'overdue'; });
+  var totalOwed = unpaid.reduce(function(s,f){ return s + Number(f.total||0); }, 0);
+
+  _setEl('res-stat-notif', pending.length || 0);
+  _setEl('res-stat-issues', openIss.length || 0);
+  _setEl('res-stat-owed', totalOwed > 0 ? '฿'+totalOwed.toLocaleString() : '฿0');
+
+  // Alert
+  var alertEl = document.getElementById('res-dash-alert');
+  if (alertEl) {
+    alertEl.style.display = totalOwed > 0 ? '' : 'none';
+    _setEl('res-al-amt', '฿'+totalOwed.toLocaleString());
   }
-  var unpaid = (boot.fees||[]).filter(function(f){ return f.status==='pending'||f.status==='overdue'; });
-  var top = unpaid[0];
-  _setEl('res-fee-amount', top ? '\u0e3f'+Number(top.total||0).toLocaleString() : '\u0e3f0');
-  _setEl('res-fee-period',  top ? top.period+'/'+top.year : '\u0e0a\u0e33\u0e23\u0e30\u0e04\u0e23\u0e1a\u0e41\u0e25\u0e49\u0e27');
-  _setEl('res-stat-issues', (boot.issues||[]).filter(function(i){return i.status==='pending'||i.status==='in_progress';}).length || 0);
-  _setEl('res-stat-notif',  (boot.violations||[]).filter(function(v){return v.status==='pending';}).length || 0);
-  window._bootFees   = boot.fees   || [];
-  window._bootIssues = boot.issues || [];
-  window._bootAnns   = boot.anns   || [];
+
+  window._bootFees   = fees;
+  window._bootIssues = issues;
+  window._bootAnns   = boot.anns || [];
+  window._myViolationsCache = viols;
+
+  // Render dashboard content
+  _renderResDashContent(boot.anns || [], viols, unpaid);
   _pageCache['res-dash'] = { ts: Date.now() };
-  // โหลดการแจ้งเตือนทันทีหลัง boot เพื่อไม่ให้ค้าง "กำลังโหลด..."
+
+  // โหลดการแจ้งเตือนทันทีหลัง boot
   loadResNotifPage();
+}
+
+function _renderResDashContent(anns, viols, unpaid) {
+  var el = document.getElementById('res-dash-content');
+  if (!el) return;
+
+  // ประกาศล่าสุด
+  var annHtml = '<div class="card" style="margin-bottom:8px">' +
+    '<div class="ch"><div class="ch-ico">📢</div><div class="ct">ประกาศล่าสุด</div>' +
+      '<button class="btn btn-xs btn-g" onclick="go(\'res\',\'news\',null)">ดูทั้งหมด</button></div>' +
+    '<div class="cb">';
+  var activeAnns = (anns||[]).filter(function(a){ return a.is_active===true||a.is_active==='TRUE'; }).slice(0,3);
+  if (activeAnns.length) {
+    annHtml += activeAnns.map(function(a) {
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--bo)">' +
+        '<div style="font-weight:600;font-size:13px">'+a.title+'</div>' +
+        '<div style="font-size:11.5px;color:var(--mu);margin-top:2px">'+(a.content||'').substring(0,80)+'</div>' +
+        '<div style="font-size:10.5px;color:var(--mu);margin-top:3px">'+_fmtDate(a.created_at)+'</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    annHtml += '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีประกาศ</p>';
+  }
+  annHtml += '</div></div>';
+
+  // การแจ้งเตือนล่าสุด
+  var statusLbl = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แก้ไขแล้วรอยืนยัน',resolved:'ปิดแล้ว'};
+  var statusBdg = {pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
+  var openViols = (viols||[]).filter(function(v){ return v.status!=='resolved'; });
+  var notifHtml = '<div class="card">' +
+    '<div class="ch"><div class="ch-ico">⚠️</div><div class="ct">การแจ้งเตือน'+(openViols.length?' ('+openViols.length+')':'')+'</div>' +
+      '<button class="btn btn-xs btn-g" onclick="go(\'res\',\'notif\',null)">ดูทั้งหมด</button></div>' +
+    '<div class="cb">';
+  if (openViols.length) {
+    notifHtml += openViols.slice(0,3).map(function(v) {
+      return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--bo);gap:8px">' +
+        '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">⚠️ '+v.title+'</div>' +
+        (v.deadline?'<div style="font-size:11px;color:var(--mu)">⏰ '+v.deadline+'</div>':'') + '</div>' +
+        '<span class="bd '+(statusBdg[v.status]||'b-mu')+'" style="flex-shrink:0">'+(statusLbl[v.status]||v.status)+'</span>' +
+      '</div>';
+    }).join('');
+  } else {
+    notifHtml += '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">✅ ไม่มีการแจ้งเตือน</p>';
+  }
+  notifHtml += '</div></div>';
+
+  // ค่าที่ค้างชำระ
+  var feeHtml = '';
+  if (unpaid && unpaid.length) {
+    var top = unpaid[0];
+    feeHtml = '<div class="card" style="margin-bottom:8px">' +
+      '<div class="ch"><div class="ch-ico">💳</div><div class="ct">ค่าส่วนกลางค้างชำระ</div>' +
+        '<button class="btn btn-xs btn-d" onclick="go(\'res\',\'fee\',null)">ชำระ</button></div>' +
+      '<div class="cb">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div><div style="font-size:11.5px;color:var(--mu)">งวด '+top.period+'/'+top.year+'</div>' +
+          '<div style="font-size:11.5px;color:var(--mu)">รวม '+unpaid.length+' งวด</div></div>' +
+          '<div style="font-size:20px;font-weight:800;color:var(--dg)">฿'+unpaid.reduce(function(s,f){return s+Number(f.total||0);},0).toLocaleString()+'</div>' +
+        '</div>' +
+      '</div></div>';
+  }
+
+  el.innerHTML = feeHtml + annHtml + notifHtml;
+}
+
+async function loadResidentHome() {
+  try {
+    // โหลด house ใหม่ทุกครั้ง (clear cache)
+    APP.house = null;
+    const house = await api('getHouseByUser');
+    if (!house) return;
+    APP.house = house;
+
+    var hno = _safeHouseNo(house.house_no);
+    var villageName = _cfg('village_name', 'The Greenfield');
+    var user = APP.user || {};
+
+    // Update header
+    _setEl('res-welcome', 'สวัสดี ' + (user.display_name || '') + ' 👋');
+    _setEl('res-house-sub', villageName + '  ·  บ้าน ' + hno + (house.soi ? ' ซอย ' + house.soi : ''));
+    document.querySelectorAll('.sb-urole').forEach(function(el) {
+      if (el.textContent.indexOf('บ้าน') === 0) el.textContent = 'บ้าน ' + hno;
+    });
+
+    // โหลดข้อมูลพร้อมกัน
+    const [fees, viols, issues, anns] = await Promise.all([
+      api('getFeesByHouse', { year: new Date().getFullYear() + 543 }),
+      api('getMyViolations'),
+      api('getMyIssues').catch(function(){ return []; }),
+      api('getAnnouncements')
+    ]);
+
+    window._myViolationsCache = viols || [];
+
+    var unpaid  = (fees||[]).filter(function(f){ return f.status==='pending'||f.status==='overdue'; });
+    var totalOwed = unpaid.reduce(function(s,f){ return s+Number(f.total||0); }, 0);
+    var pending = (viols||[]).filter(function(v){ return v.status==='pending'||v.status==='fix_submitted'; });
+    var openIss = (issues||[]).filter(function(i){ return i.status!=='resolved'; });
+
+    // Stats
+    _setEl('res-stat-owed',   totalOwed > 0 ? '฿'+totalOwed.toLocaleString() : '฿0');
+    _setEl('res-stat-issues', openIss.length);
+    _setEl('res-stat-notif',  pending.length);
+    _setEl('badge-notif',     pending.length > 0 ? pending.length : '');
+
+    // Alert
+    var alertEl = document.getElementById('res-dash-alert');
+    if (alertEl) { alertEl.style.display = totalOwed > 0 ? '' : 'none'; _setEl('res-al-amt', '฿'+totalOwed.toLocaleString()); }
+
+    // Render content
+    _renderResDashContent(anns, viols, unpaid);
+    _pageCache['res-dash'] = { ts: Date.now() };
+
+  } catch(e) {
+    console.warn('loadResidentHome:', e);
+    var el = document.getElementById('res-dash-content');
+    if (el) el.innerHTML = '<div class="al al-e">โหลดข้อมูลไม่สำเร็จ: '+e.message+'</div>';
+  }
 }
 // ============================================================
 // ADMIN — DASHBOARD
@@ -3145,66 +3296,6 @@ async function _loadDashIssues(){ /* replaced by _renderDashIssues */ }
 async function _loadDashAnn()   { /* replaced by _renderDashAnn   */ }
 
 
-async function loadResidentHome() {
-  try {
-    if (!APP.user.house_id) return;
-    const house = await api('getHouseByUser');
-    APP.house = house;
-    if (!house) return;
-    // Update resident dashboard info
-    _setEl('res-house-no', '\u0e1a\u0e49\u0e32\u0e19 ' + house.house_no + ' ' + (house.soi || ''));
-    document.querySelectorAll('.sb-urole').forEach(function(el) {
-      el.textContent = '\u0e1a\u0e49\u0e32\u0e19 ' + house.house_no;
-    });
-    // Load fees for overdue amount
-    const fees = await api('getFeesByHouse', { year: new Date().getFullYear() + 543 });
-    const pending = fees.filter(function(f) { return f.status !== 'paid'; });
-    const total   = pending.reduce(function(s, f) { return s + Number(f.total || 0); }, 0);
-    _setEl('res-overdue-amt', '\u0e3f' + total.toLocaleString());
-
-    // Notifications / violations
-    const viols = await api('getMyViolations');
-    const unread = viols.filter(function(v) { return v.status === 'pending'; });
-    _setEl('badge-notif',    unread.length > 0 ? unread.length : '');
-    _setEl('res-stat-notif', unread.length);
-    // Load issue count
-    try {
-      const myIssues = await api('getMyIssues');
-      const open = myIssues.filter(function(i){ return i.status !== 'resolved' && i.status !== 'closed'; });
-      _setEl('res-stat-issues', open.length);
-    } catch(e2) {}
-    // Load dashboard ann for resident
-    try {
-      const dashAnns = await api('getAnnouncements');
-      var dashAnnEl = document.getElementById('res-dash-ann');
-      if (dashAnnEl) {
-        if (!dashAnns.length) {
-          dashAnnEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีประกาศ</p>';
-        } else {
-          dashAnnEl.innerHTML = dashAnns.slice(0,2).map(function(a) {
-            return '<div class="ann"><div class="ann-dot ' + ({urgent:'ad-urg',general:'ad-gen',event:'ad-evt'}[a.category]||'ad-gen') + '"></div>' +
-              '<div><div class="ann-t">' + a.title + '</div>' +
-              '<div class="ann-b">' + (a.content||'').substring(0,80) + '</div>' +
-              '<div class="ann-d">' + _fmtDate(a.created_at) + '</div></div></div>';
-          }).join('');
-        }
-      }
-      var dashNotifEl = document.getElementById('res-dash-notif');
-      if (dashNotifEl) {
-        if (!unread.length) {
-          dashNotifEl.innerHTML = '<p class="text-mu" style="font-size:13px;text-align:center;padding:12px">ไม่มีการแจ้งเตือน</p>';
-        } else {
-          dashNotifEl.innerHTML = unread.slice(0,1).map(function(v) {
-            return '<div class="vio-card"><div class="vio-t">⚠️ ' + v.title + '</div>' +
-              '<div class="vio-d">' + (v.description||'').substring(0,100) + '</div>' +
-              (v.deadline ? '<div class="vio-dl">⏰ กำหนด: ' + v.deadline + '</div>' : '') +
-              '</div>';
-          }).join('');
-        }
-      }
-    } catch(e3) {}
-  } catch(err) { console.warn('Resident home error:', err.message); }
-}
 
 // ============================================================
 // LOAD PAGE DATA  (called by go())
@@ -4210,7 +4301,7 @@ function _renderVioList(elId, viols) {
     el.innerHTML = '<div class="empty-state"><div class="es-ico">✅</div><div class="es-s">ไม่มีรายการ</div></div>';
     return;
   }
-  const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว',escalated:'ส่งต่อ'};
+  const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แก้ไขแล้วรอยืนยัน',resolved:'ปิดแล้ว',escalated:'ส่งต่อ'};
   const statusBadge = {pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu',escalated:'b-dg'};
   el.innerHTML = viols.map(function(v) {
     var imgs=[]; try{imgs=JSON.parse(v.image_urls||'[]');}catch(e){}
@@ -4229,7 +4320,8 @@ function _renderVioList(elId, viols) {
       '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
         '<button class="btn btn-xs btn-p" onclick="openVioDetail(\''+v.vio_id+'\')">🔍 รายละเอียด</button>' +
         '<button class="btn btn-xs btn-o" onclick="openVioEdit(\''+v.vio_id+'\')">✏️ แก้ไข</button>' +
-        (v.status!=='resolved'?'<button class="btn btn-xs btn-a" onclick="doViolationStatus(\''+v.vio_id+'\',\'resolved\')">✓ ปิดเรื่อง</button>':'') +
+        (v.status==='fix_submitted' ? '<button class="btn btn-xs btn-a" onclick="doViolationStatus(\''+v.vio_id+'\',\'resolved\')">✅ ยืนยันแก้ไขแล้ว</button>' :
+          v.status!=='resolved' ? '<button class="btn btn-xs btn-g" onclick="doViolationStatus(\''+v.vio_id+'\',\'resolved\')">✓ ปิดเรื่อง</button>' : '') +
         (Number(v.penalty_amount)===0?'<button class="btn btn-xs btn-d" onclick="openAddPenalty(\''+v.vio_id+'\',\''+v.house_id+'\')">+ ค่าปรับ</button>':'') +
       '</div>' +
     '</div>';
@@ -4282,7 +4374,7 @@ function openVioDetail(vio_id) {
   _setEl('vd-house', 'บ้านเลขที่ '+houseLabel);
   _setEl('vd-type', v.vio_type||'—');
   var sbMap={pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
-  var slMap={pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
+  var slMap={pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แก้ไขแล้วรอยืนยัน',resolved:'ปิดแล้ว'};
   var sdEl=document.getElementById('vd-status');
   if(sdEl) sdEl.innerHTML='<span class="bd '+(sbMap[v.status]||'b-mu')+'">'+(slMap[v.status]||v.status)+'</span>';
   _setEl('vd-deadline', v.deadline||'—');
@@ -4436,7 +4528,7 @@ async function loadResNotifPage() {
   try {
     const viols = await api('getMyViolations');
     window._myViolationsCache = viols || []; // cache สำหรับ openResidentVioAction lookup
-    const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แจ้งแก้ไขแล้ว',resolved:'ปิดแล้ว'};
+    const statusLabel = {pending:'รออนุมัติ',acknowledged:'รับทราบแล้ว',fix_submitted:'แก้ไขแล้วรอยืนยัน',resolved:'ปิดแล้ว'};
     const statusBadge = {pending:'b-wn',acknowledged:'b-pr',fix_submitted:'b-ok',resolved:'b-mu'};
 
     // แยก open (ยังไม่แก้ไข) และ closed (แก้ไขแล้ว/ปิดแล้ว)

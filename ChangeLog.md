@@ -1285,3 +1285,48 @@ const body = { action, token: APP.token, ...payload };
 ### ⚠️ Deploy GAS Code.gs ใหม่ (สำคัญ)
 - `updateRowById` auto-add column จะแก้ปัญหา resident_image_urls ที่ขาดใน header
 - ครั้งแรกที่ resident กด "แจ้งว่าแก้ไขแล้ว" หลัง deploy → GAS จะสร้าง column `resident_image_urls` ใน VIOLATIONS sheet อัตโนมัติ
+
+---
+
+## ✅ Fix — Thumbnail / fix_submitted Status / หน้าแรกลูกบ้าน Redesign
+
+### 1. Thumbnail ไม่แสดง (ทั้งลูกบ้านและนิติ)
+**Root Cause:** `Services.gs` line 368 return URL เป็น `uc?export=view&id=XXX` → Google Drive redirect loop + CORS block → `<img>` ไม่แสดง
+**Fix (Services.gs):** เปลี่ยนเป็น `thumbnail?id=XXX&sz=w400` — direct embed URL ไม่ต้อง auth
+**Fix (CSS):** `.vio-img` เดิมเป็น flex box ไม่ใช่ img style → แก้เป็น `object-fit:cover;display:block`
+
+### 2. Status "แก้ไขแล้วรอยืนยัน" สำหรับทั้งลูกบ้านและนิติ
+- `fix_submitted` label: "แจ้งแก้ไขแล้ว" → "แก้ไขแล้วรอยืนยัน" (ทุก statusLabel map ในไฟล์)
+- Filter card นิติ: "แจ้งแก้ไขแล้ว" → "รอยืนยัน"
+- Admin `_renderVioList`: เมื่อ `status === 'fix_submitted'` → ปุ่ม "✅ ยืนยันแก้ไขแล้ว" (btn-a) แทนปุ่ม "ปิดเรื่อง" ปกติ
+- กด "ยืนยัน" → `doViolationStatus('resolved')` → ปิดเรื่องทันที
+
+### 3. หน้าแรกลูกบ้าน — Coding ใหม่ทั้งหมด
+**HTML `p-res-dash`:**
+- ลบ hardcode "฿2,750" ออก ทั้งหมด dynamic
+- `res-dash-header` — welcome + village name + house no
+- `res-dash-alert` — hidden by default, แสดงเมื่อมีค้างชำระ
+- `res-dash-stats` — 3 cards: ค้างชำระ / แจ้งปัญหา / การแจ้งเตือน
+- Quick links 4 ปุ่ม: ชำระ / แจ้งปัญหา / การแจ้งเตือน / ประกาศ
+- `res-dash-content` — render โดย `_renderResDashContent`
+
+**`renderResidentHomeFromBoot(boot)` ใหม่:**
+- populate header, stats, alert จาก boot data ทันที
+- นับ `fix_submitted` ใน stat การแจ้งเตือนด้วย
+- เรียก `_renderResDashContent(anns, viols, unpaid)` render content cards
+- เก็บ `window._myViolationsCache = viols`
+
+**`_renderResDashContent(anns, viols, unpaid)` ใหม่:**
+- ค่าค้างชำระ card (แสดงเมื่อ unpaid > 0)
+- ประกาศล่าสุด card (max 3 รายการ + ปุ่ม "ดูทั้งหมด")
+- การแจ้งเตือน card (แสดง open viols max 3 + badge count)
+
+**`loadResidentHome()` ใหม่ (ลบ duplicate เก่าออก):**
+- `APP.house = null` clear cache ก่อน
+- `Promise.all([fees, viols, issues, anns])` โหลดพร้อมกัน
+- นับ `fix_submitted` ใน stat การแจ้งเตือน
+- เรียก `_renderResDashContent` render content
+
+### ⚠️ Deploy Services.gs ใหม่
+URL thumbnail เปลี่ยนแล้ว — รูปเก่าที่อยู่ใน Drive จะยังใช้ URL เดิม (`uc?export=view`)
+ต้อง re-upload หรือ update URL ใน Sheet ให้เป็น thumbnail format ใหม่

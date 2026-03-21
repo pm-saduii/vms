@@ -365,7 +365,7 @@ var Upload = (function() {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
     const fileId  = file.getId();
-    const url     = 'https://drive.google.com/uc?export=view&id=' + fileId;
+    const url     = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w400';
     return { url, file_id: fileId };
   }
   return { base64 };
